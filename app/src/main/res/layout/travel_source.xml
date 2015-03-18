@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/travel_way_one"
+        style="@style/destination_block_style"
+        android:background="@drawable/red"
+        android:text="@string/bus" />
+
+    <TextView
+        android:id="@+id/travel_way_two"
+        style="@style/destination_block_style"
+        android:background="@drawable/orange"
+        android:text="@string/car" />
+
+    <TextView
+        android:id="@+id/start_transmitting"
+        style="@style/destination_block_style"
+        android:background="@drawable/teal"
+        android:text="@string/start" />
+
+</LinearLayout>
