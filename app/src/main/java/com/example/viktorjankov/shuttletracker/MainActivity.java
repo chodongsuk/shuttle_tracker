@@ -17,7 +17,7 @@ public class MainActivity extends FragmentActivity {
 
         if (fragment == null)
         {
-            fragment = new StartScreenFragment();
+            fragment = new PickupLocationFragment();
             manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
         }
     }

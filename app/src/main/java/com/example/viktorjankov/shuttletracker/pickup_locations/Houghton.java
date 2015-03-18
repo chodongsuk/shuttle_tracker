@@ -1,13 +1,18 @@
 package com.example.viktorjankov.shuttletracker.pickup_locations;
 
-public class Houghton implements PickUpDestination {
+import com.google.android.gms.maps.model.LatLng;
+
+public class Houghton implements PickupLocation {
     private double mLatitude;
     private double mLongitude;
+    private LatLng mLocation;
 
     public Houghton(double lat, double lon)
     {
         mLatitude = lat;
         mLongitude = lon;
+        mLocation = new LatLng(mLatitude, mLongitude);
+
     }
 
     public double getLatitude() {
