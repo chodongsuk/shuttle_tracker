@@ -32,6 +32,10 @@ public class MapViewFragment extends Fragment
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     public static final String kLOG_TAG = "MapViewFragment";
+    public static final int HUE_PURPLE = 282;
+    public static final int HUE_INDIGO = 232;
+    public static final int HUE_BLUE   = 210;
+
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
 
@@ -75,12 +79,12 @@ public class MapViewFragment extends Fragment
         map.addMarker(new MarkerOptions()
                 .position(mSouthKirkland.getLatLong())
                 .title("S Kirkland")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
         map.addMarker(new MarkerOptions()
                 .position(mBellevue.getLatLong())
                 .title("Bellevue")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
 
         return v;
     }
@@ -137,7 +141,7 @@ public class MapViewFragment extends Fragment
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
                 new LatLng(mLastLocation.getLatitude(),
-                        mLastLocation.getLongitude()), 10);
+                        mLastLocation.getLongitude()), 11);
         map.animateCamera(cameraUpdate);
 
 
@@ -159,12 +163,12 @@ public class MapViewFragment extends Fragment
 
     public void setDestination(PickupLocation destination) {
         if (destination instanceof Houghton) {
-            mCurrentLocationMarkerColor = 0.0f;
+            mCurrentLocationMarkerColor = BitmapDescriptorFactory.HUE_RED;
 
         } else if (destination instanceof SouthKirkland) {
-            mCurrentLocationMarkerColor = 60.0f;
+            mCurrentLocationMarkerColor = BitmapDescriptorFactory.HUE_GREEN;
         } else {
-            mCurrentLocationMarkerColor = 120.0f;
+            mCurrentLocationMarkerColor = BitmapDescriptorFactory.HUE_YELLOW;
         }
 
     }

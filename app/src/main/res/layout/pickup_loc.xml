@@ -9,19 +9,19 @@
     <TextView
         android:id="@+id/dest_one"
         style="@style/destination_block_style"
-        android:background="@drawable/red"
+        android:background="@drawable/purple"
         android:text="@string/houghton_park_n_ride" />
 
     <TextView
         android:id="@+id/dest_two"
         style="@style/destination_block_style"
-        android:background="@drawable/yellow"
+        android:background="@drawable/indigo"
         android:text="@string/south_kirkland_park_n_ride" />
 
     <TextView
         android:id="@+id/dest_three"
         style="@style/destination_block_style"
-        android:background="@drawable/green"
+        android:background="@drawable/blue"
         android:text="@string/bellevue_tc" />
 
 </LinearLayout>

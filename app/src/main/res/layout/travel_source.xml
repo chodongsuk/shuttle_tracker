@@ -4,21 +4,17 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:contentDescription="Bus"
         android:id="@+id/travel_way_one"
         style="@style/destination_block_style"
-        android:background="@drawable/red"
+        android:background="@drawable/green"
         android:text="@string/bus" />
 
     <TextView
         android:id="@+id/travel_way_two"
         style="@style/destination_block_style"
-        android:background="@drawable/pink"
+        android:background="@drawable/light_green"
         android:text="@string/car" />
 
-    <TextView
-        android:id="@+id/start_map"
-        style="@style/destination_block_style"
-        android:background="@drawable/purple"
-        android:text="@string/start" />
 
 </LinearLayout>
