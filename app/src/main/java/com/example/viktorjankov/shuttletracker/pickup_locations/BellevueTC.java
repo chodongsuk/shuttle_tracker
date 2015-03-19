@@ -3,6 +3,7 @@ package com.example.viktorjankov.shuttletracker.pickup_locations;
 import com.google.android.gms.maps.model.LatLng;
 
 public class BellevueTC implements PickupLocation {
+    public static final String kLOG_TAG = BellevueTC.class.getSimpleName();
     private double mLatitude;
     private double mLongitude;
     private LatLng mLocation;
