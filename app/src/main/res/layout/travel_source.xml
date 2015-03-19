@@ -12,13 +12,13 @@
     <TextView
         android:id="@+id/travel_way_two"
         style="@style/destination_block_style"
-        android:background="@drawable/orange"
+        android:background="@drawable/pink"
         android:text="@string/car" />
 
     <TextView
-        android:id="@+id/start_transmitting"
+        android:id="@+id/start_map"
         style="@style/destination_block_style"
-        android:background="@drawable/teal"
+        android:background="@drawable/purple"
         android:text="@string/start" />
 
 </LinearLayout>

@@ -46,4 +46,7 @@
     <color name="green">#99CC00</color>
     <color name="light_green">#C8E6C9</color>
 
+    <color name="yellow">#FFEB3B</color>
+    <color name="light_yellow">#FFF9C4</color>
+
 </resources>

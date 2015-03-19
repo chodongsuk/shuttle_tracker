@@ -15,13 +15,13 @@
     <TextView
         android:id="@+id/dest_two"
         style="@style/destination_block_style"
-        android:background="@drawable/pink"
+        android:background="@drawable/yellow"
         android:text="@string/south_kirkland_park_n_ride" />
 
     <TextView
         android:id="@+id/dest_three"
         style="@style/destination_block_style"
-        android:background="@drawable/purple"
+        android:background="@drawable/green"
         android:text="@string/bellevue_tc" />
 
 </LinearLayout>

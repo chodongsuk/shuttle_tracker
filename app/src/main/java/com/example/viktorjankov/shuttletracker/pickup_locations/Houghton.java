@@ -31,4 +31,9 @@ public class Houghton implements PickupLocation {
     public void setLongitude(long mLongitude) {
         this.mLongitude = mLongitude;
     }
+
+    @Override
+    public LatLng getLatLong() {
+       return new LatLng(mLatitude, mLongitude);
+    }
 }

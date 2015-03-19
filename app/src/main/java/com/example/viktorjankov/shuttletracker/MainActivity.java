@@ -4,33 +4,80 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.example.viktorjankov.shuttletracker.Events.PickupLocationEvent;
+import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
+import com.example.viktorjankov.shuttletracker.events.TravelSourceEvent;
+import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
+import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
+import com.example.viktorjankov.shuttletracker.fragments.TravelSourceFragment;
+import com.example.viktorjankov.shuttletracker.pickup_locations.BellevueTC;
+import com.example.viktorjankov.shuttletracker.pickup_locations.Houghton;
+import com.example.viktorjankov.shuttletracker.pickup_locations.PickupLocation;
+import com.example.viktorjankov.shuttletracker.pickup_locations.SouthKirkland;
+import com.example.viktorjankov.shuttletracker.travel_sources.TravelSource;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 public class MainActivity extends FragmentActivity {
 
+    FragmentManager manager;
+
     Bus bus = BusProvider.getInstance();
+    PickupLocation mPickupLocation;
+    TravelSource mTravelSource;
+
+    Houghton mHoughton;
+    SouthKirkland mSouthKirkland;
+    BellevueTC mBellevue;
+
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FragmentManager manager = getSupportFragmentManager();
+        manager = getSupportFragmentManager();
         Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
 
-        if (fragment == null)
-        {
+        if (fragment == null) {
             fragment = new PickupLocationFragment();
             manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
         }
     }
 
     @Subscribe
-    public void handlePickupLocationEvent(PickupLocationEvent e)
-    {
-        Toast.makeText(this, e.getPickupLocation().getClass().getSimpleName(), Toast.LENGTH_SHORT).show();
+    public void handlePickupLocationEvent(PickupLocationEvent e) {
+        mPickupLocation = e.getPickupLocation();
+        TravelSourceFragment travelSourceFragment = new TravelSourceFragment();
+
+        manager.beginTransaction()
+                .replace(R.id.fragmentContainer, travelSourceFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Subscribe
+    public void handleTravelSourceEvent(TravelSourceEvent e) {
+        mTravelSource = e.getTravelSource();
+        MapViewFragment mapViewFragment = new MapViewFragment();
+
+        mHoughton = new Houghton(47.66785, -122.18536);
+        mSouthKirkland = new SouthKirkland(47.64407, -122.19593);
+        mBellevue = new BellevueTC(47.61550, -122.19500);
+
+        mapViewFragment.setHoughton(mHoughton);
+        mapViewFragment.setSKirkland(mSouthKirkland);
+        mapViewFragment.setBellevue(mBellevue);
+
+        mapViewFragment.setDestination(mPickupLocation);
+
+        manager.beginTransaction()
+                .replace(R.id.fragmentContainer, mapViewFragment)
+                .addToBackStack(null)
+                .commit();
+
+
     }
 
     @Override
