@@ -66,10 +66,6 @@ public class MainActivity extends FragmentActivity {
         mSouthKirkland = new SouthKirkland(47.64407, -122.19593);
         mBellevue = new BellevueTC(47.61550, -122.19500);
 
-        mapViewFragment.setHoughton(mHoughton);
-        mapViewFragment.setSKirkland(mSouthKirkland);
-        mapViewFragment.setBellevue(mBellevue);
-
         mapViewFragment.setDestination(mPickupLocation);
 
         manager.beginTransaction()

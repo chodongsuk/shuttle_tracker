@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <TextView
-        android:contentDescription="Bus"
+    <ImageButton
         android:id="@+id/travel_way_one"
         style="@style/destination_block_style"
         android:background="@drawable/green"
-        android:text="@string/bus" />
+        android:contentDescription="@string/bus"
+        android:src="@drawable/ic_directions_bus_black_24dp" />
 
-    <TextView
+    <ImageButton
         android:id="@+id/travel_way_two"
         style="@style/destination_block_style"
         android:background="@drawable/light_green"
-        android:text="@string/car" />
+        android:contentDescription="@string/car"
+        android:src="@drawable/ic_directions_car_black_24dp" />
 
+
+    <ImageButton
+        android:id="@+id/travel_way_three"
+        style="@style/destination_block_style"
+        android:background="@drawable/lime"
+        android:contentDescription="@string/bus"
+        android:src="@drawable/ic_directions_bike_black_24dp" />
 
 </LinearLayout>

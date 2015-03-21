@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.example.viktorjankov.shuttletracker.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
+import com.example.viktorjankov.shuttletracker.pickup_locations.BellevueTC;
 import com.example.viktorjankov.shuttletracker.pickup_locations.Houghton;
 import com.example.viktorjankov.shuttletracker.pickup_locations.PickupLocation;
 import com.example.viktorjankov.shuttletracker.pickup_locations.SouthKirkland;
@@ -32,9 +33,11 @@ public class MapViewFragment extends Fragment
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     public static final String kLOG_TAG = "MapViewFragment";
+    private static final String kMARKER_HUE = "marker_hue";
+
     public static final int HUE_PURPLE = 282;
     public static final int HUE_INDIGO = 232;
-    public static final int HUE_BLUE   = 210;
+    public static final int HUE_BLUE = 210;
 
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
@@ -47,9 +50,9 @@ public class MapViewFragment extends Fragment
 
     Bus bus = BusProvider.getInstance();
 
-    PickupLocation mHougton;
-    PickupLocation mSouthKirkland;
-    PickupLocation mBellevue;
+    PickupLocation mHougton = new Houghton(47.66785, -122.18536);
+    PickupLocation mSouthKirkland = new SouthKirkland(47.64407, -122.19593);
+    PickupLocation mBellevue = new BellevueTC(47.61550, -122.19500);
 
     float mCurrentLocationMarkerColor;
 
@@ -57,6 +60,7 @@ public class MapViewFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_view, container, false);
+        setRetainInstance(true);
 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -161,6 +165,12 @@ public class MapViewFragment extends Fragment
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putFloat(kMARKER_HUE, mCurrentLocationMarkerColor);
+        super.onSaveInstanceState(outState);
+    }
+
     public void setDestination(PickupLocation destination) {
         if (destination instanceof Houghton) {
             mCurrentLocationMarkerColor = BitmapDescriptorFactory.HUE_RED;
@@ -170,7 +180,6 @@ public class MapViewFragment extends Fragment
         } else {
             mCurrentLocationMarkerColor = BitmapDescriptorFactory.HUE_YELLOW;
         }
-
     }
 
     @Override
@@ -178,15 +187,4 @@ public class MapViewFragment extends Fragment
         mCurrentLocation = location;
     }
 
-    public void setHoughton(PickupLocation houghton) {
-        mHougton = houghton;
-    }
-
-    public void setSKirkland(PickupLocation sKirkland) {
-        mSouthKirkland = sKirkland;
-    }
-
-    public void setBellevue(PickupLocation bellevue) {
-        mBellevue = bellevue;
-    }
 }

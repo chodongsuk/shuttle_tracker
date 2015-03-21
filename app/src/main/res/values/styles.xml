@@ -53,4 +53,7 @@
     <color name="yellow">#FFEB3B</color>
     <color name="light_yellow">#FFF9C4</color>
 
+    <color name="lime">#AFB42B</color>
+    <color name="light_lime">#DCE775</color>
+
 </resources>

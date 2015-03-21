@@ -7,11 +7,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.TravelSourceEvent;
+import com.example.viktorjankov.shuttletracker.travel_sources.Bike;
 import com.example.viktorjankov.shuttletracker.travel_sources.Bussing;
 import com.example.viktorjankov.shuttletracker.travel_sources.Car;
 import com.example.viktorjankov.shuttletracker.travel_sources.TravelSource;
@@ -20,11 +22,14 @@ import com.squareup.otto.Bus;
 
 public class TravelSourceFragment extends Fragment {
     public static final String kLOG_TAG = "TravelSourceFragment";
-    TextView mCarTextView;
+    ImageButton mCarTextView;
     TravelSource mCar;
 
-    TextView mBusTextView;
+    ImageButton mBusTextView;
     TravelSource mBussing;
+
+    ImageButton mBikeTextView;
+    TravelSource mBike;
 
     Bus bus = BusProvider.getInstance();
 
@@ -33,12 +38,16 @@ public class TravelSourceFragment extends Fragment {
         View v = inflater.inflate(R.layout.travel_source, container, false);
 
         mCar = new Car();
-        mCarTextView = (TextView) v.findViewById(R.id.travel_way_two);
+        mCarTextView = (ImageButton) v.findViewById(R.id.travel_way_two);
         mCarTextView.setOnClickListener(onClickListener);
 
         mBussing = new Bussing();
-        mBusTextView = (TextView) v.findViewById(R.id.travel_way_one);
+        mBusTextView = (ImageButton) v.findViewById(R.id.travel_way_one);
         mBusTextView.setOnClickListener(onClickListener);
+
+        mBike = new Bike();
+        mBikeTextView = (ImageButton) v.findViewById(R.id.travel_way_three);
+        mBikeTextView.setOnClickListener(onClickListener);
 
 
         return v;
@@ -54,6 +63,9 @@ public class TravelSourceFragment extends Fragment {
                     break;
                 case R.id.travel_way_two:
                     travelSource = mBussing;
+                    break;
+                case R.id.travel_way_three:
+                    travelSource = mBike;
                     break;
             }
             bus.post(new TravelSourceEvent(travelSource));

@@ -8,6 +8,7 @@
     <string name="bellevue_tc">Bellevue Transit Center</string>
     <string name="bus">Bus</string>
     <string name="car">Car</string>
+    <string name="bike">Bike</string>
     <string name="start">Start</string>
     <string name="title_activity_main">MainActivity</string>
 </resources>
