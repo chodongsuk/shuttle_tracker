@@ -3,7 +3,7 @@ package com.example.viktorjankov.shuttletracker.pickup_locations;
 import com.google.android.gms.maps.model.LatLng;
 
 public class SouthKirkland implements PickupLocation {
-    public static final String kLOG_TAG = SouthKirkland.class.getSimpleName();
+    public static final String locationName = "South Kirkland";
     private double mLatitude;
     private double mLongitude;
     private LatLng mLocation;
@@ -32,6 +32,11 @@ public class SouthKirkland implements PickupLocation {
     }
     @Override
     public LatLng getLatLong() {
-        return new LatLng(mLatitude, mLongitude);
+        return mLocation;
+    }
+
+    @Override
+    public String getLocationName() {
+        return locationName;
     }
 }

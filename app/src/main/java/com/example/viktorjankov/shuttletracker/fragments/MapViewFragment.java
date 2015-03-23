@@ -4,17 +4,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.viktorjankov.shuttletracker.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
-import com.example.viktorjankov.shuttletracker.pickup_locations.BellevueTC;
-import com.example.viktorjankov.shuttletracker.pickup_locations.Houghton;
 import com.example.viktorjankov.shuttletracker.pickup_locations.PickupLocation;
-import com.example.viktorjankov.shuttletracker.pickup_locations.SouthKirkland;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -45,11 +41,8 @@ public class MapViewFragment extends Fragment
     MapView mapView;
     GoogleMap map;
 
+    PickupLocation mPickupLocation;
     Bus bus = BusProvider.getInstance();
-
-    PickupLocation mHougton = new Houghton(47.66785, -122.18536);
-    PickupLocation mSouthKirkland = new SouthKirkland(47.64407, -122.19593);
-    PickupLocation mBellevue = new BellevueTC(47.61550, -122.19500);
 
     float mCurrentLocationMarkerColor;
 
@@ -73,19 +66,9 @@ public class MapViewFragment extends Fragment
 
         MapsInitializer.initialize(this.getActivity());
         map.addMarker(new MarkerOptions()
-                .position(mHougton.getLatLong())
-                .title("Houghton")
+                .position(mPickupLocation.getLatLong())
+                .title(mPickupLocation.getLocationName())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-
-        map.addMarker(new MarkerOptions()
-                .position(mSouthKirkland.getLatLong())
-                .title("S Kirkland")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-
-        map.addMarker(new MarkerOptions()
-                .position(mBellevue.getLatLong())
-                .title("Bellevue")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
 
         return v;
     }
@@ -140,16 +123,14 @@ public class MapViewFragment extends Fragment
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         startLocationUpdates();
 
-        Log.i(kLOG_TAG, "Location is null? " + (mLastLocation));
-
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                new LatLng(47.6259100,
-                        -122.3258150), 11);
+                new LatLng(mLastLocation.getLatitude(),
+                        mLastLocation.getLongitude()), 15);
         map.moveCamera(cameraUpdate);
 
 
         map.addMarker(new MarkerOptions()
-                .position(new LatLng(47.6259100, -122.3258150))
+                .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()))
                 .title("Current Location")
                 .icon(BitmapDescriptorFactory.defaultMarker(mCurrentLocationMarkerColor)));
     }
@@ -164,15 +145,8 @@ public class MapViewFragment extends Fragment
 
     }
 
-    public void setDestination(PickupLocation destination) {
-        if (destination instanceof Houghton) {
-            mCurrentLocationMarkerColor = BitmapDescriptorFactory.HUE_RED;
-
-        } else if (destination instanceof SouthKirkland) {
-            mCurrentLocationMarkerColor = BitmapDescriptorFactory.HUE_GREEN;
-        } else {
-            mCurrentLocationMarkerColor = BitmapDescriptorFactory.HUE_YELLOW;
-        }
+    public void setPickupLocation(PickupLocation pickupLocation) {
+        mPickupLocation = pickupLocation;
     }
 
     @Override

@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelSourceEvent;
@@ -62,11 +61,7 @@ public class MainActivity extends FragmentActivity {
         mTravelSource = e.getTravelSource();
         MapViewFragment mapViewFragment = new MapViewFragment();
 
-        mHoughton = new Houghton(47.66785, -122.18536);
-        mSouthKirkland = new SouthKirkland(47.64407, -122.19593);
-        mBellevue = new BellevueTC(47.61550, -122.19500);
-
-        mapViewFragment.setDestination(mPickupLocation);
+        mapViewFragment.setPickupLocation(mPickupLocation);
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, mapViewFragment)
