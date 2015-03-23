@@ -4,6 +4,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +35,6 @@ public class MapViewFragment extends Fragment
 
     public static final String kLOG_TAG = "MapViewFragment";
     private static final String kMARKER_HUE = "marker_hue";
-
-    public static final int HUE_PURPLE = 282;
-    public static final int HUE_INDIGO = 232;
-    public static final int HUE_BLUE = 210;
 
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
@@ -143,14 +140,16 @@ public class MapViewFragment extends Fragment
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         startLocationUpdates();
 
+        Log.i(kLOG_TAG, "Location is null? " + (mLastLocation));
+
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                new LatLng(mLastLocation.getLatitude(),
-                        mLastLocation.getLongitude()), 11);
-        map.animateCamera(cameraUpdate);
+                new LatLng(47.6259100,
+                        -122.3258150), 11);
+        map.moveCamera(cameraUpdate);
 
 
         map.addMarker(new MarkerOptions()
-                .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()))
+                .position(new LatLng(47.6259100, -122.3258150))
                 .title("Current Location")
                 .icon(BitmapDescriptorFactory.defaultMarker(mCurrentLocationMarkerColor)));
     }
@@ -163,12 +162,6 @@ public class MapViewFragment extends Fragment
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putFloat(kMARKER_HUE, mCurrentLocationMarkerColor);
-        super.onSaveInstanceState(outState);
     }
 
     public void setDestination(PickupLocation destination) {

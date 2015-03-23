@@ -11,4 +11,7 @@
     <string name="bike">Bike</string>
     <string name="start">Start</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="startstop">Start-Stop</string>
+    <string name="time">Time to destination</string>
+    <string name="time_to_dest_placeholder">30min</string>
 </resources>
