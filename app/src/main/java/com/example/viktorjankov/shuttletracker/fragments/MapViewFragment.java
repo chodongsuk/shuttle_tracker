@@ -1,8 +1,10 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
+import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,12 +51,15 @@ public class MapViewFragment extends Fragment {
 
     MapView mapView;
     TextView tvTimeToDestination;
+    ImageButton mRecordButton;
 
     GoogleMap map;
 
     DestinationLocation mDestination;
     Location mOrigin;
     TravelMode mTravelMode;
+
+    private boolean recordState;
 
 
     Bus bus = BusProvider.getInstance();
@@ -67,8 +73,27 @@ public class MapViewFragment extends Fragment {
         setRetainInstance(true);
 
         mapView = (MapView) v.findViewById(R.id.mapview);
-        tvTimeToDestination = (TextView) v.findViewById(R.id.timeToDestination);
+        mRecordButton = (ImageButton) v.findViewById(R.id.record_button);
+        recordState = false;
+        mRecordButton.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+            @Override
+            public void onClick(View v) {
+                if (recordState) {
+                    mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_18dp);
+                    mRecordButton.setBackgroundColor(getResources().getColor(R.color.teal));
+                    mRecordButton.setBackground(getResources().getDrawable(R.drawable.circle));
+                    recordState = false;
+                } else {
+                    mRecordButton.setImageResource(R.drawable.ic_pause_white_18dp);
+                    mRecordButton.setBackground(getResources().getDrawable(R.drawable.circle));
+                    mRecordButton.setBackgroundColor(getResources().getColor(R.color.pink));
+                    recordState = true;
+                }
+            }
+        });
 
+        tvTimeToDestination = (TextView) v.findViewById(R.id.timeToDestination);
 
         mapView.onCreate(savedInstanceState);
 
