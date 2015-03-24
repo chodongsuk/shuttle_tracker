@@ -12,7 +12,7 @@ import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.pickup_locations.BellevueTC;
 import com.example.viktorjankov.shuttletracker.pickup_locations.Houghton;
-import com.example.viktorjankov.shuttletracker.pickup_locations.PickupLocation;
+import com.example.viktorjankov.shuttletracker.pickup_locations.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.pickup_locations.SouthKirkland;
 import com.squareup.otto.Bus;
 
@@ -55,24 +55,24 @@ public class PickupLocationFragment extends Fragment {
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
-        PickupLocation pickupLocation = null;
+        DestinationLocation destinationLocation = null;
 
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.dest_one:
-                    pickupLocation = mHoughton;
+                    destinationLocation = mHoughton;
                     break;
                 case R.id.dest_two:
-                    pickupLocation = mSouthKirkland;
+                    destinationLocation = mSouthKirkland;
                     break;
                 case R.id.dest_three:
-                    pickupLocation = mBellevue;
+                    destinationLocation = mBellevue;
                     break;
                 default:
             }
 
-            bus.post(new PickupLocationEvent(pickupLocation));
+            bus.post(new PickupLocationEvent(destinationLocation));
         }
     };
 

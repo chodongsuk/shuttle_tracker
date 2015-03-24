@@ -1,19 +1,19 @@
 package com.example.viktorjankov.shuttletracker.events;
 
-import com.example.viktorjankov.shuttletracker.pickup_locations.PickupLocation;
+import com.example.viktorjankov.shuttletracker.pickup_locations.DestinationLocation;
 
 public class PickupLocationEvent {
-    PickupLocation mPickupLocation;
+    DestinationLocation mDestinationLocation;
 
-    public PickupLocationEvent(PickupLocation mPickupLocation) {
-        this.mPickupLocation = mPickupLocation;
+    public PickupLocationEvent(DestinationLocation mDestinationLocation) {
+        this.mDestinationLocation = mDestinationLocation;
     }
 
-    public PickupLocation getPickupLocation() {
-        return mPickupLocation;
+    public DestinationLocation getPickupLocation() {
+        return mDestinationLocation;
     }
 
-    public void setPickupLocation(PickupLocation mPickupLocation) {
-        this.mPickupLocation = mPickupLocation;
+    public void setPickupLocation(DestinationLocation mDestinationLocation) {
+        this.mDestinationLocation = mDestinationLocation;
     }
 }

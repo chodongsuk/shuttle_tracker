@@ -2,7 +2,7 @@ package com.example.viktorjankov.shuttletracker.pickup_locations;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class SouthKirkland implements PickupLocation {
+public class SouthKirkland implements DestinationLocation {
     public static final String locationName = "South Kirkland";
     private double mLatitude;
     private double mLongitude;

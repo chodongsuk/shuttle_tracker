@@ -14,4 +14,5 @@
     <string name="startstop">Start-Stop</string>
     <string name="time">Time to destination</string>
     <string name="time_to_dest_placeholder">30min</string>
+    <string name="play_stop">Play-Stop</string>
 </resources>
