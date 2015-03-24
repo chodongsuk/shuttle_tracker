@@ -1,22 +1,22 @@
 package com.example.viktorjankov.shuttletracker.events;
 
 
-import com.example.viktorjankov.shuttletracker.travel_sources.TravelSource;
+import com.example.viktorjankov.shuttletracker.travel_mode.TravelMode;
 
 public class TravelSourceEvent {
 
 
-    private TravelSource mTravelSource;
+    private TravelMode mTravelMode;
 
-    public TravelSourceEvent(TravelSource travelSource) {
-        mTravelSource = travelSource;
+    public TravelSourceEvent(TravelMode travelMode) {
+        mTravelMode = travelMode;
     }
 
-    public TravelSource getTravelSource() {
-        return mTravelSource;
+    public TravelMode getTravelSource() {
+        return mTravelMode;
     }
 
-    public void setTravelSource(TravelSource mTravelSource) {
-        this.mTravelSource = mTravelSource;
+    public void setTravelSource(TravelMode mTravelMode) {
+        this.mTravelMode = mTravelMode;
     }
 }

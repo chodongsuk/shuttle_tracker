@@ -33,7 +33,7 @@ public class PickupLocationFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.pickup_loc, container, false);
+        View v = inflater.inflate(R.layout.pickup_location, container, false);
         initTextViewsAndPickupLocations(v);
 
         return v;

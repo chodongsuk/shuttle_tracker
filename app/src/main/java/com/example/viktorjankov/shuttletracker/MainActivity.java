@@ -10,9 +10,9 @@ import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelSourceEvent;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
 import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
-import com.example.viktorjankov.shuttletracker.fragments.TravelSourceFragment;
+import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
 import com.example.viktorjankov.shuttletracker.pickup_locations.DestinationLocation;
-import com.example.viktorjankov.shuttletracker.travel_sources.TravelSource;
+import com.example.viktorjankov.shuttletracker.travel_mode.TravelMode;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -28,7 +28,7 @@ public class MainActivity extends FragmentActivity
 
     Bus bus = BusProvider.getInstance();
     DestinationLocation mDestinationLocation;
-    TravelSource mTravelSource;
+    TravelMode mTravelMode;
 
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
@@ -56,21 +56,22 @@ public class MainActivity extends FragmentActivity
     @Subscribe
     public void handlePickupLocationEvent(PickupLocationEvent e) {
         mDestinationLocation = e.getPickupLocation();
-        TravelSourceFragment travelSourceFragment = new TravelSourceFragment();
+        TravelModeFragment travelModeFragment = new TravelModeFragment();
 
         manager.beginTransaction()
-                .replace(R.id.fragmentContainer, travelSourceFragment)
+                .replace(R.id.fragmentContainer, travelModeFragment)
                 .addToBackStack(null)
                 .commit();
     }
 
     @Subscribe
     public void handleTravelSourceEvent(TravelSourceEvent e) {
-        mTravelSource = e.getTravelSource();
+        mTravelMode = e.getTravelSource();
         MapViewFragment mapViewFragment = new MapViewFragment();
 
         mapViewFragment.setDestination(mDestinationLocation);
         mapViewFragment.setOriginLocation(mLastLocation);
+        mapViewFragment.setTravelMode(mTravelMode);
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, mapViewFragment)
