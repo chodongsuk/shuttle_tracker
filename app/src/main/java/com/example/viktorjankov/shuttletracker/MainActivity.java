@@ -33,7 +33,6 @@ public class MainActivity extends FragmentActivity
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
 
-    Location mLastLocation;
     Location mCurrentLocation;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +69,7 @@ public class MainActivity extends FragmentActivity
         MapViewFragment mapViewFragment = new MapViewFragment();
 
         mapViewFragment.setDestination(mDestinationLocation);
-        mapViewFragment.setOriginLocation(mLastLocation);
+        mapViewFragment.setOriginLocation(mCurrentLocation);
         mapViewFragment.setTravelMode(mTravelMode);
 
         manager.beginTransaction()
@@ -113,7 +112,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onConnected(Bundle bundle) {
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         startLocationUpdates();
     }
 
