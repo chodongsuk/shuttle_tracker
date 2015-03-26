@@ -19,8 +19,9 @@ import android.widget.Toast;
 import com.example.viktorjankov.shuttletracker.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.directions.DirectionsJSONParser;
-import com.example.viktorjankov.shuttletracker.pickup_locations.DestinationLocation;
-import com.example.viktorjankov.shuttletracker.travel_mode.TravelMode;
+import com.example.viktorjankov.shuttletracker.directions.ParserTask;
+import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
+import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,15 +45,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+
 public class MapViewFragment extends Fragment {
 
-    public static final String kLOG_TAG = "MapViewFragment";
-    private static final String kMARKER_HUE = "marker_hue";
+    @InjectView(R.id.header) TextView destination;
+    @InjectView(R.id.timeToDestination) TextView timeToDestination;
+    @InjectView(R.id.record_button) ImageButton mRecordButton;
 
-    MapView mapView;
-    TextView tvTimeToDestination;
-    ImageButton mRecordButton;
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    @OnClick(R.id.record_button)
+    public void onClick() {
+        if (recordState) {
+            mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_18dp);
+            mRecordButton.setBackground(getResources().getDrawable(R.drawable.green_play));
+            recordState = false;
+        } else {
+            mRecordButton.setImageResource(R.drawable.ic_pause_white_18dp);
+            mRecordButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
+            recordState = true;
+        }
+    }
 
+    @InjectView(R.id.mapview) MapView mapView;
     GoogleMap map;
 
     DestinationLocation mDestination;
@@ -61,66 +78,41 @@ public class MapViewFragment extends Fragment {
 
     private boolean recordState;
 
-
     Bus bus = BusProvider.getInstance();
-
-    float mCurrentLocationMarkerColor;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_view, container, false);
+        ButterKnife.inject(this, v);
+        MapsInitializer.initialize(this.getActivity());
+
         setRetainInstance(true);
-
-        mapView = (MapView) v.findViewById(R.id.mapview);
-        mRecordButton = (ImageButton) v.findViewById(R.id.record_button);
         recordState = false;
-        mRecordButton.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-            @Override
-            public void onClick(View v) {
-                if (recordState) {
-                    mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_18dp);
-                    mRecordButton.setBackgroundColor(getResources().getColor(R.color.teal));
-                    mRecordButton.setBackground(getResources().getDrawable(R.drawable.circle));
-                    recordState = false;
-                } else {
-                    mRecordButton.setImageResource(R.drawable.ic_pause_white_18dp);
-                    mRecordButton.setBackground(getResources().getDrawable(R.drawable.circle));
-                    mRecordButton.setBackgroundColor(getResources().getColor(R.color.pink));
-                    recordState = true;
-                }
-            }
-        });
-
-        tvTimeToDestination = (TextView) v.findViewById(R.id.timeToDestination);
+        destination.setText(mDestination.getDestinationName());
 
         mapView.onCreate(savedInstanceState);
-
         map = mapView.getMap();
-
         map.getUiSettings().setMyLocationButtonEnabled(false);
         map.setMyLocationEnabled(true);
 
-        MapsInitializer.initialize(this.getActivity());
         map.addMarker(new MarkerOptions()
-                .position(mDestination.getLatLong())
-                .title(mDestination.getLocationName())
+                .position(mDestination.getDestination())
+                .title(mDestination.getDestinationName())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
                 new LatLng(mOrigin.getLatitude(),
-                        mOrigin.getLongitude()), 15);
+                        mOrigin.getLongitude()), 10);
         map.moveCamera(cameraUpdate);
 
 
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(mOrigin.getLatitude(), mOrigin.getLongitude()))
                 .title("Current Location")
-                .icon(BitmapDescriptorFactory.defaultMarker(mCurrentLocationMarkerColor)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
         LatLng origin = new LatLng(mOrigin.getLatitude(), mOrigin.getLongitude());
-        LatLng dest = mDestination.getLatLong();
+        LatLng dest = mDestination.getDestination();
 
         // Getting URL to the Google Directions API
         String url = getDirectionsUrl(origin, dest, mTravelMode);
@@ -129,8 +121,6 @@ public class MapViewFragment extends Fragment {
 
 //        Start downloading json data from Google Directions API
         downloadTask.execute(url);
-
-
 
         return v;
     }
@@ -165,7 +155,6 @@ public class MapViewFragment extends Fragment {
             br.close();
 
         }catch(Exception e){
-            Log.d(kLOG_TAG, e.toString());
         }finally{
             iStream.close();
             urlConnection.disconnect();
@@ -198,89 +187,12 @@ public class MapViewFragment extends Fragment {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            ParserTask parserTask = new ParserTask();
+            ParserTask parserTask = new ParserTask(map, timeToDestination);
 
             // Invokes the thread for parsing the JSON data
             parserTask.execute(result);
         }
     }
-
-    /** A class to parse the Google Places in JSON format */
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> >{
-
-        // Parsing the data in non-ui thread
-        @Override
-        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
-
-            JSONObject jObject;
-            List<List<HashMap<String, String>>> routes = null;
-
-            try{
-                jObject = new JSONObject(jsonData[0]);
-                DirectionsJSONParser parser = new DirectionsJSONParser();
-
-                // Starts parsing data
-                routes = parser.parse(jObject);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            return routes;
-        }
-
-        // Executes in UI thread, after the parsing process
-        @Override
-        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-            ArrayList<LatLng> points = null;
-            PolylineOptions lineOptions = null;
-            MarkerOptions markerOptions = new MarkerOptions();
-            String distance = "";
-            String duration = "";
-
-            if(result.size()<1){
-                Toast.makeText(getActivity(), "No Points", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Traversing through all the routes
-            for(int i=0;i<result.size();i++){
-                points = new ArrayList<LatLng>();
-                lineOptions = new PolylineOptions();
-
-                // Fetching i-th route
-                List<HashMap<String, String>> path = result.get(i);
-
-                // Fetching all the points in i-th route
-                for(int j=0;j<path.size();j++){
-                    HashMap<String,String> point = path.get(j);
-
-                    if(j==0){    // Get distance from the list
-                        distance = (String)point.get("distance");
-                        continue;
-                    }else if(j==1){ // Get duration from the list
-                        duration = (String)point.get("duration");
-                        continue;
-                    }
-
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
-
-                    points.add(position);
-                }
-
-                // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(12);
-                lineOptions.color(Color.BLUE);
-            }
-
-            tvTimeToDestination.setText(duration);
-
-            // Drawing polyline in the Google Map for the i-th route
-            map.addPolyline(lineOptions);
-        }
-    }
-
 
     @Override
     public void onResume() {

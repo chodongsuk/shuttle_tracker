@@ -1,9 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <solid android:color="@color/teal" />
-    <corners
-        android:bottomLeftRadius="60dp"
-        android:bottomRightRadius="60dp"
-        android:topLeftRadius="60dp"
-        android:topRightRadius="60dp" />
-</shape>

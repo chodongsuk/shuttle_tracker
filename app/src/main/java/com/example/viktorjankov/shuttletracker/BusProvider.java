@@ -9,7 +9,4 @@ public final class BusProvider {
         return BUS;
     }
 
-    private BusProvider() {
-
-    }
 }

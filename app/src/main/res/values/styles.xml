@@ -17,7 +17,7 @@
         <item name="android:textSize">22sp</item>
     </style>
 
-    <color name="red">#F44336</color>
+    <color name="red">#C62828</color>
     <color name="light_red">#FFCDD2</color>
 
     <color name="pink">#E91E63</color>

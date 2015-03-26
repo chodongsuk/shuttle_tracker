@@ -1,7 +1,7 @@
 package com.example.viktorjankov.shuttletracker.events;
 
 
-import com.example.viktorjankov.shuttletracker.travel_mode.TravelMode;
+import com.example.viktorjankov.shuttletracker.model.TravelMode;
 
 public class TravelSourceEvent {
 

@@ -10,23 +10,43 @@ import android.widget.TextView;
 import com.example.viktorjankov.shuttletracker.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
-import com.example.viktorjankov.shuttletracker.pickup_locations.BellevueTC;
-import com.example.viktorjankov.shuttletracker.pickup_locations.Houghton;
-import com.example.viktorjankov.shuttletracker.pickup_locations.DestinationLocation;
-import com.example.viktorjankov.shuttletracker.pickup_locations.SouthKirkland;
+import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.squareup.otto.Bus;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 
 public class PickupLocationFragment extends Fragment {
     public static final String kLOG_TAG = "PickupLocationFragment";
 
-    TextView mHoughtonTextView;
-    Houghton mHoughton;
+    @InjectView(R.id.dest_one) TextView mHoughtonTextView;
+    DestinationLocation mHoughton = new DestinationLocation("Houghton", 47.66785, -122.18536);
 
-    TextView mSouthKirklandTextView;
-    SouthKirkland mSouthKirkland;
+    @InjectView(R.id.dest_two) TextView mSouthKirklandTextView;
+    DestinationLocation mSouthKirkland = new DestinationLocation("South Kirkland", 47.64407, -122.19593);
 
-    TextView mBellevueTextView;
-    BellevueTC mBellevue;
+    @InjectView(R.id.dest_three) TextView mBellevueTextView;
+    DestinationLocation mBellevue = new DestinationLocation("Bellevue TC", 47.61550, -122.19500);
+
+    @OnClick({R.id.dest_one, R.id.dest_two, R.id.dest_three})
+    public void onViewClicked(View v) {
+        DestinationLocation destinationLocation = null;
+        switch (v.getId()) {
+            case R.id.dest_one:
+                destinationLocation = mHoughton;
+                break;
+            case R.id.dest_two:
+                destinationLocation = mSouthKirkland;
+                break;
+            case R.id.dest_three:
+                destinationLocation = mBellevue;
+                break;
+            default:
+        }
+
+        bus.post(new PickupLocationEvent(destinationLocation));
+    }
 
     Bus bus = BusProvider.getInstance();
 
@@ -34,57 +54,8 @@ public class PickupLocationFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pickup_location, container, false);
-        initTextViewsAndPickupLocations(v);
+        ButterKnife.inject(this, v);
 
         return v;
-    }
-
-    private void initTextViewsAndPickupLocations(View v) {
-        mHoughton = new Houghton(47.66785, -122.18536);
-        mHoughtonTextView = (TextView) v.findViewById(R.id.dest_one);
-        mHoughtonTextView.setOnClickListener(onClickListener);
-
-        mSouthKirkland = new SouthKirkland(47.64407, -122.19593);
-        mSouthKirklandTextView = (TextView) v.findViewById(R.id.dest_two);
-        mSouthKirklandTextView.setOnClickListener(onClickListener);
-
-        mBellevue = new BellevueTC(47.61550, -122.19500);
-        mBellevueTextView = (TextView) v.findViewById(R.id.dest_three);
-        mBellevueTextView.setOnClickListener(onClickListener);
-
-    }
-
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        DestinationLocation destinationLocation = null;
-
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.dest_one:
-                    destinationLocation = mHoughton;
-                    break;
-                case R.id.dest_two:
-                    destinationLocation = mSouthKirkland;
-                    break;
-                case R.id.dest_three:
-                    destinationLocation = mBellevue;
-                    break;
-                default:
-            }
-
-            bus.post(new PickupLocationEvent(destinationLocation));
-        }
-    };
-
-    @Override
-    public void onResume() {
-        bus.register(this);
-        super.onResume();
-    }
-
-    @Override
-    public void onDestroy() {
-        bus.unregister(this);
-        super.onDestroy();
     }
 }
