@@ -1,14 +1,12 @@
 package com.example.viktorjankov.shuttletracker.directions;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.viktorjankov.shuttletracker.fragments.AsyncTaskCompletionListener;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
@@ -17,12 +15,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/** A class to parse the Google Places in JSON format */
-public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> > {
+/**
+ * A class to parse the Google Places in JSON format
+ */
+public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
     TextView timeToDestination;
     GoogleMap map;
+    private AsyncTaskCompletionListener<List<List<HashMap<String, String>>>> callback;
 
-    public ParserTask(GoogleMap map, TextView timeToDestination) {
+    public ParserTask(GoogleMap map, TextView timeToDestination, AsyncTaskCompletionListener callback) {
+        this.callback = callback;
         this.map = map;
         this.timeToDestination = timeToDestination;
     }
@@ -34,13 +36,13 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         JSONObject jObject;
         List<List<HashMap<String, String>>> routes = null;
 
-        try{
+        try {
             jObject = new JSONObject(jsonData[0]);
             DirectionsJSONParser parser = new DirectionsJSONParser();
 
             // Starts parsing data
             routes = parser.parse(jObject);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return routes;
@@ -51,16 +53,15 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
     protected void onPostExecute(List<List<HashMap<String, String>>> result) {
         ArrayList<LatLng> points = null;
         PolylineOptions lineOptions = null;
-        MarkerOptions markerOptions = new MarkerOptions();
         String distance = "";
         String duration = "";
 
-        if(result.size()<1){
+        if (result.size() < 1) {
             return;
         }
 
         // Traversing through all the routes
-        for(int i=0;i<result.size();i++){
+        for (int i = 0; i < result.size(); i++) {
             points = new ArrayList<LatLng>();
             lineOptions = new PolylineOptions();
 
@@ -68,14 +69,14 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
             List<HashMap<String, String>> path = result.get(i);
 
             // Fetching all the points in i-th route
-            for(int j=0;j<path.size();j++){
-                HashMap<String,String> point = path.get(j);
+            for (int j = 0; j < path.size(); j++) {
+                HashMap<String, String> point = path.get(j);
 
-                if(j==0){    // Get distance from the list
-                    distance = (String)point.get("distance");
+                if (j == 0) {    // Get distance from the list
+                    distance = (String) point.get("distance");
                     continue;
-                }else if(j==1){ // Get duration from the list
-                    duration = (String)point.get("duration");
+                } else if (j == 1) { // Get duration from the list
+                    duration = (String) point.get("duration");
                     continue;
                 }
 
@@ -96,5 +97,11 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
 
         // Drawing polyline in the Google Map for the i-th route
         map.addPolyline(lineOptions);
+
+        if (callback != null) {
+            callback.onTaskComplete(result);
+        }
     }
+
+
 }

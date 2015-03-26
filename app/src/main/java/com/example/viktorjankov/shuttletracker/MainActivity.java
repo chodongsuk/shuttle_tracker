@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
-import com.example.viktorjankov.shuttletracker.events.TravelSourceEvent;
+import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
 import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
 import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
@@ -34,10 +34,14 @@ public class MainActivity extends FragmentActivity
     LocationRequest mLocationRequest;
 
     Location mCurrentLocation;
+    MapViewFragment mapViewFragment;
+    TravelModeFragment travelModeFragment;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mapViewFragment = new MapViewFragment();
 
         manager = getSupportFragmentManager();
         Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
@@ -55,7 +59,7 @@ public class MainActivity extends FragmentActivity
     @Subscribe
     public void handlePickupLocationEvent(PickupLocationEvent e) {
         mDestinationLocation = e.getPickupLocation();
-        TravelModeFragment travelModeFragment = new TravelModeFragment();
+        travelModeFragment = new TravelModeFragment();
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)
@@ -64,12 +68,11 @@ public class MainActivity extends FragmentActivity
     }
 
     @Subscribe
-    public void handleTravelSourceEvent(TravelSourceEvent e) {
+    public void handleTravelModeEvent(TravelModeEvent e) {
         mTravelMode = e.getTravelSource();
-        MapViewFragment mapViewFragment = new MapViewFragment();
 
         mapViewFragment.setDestination(mDestinationLocation);
-        mapViewFragment.setOriginLocation(mCurrentLocation);
+        mapViewFragment.setCurrentLocation(mCurrentLocation);
         mapViewFragment.setTravelMode(mTravelMode);
 
         manager.beginTransaction()
@@ -119,6 +122,7 @@ public class MainActivity extends FragmentActivity
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
+        mapViewFragment.setCurrentLocation(location);
     }
 
     @Override

@@ -10,7 +10,7 @@ import android.widget.ImageButton;
 
 import com.example.viktorjankov.shuttletracker.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
-import com.example.viktorjankov.shuttletracker.events.TravelSourceEvent;
+import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.squareup.otto.Bus;
 
@@ -45,7 +45,7 @@ public class TravelModeFragment extends Fragment {
                travelMode = mBike;
                break;
        }
-       bus.post(new TravelSourceEvent(travelMode));
+       bus.post(new TravelModeEvent(travelMode));
    }
 
     Bus bus = BusProvider.getInstance();
