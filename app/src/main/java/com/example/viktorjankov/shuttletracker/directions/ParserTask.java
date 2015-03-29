@@ -21,10 +21,8 @@ import java.util.List;
 public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
     TextView timeToDestination;
     GoogleMap map;
-    private AsyncTaskCompletionListener<List<List<HashMap<String, String>>>> callback;
 
-    public ParserTask(GoogleMap map, TextView timeToDestination, AsyncTaskCompletionListener callback) {
-        this.callback = callback;
+    public ParserTask(GoogleMap map, TextView timeToDestination) {
         this.map = map;
         this.timeToDestination = timeToDestination;
     }
@@ -97,11 +95,5 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
 
         // Drawing polyline in the Google Map for the i-th route
         map.addPolyline(lineOptions);
-
-        if (callback != null) {
-            callback.onTaskComplete(result);
-        }
     }
-
-
 }

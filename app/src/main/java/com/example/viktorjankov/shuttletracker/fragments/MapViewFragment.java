@@ -12,13 +12,13 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.example.viktorjankov.shuttletracker.model.User;
-import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
 import com.example.viktorjankov.shuttletracker.directions.ParserTask;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
+import com.example.viktorjankov.shuttletracker.model.User;
+import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.firebase.client.Firebase;
@@ -39,15 +39,21 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class MapViewFragment extends Fragment implements AsyncTaskCompletionListener<List<List<HashMap<String, String>>>> {
+public class MapViewFragment extends Fragment {
 
     private static final String DIRECTIONS_API_POINT = "https://maps.googleapis.com/maps/api/directions/";
+    public static final String FIREBASE_LAT_ENDPOINT = UserProvider.getInstance().getUserName() + "/latitude";
+    public static final String FIREBASE_LNG_ENDPOINT = UserProvider.getInstance().getUserName() + "/longitude";
+    public static final String FIREBASE_ACTIVE_ENDPOINT = UserProvider.getInstance().getUserName() + "/active";
+
+
     @InjectView(R.id.header)
     TextView destination;
     @InjectView(R.id.timeToDestination)
     TextView timeToDestination;
     @InjectView(R.id.record_button)
     ImageButton mRecordButton;
+
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @OnClick(R.id.record_button)
     public void onClick() {
@@ -61,7 +67,7 @@ public class MapViewFragment extends Fragment implements AsyncTaskCompletionList
             stateActive = true;
         }
 
-      mFireBase.child("viktor/active").setValue(stateActive);
+        mFireBase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(stateActive);
     }
 
     @InjectView(R.id.mapview)
@@ -76,7 +82,7 @@ public class MapViewFragment extends Fragment implements AsyncTaskCompletionList
 
     List<List<HashMap<String, String>>> routesList;
 
-    private boolean stateActive;
+    private boolean stateActive = false;
 
     Bus bus = BusProvider.getInstance();
     User mUser = UserProvider.getInstance();
@@ -87,7 +93,6 @@ public class MapViewFragment extends Fragment implements AsyncTaskCompletionList
         ButterKnife.inject(this, v);
 
         setRetainInstance(true);
-        stateActive = false;
         destination.setText(mDestinationLocation.getDestinationName());
 
         initMap(savedInstanceState);
@@ -96,7 +101,7 @@ public class MapViewFragment extends Fragment implements AsyncTaskCompletionList
         // Getting URL to the Google Directions API
         String url = getDirectionsUrl();
 
-        ParserTask parserTask = new ParserTask(map, timeToDestination, this);
+        ParserTask parserTask = new ParserTask(map, timeToDestination);
         DownloadTask downloadTask = new DownloadTask(map, parserTask);
 
         // Start downloading json data from Google Directions API
@@ -131,30 +136,6 @@ public class MapViewFragment extends Fragment implements AsyncTaskCompletionList
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
     }
 
-    private String getDirectionsUrl() {
-
-
-        LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        LatLng dest = mDestinationLocation.getDestination();
-
-        // Origin of route
-        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
-
-        // Destination of route
-        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
-
-        // Travel mode
-        String travel_mode = "mode=" + mTravelMode.getTravelMode();
-
-        // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + travel_mode;
-
-        // Output format
-        String output = "json";
-
-        // Building the url to the web service
-        return DIRECTIONS_API_POINT + output + "?" + parameters;
-    }
 
     @Override
     public void onResume() {
@@ -182,17 +163,36 @@ public class MapViewFragment extends Fragment implements AsyncTaskCompletionList
     public void setCurrentLocation(Location location) {
         mPreviousLocation = mCurrentLocation == null ? location : mCurrentLocation;
         mCurrentLocation = location;
-        mFireBase.child(mUser.getUserName()+"/"+"latitude").setValue(mCurrentLocation.getLatitude());
-        mFireBase.child(mUser.getUserName()+"/"+"longitude").setValue(mCurrentLocation.getLongitude());
+        if (stateActive) {
+            mFireBase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
+            mFireBase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
+        }
     }
 
     public void setTravelMode(TravelMode travelMode) {
         mTravelMode = travelMode;
     }
 
-    @Override
-    public void onTaskComplete(List<List<HashMap<String, String>>> result) {
-        routesList = result;
-    }
+    private String getDirectionsUrl() {
+        LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+        LatLng dest = mDestinationLocation.getDestination();
 
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+
+        // Travel mode
+        String travel_mode = "mode=" + mTravelMode.getTravelMode();
+
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + travel_mode;
+
+        // Output format
+        String output = "json";
+
+        // Building the url to the web service
+        return DIRECTIONS_API_POINT + output + "?" + parameters;
+    }
 }
