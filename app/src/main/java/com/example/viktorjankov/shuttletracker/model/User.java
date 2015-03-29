@@ -8,7 +8,6 @@ public class User {
     private LatLng location;
     private boolean active;
 
-
     public User(String userName) {
         this.userName = userName;
     }

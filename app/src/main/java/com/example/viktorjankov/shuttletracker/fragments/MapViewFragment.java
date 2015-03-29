@@ -32,20 +32,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Bus;
 
-import java.util.HashMap;
-import java.util.List;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class MapViewFragment extends Fragment {
 
-    private static final String DIRECTIONS_API_POINT = "https://maps.googleapis.com/maps/api/directions/";
+    private static final String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
     public static final String FIREBASE_LAT_ENDPOINT = UserProvider.getInstance().getUserName() + "/latitude";
     public static final String FIREBASE_LNG_ENDPOINT = UserProvider.getInstance().getUserName() + "/longitude";
     public static final String FIREBASE_ACTIVE_ENDPOINT = UserProvider.getInstance().getUserName() + "/active";
-
 
     @InjectView(R.id.header)
     TextView destination;
@@ -78,9 +74,6 @@ public class MapViewFragment extends Fragment {
     TravelMode mTravelMode;
 
     Location mCurrentLocation;
-    Location mPreviousLocation;
-
-    List<List<HashMap<String, String>>> routesList;
 
     private boolean stateActive = false;
 
@@ -136,7 +129,6 @@ public class MapViewFragment extends Fragment {
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
     }
 
-
     @Override
     public void onResume() {
         mapView.onResume();
@@ -161,7 +153,6 @@ public class MapViewFragment extends Fragment {
     }
 
     public void setCurrentLocation(Location location) {
-        mPreviousLocation = mCurrentLocation == null ? location : mCurrentLocation;
         mCurrentLocation = location;
         if (stateActive) {
             mFireBase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
@@ -193,6 +184,6 @@ public class MapViewFragment extends Fragment {
         String output = "json";
 
         // Building the url to the web service
-        return DIRECTIONS_API_POINT + output + "?" + parameters;
+        return DIRECTIONS_API_ENDPOINT + output + "?" + parameters;
     }
 }

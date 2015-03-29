@@ -7,10 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
+import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.squareup.otto.Bus;
 
 import butterknife.ButterKnife;
