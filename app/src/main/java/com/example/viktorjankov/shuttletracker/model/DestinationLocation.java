@@ -8,7 +8,6 @@ public class DestinationLocation {
     private LatLng mDestination;
 
     public DestinationLocation(String destinationName, double lat, double lng) {
-
         mDestinationName = destinationName;
         mDestination = new LatLng(lat, lng);
     }

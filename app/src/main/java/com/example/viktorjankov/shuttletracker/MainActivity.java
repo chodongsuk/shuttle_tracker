@@ -13,20 +13,32 @@ import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
 import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
+import com.example.viktorjankov.shuttletracker.model.User;
+import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
+import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
+import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends FragmentActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    FragmentManager manager;
+    private FragmentManager manager;
 
     Bus bus = BusProvider.getInstance();
+    User mUser = UserProvider.getInstance();
+    Firebase mFireBaseRef = FirebaseProvider.getInstance();
+
     DestinationLocation mDestinationLocation;
     TravelMode mTravelMode;
 
@@ -54,6 +66,12 @@ public class MainActivity extends FragmentActivity
         buildGoogleApiClient();
         mGoogleApiClient.connect();
         createLocationRequest();
+
+        Firebase.setAndroidContext(this);
+
+        Map<String, User> users = new HashMap<String, User>();
+        users.put(mUser.getUserName(), mUser);
+        mFireBaseRef.setValue(users);
     }
 
     @Subscribe
@@ -93,11 +111,10 @@ public class MainActivity extends FragmentActivity
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(10000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
-
 
     @Override
     public void onConnectionSuspended(int i) {

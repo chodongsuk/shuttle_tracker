@@ -1,4 +1,4 @@
-package com.example.viktorjankov.shuttletracker;
+package com.example.viktorjankov.shuttletracker.singletons;
 
 import com.squareup.otto.Bus;
 

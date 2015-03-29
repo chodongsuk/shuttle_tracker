@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import com.example.viktorjankov.shuttletracker.BusProvider;
+import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
