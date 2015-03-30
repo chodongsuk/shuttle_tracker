@@ -23,6 +23,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -32,7 +33,7 @@ import java.util.Map;
 public class MainActivity extends FragmentActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private FragmentManager manager;
+    FragmentManager manager;
 
     Bus bus = BusProvider.getInstance();
     User mUser = UserProvider.getInstance();
@@ -52,6 +53,7 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mUser.setUserName("viktor");
         mapViewFragment = new MapViewFragment();
 
         manager = getSupportFragmentManager();
@@ -68,8 +70,25 @@ public class MainActivity extends FragmentActivity
 
         Firebase.setAndroidContext(this);
 
+        User randyUser = new User("randy");
+        randyUser.setActive(true);
+        randyUser.setLatitude(47.6062090);
+        randyUser.setLongitude(-122.3320710);
+        randyUser.setDestinationTime("55");
+        randyUser.setDestinationName("South Kirkland");
+
+        User aliUser = new User("ali");
+        aliUser.setActive(false);
+        aliUser.setLatitude(47.6559526);
+        aliUser.setLongitude(-122.3035752);
+        aliUser.setDestinationTime("12");
+        aliUser.setDestinationName("Bellevue TC");
+
+
         Map<String, User> users = new HashMap<String, User>();
         users.put(mUser.getUserName(), mUser);
+        users.put(randyUser.getUserName(), randyUser);
+        users.put(aliUser.getUserName(), aliUser);
         mFireBaseRef.setValue(users);
     }
 
@@ -77,6 +96,9 @@ public class MainActivity extends FragmentActivity
     public void handlePickupLocationEvent(PickupLocationEvent e) {
         mDestinationLocation = e.getPickupLocation();
         travelModeFragment = new TravelModeFragment();
+
+        mUser.setDestinationName(mDestinationLocation.getDestinationName());
+        mFireBaseRef.child(mUser.getUserName() + "/destinationName").setValue(mUser.getDestinationName());
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)

@@ -4,6 +4,8 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
+import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -91,6 +93,9 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         }
 
         timeToDestination.setText(duration);
+
+        UserProvider.getInstance().setDestinationTime(duration);
+        FirebaseProvider.getInstance().child("viktor/destinationTime").setValue(duration);
 
         // Drawing polyline in the Google Map for the i-th route
         map.addPolyline(lineOptions);
