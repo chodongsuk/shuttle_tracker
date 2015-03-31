@@ -20,13 +20,16 @@ import butterknife.OnClick;
 public class PickupLocationFragment extends Fragment {
     public static final String kLOG_TAG = "PickupLocationFragment";
 
-    @InjectView(R.id.dest_one) TextView mHoughtonTextView;
+    @InjectView(R.id.dest_one)
+    TextView mHoughtonTextView;
     DestinationLocation mHoughton = new DestinationLocation("Houghton", 47.66785, -122.18536);
 
-    @InjectView(R.id.dest_two) TextView mSouthKirklandTextView;
+    @InjectView(R.id.dest_two)
+    TextView mSouthKirklandTextView;
     DestinationLocation mSouthKirkland = new DestinationLocation("South Kirkland", 47.64407, -122.19593);
 
-    @InjectView(R.id.dest_three) TextView mBellevueTextView;
+    @InjectView(R.id.dest_three)
+    TextView mBellevueTextView;
     DestinationLocation mBellevue = new DestinationLocation("Bellevue TC", 47.61550, -122.19500);
 
     @OnClick({R.id.dest_one, R.id.dest_two, R.id.dest_three})
@@ -42,7 +45,7 @@ public class PickupLocationFragment extends Fragment {
             case R.id.dest_three:
                 destinationLocation = mBellevue;
                 break;
-            default:
+
         }
 
         bus.post(new PickupLocationEvent(destinationLocation));

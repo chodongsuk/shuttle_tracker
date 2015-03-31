@@ -17,6 +17,15 @@
         <item name="android:textSize">22sp</item>
     </style>
 
+    <style name="sign_register_button">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">#545454</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
     <color name="red">#C62828</color>
     <color name="light_red">#FFCDD2</color>
 
@@ -26,7 +35,7 @@
     <color name="purple">#7B1FA2</color>
     <color name="light_purple">#BA68C8</color>
 
-    <color name="deep_purple">#673AB7 </color>
+    <color name="deep_purple">#673AB7</color>
     <color name="light_deep_purple">#D1C4E9</color>
 
     <color name="indigo">#303F9F</color>

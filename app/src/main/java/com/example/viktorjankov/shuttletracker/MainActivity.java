@@ -7,9 +7,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
+import com.example.viktorjankov.shuttletracker.events.StartRegisterEvent;
+import com.example.viktorjankov.shuttletracker.events.StartSignInEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
-import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
+import com.example.viktorjankov.shuttletracker.fragments.splash.RegisterFragment;
+import com.example.viktorjankov.shuttletracker.fragments.splash.SignInFragment;
+import com.example.viktorjankov.shuttletracker.fragments.splash.SplashFragment;
 import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
@@ -23,7 +27,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -60,7 +63,7 @@ public class MainActivity extends FragmentActivity
         Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
 
         if (fragment == null) {
-            fragment = new PickupLocationFragment();
+            fragment = new SplashFragment();
             manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
         }
 
@@ -118,8 +121,22 @@ public class MainActivity extends FragmentActivity
                 .replace(R.id.fragmentContainer, mapViewFragment)
                 .addToBackStack(null)
                 .commit();
+    }
 
+    @Subscribe
+    public void handleSignInEvent(StartSignInEvent e) {
+       manager.beginTransaction()
+               .replace(R.id.fragmentContainer, new SignInFragment())
+               .addToBackStack(null)
+               .commit();
+    }
 
+    @Subscribe
+    public void handleRegisterEvent(StartRegisterEvent e) {
+        manager.beginTransaction()
+                .replace(R.id.fragmentContainer, new RegisterFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     protected synchronized void buildGoogleApiClient() {
