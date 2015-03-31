@@ -5,17 +5,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
-import com.example.viktorjankov.shuttletracker.events.StartRegisterEvent;
-import com.example.viktorjankov.shuttletracker.events.StartSignInEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
-import com.example.viktorjankov.shuttletracker.fragments.splash.RegisterFragment;
-import com.example.viktorjankov.shuttletracker.fragments.splash.SignInFragment;
-import com.example.viktorjankov.shuttletracker.fragments.splash.SplashFragment;
+import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
 import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
@@ -65,7 +59,7 @@ public class MainActivity extends FragmentActivity
         Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
 
         if (fragment == null) {
-            fragment = new SplashFragment();
+            fragment = new PickupLocationFragment();
             manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
         }
 
@@ -88,7 +82,6 @@ public class MainActivity extends FragmentActivity
         aliUser.setLongitude(-122.3035752);
         aliUser.setDestinationTime("12");
         aliUser.setDestinationName("Bellevue TC");
-
 
         Map<String, User> users = new HashMap<String, User>();
         users.put(mUser.getUserName(), mUser);
@@ -121,22 +114,6 @@ public class MainActivity extends FragmentActivity
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, mapViewFragment)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    @Subscribe
-    public void handleSignInEvent(StartSignInEvent e) {
-       manager.beginTransaction()
-               .replace(R.id.fragmentContainer, new SignInFragment())
-               .addToBackStack(null)
-               .commit();
-    }
-
-    @Subscribe
-    public void handleRegisterEvent(StartRegisterEvent e) {
-        manager.beginTransaction()
-                .replace(R.id.fragmentContainer, new RegisterFragment())
                 .addToBackStack(null)
                 .commit();
     }

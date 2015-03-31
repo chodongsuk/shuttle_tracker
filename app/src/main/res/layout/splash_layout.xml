@@ -20,14 +20,11 @@
             style="@style/sign_register_button"
             android:text="@string/sign_in" />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="fill_parent"
-            android:background="#FF0000FF" />
-        
         <Button
             android:background="@drawable/start_button"
             android:id="@+id/register"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             style="@style/sign_register_button"
             android:text="@string/register" />
 
