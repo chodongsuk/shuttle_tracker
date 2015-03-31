@@ -17,5 +17,10 @@
     <string name="play_stop">Play-Stop</string>
     <string name="sign_in">Sign In</string>
     <string name="register">Register</string>
-    <string name="company_name">FLOW</string>
+    <string name="company_name">Company name ex. RootMetrics</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="email">name@example.com</string>
+    <string name="company_code">Company code ex. \"RM123\"</string>
+    <string name="password">Password</string>
 </resources>
