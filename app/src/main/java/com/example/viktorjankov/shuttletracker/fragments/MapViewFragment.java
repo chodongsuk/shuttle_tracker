@@ -63,7 +63,7 @@ public class MapViewFragment extends Fragment {
             stateActive = true;
         }
 
-        mFireBase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(stateActive);
+        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(stateActive);
     }
 
     @InjectView(R.id.mapview)
@@ -79,7 +79,7 @@ public class MapViewFragment extends Fragment {
 
     Bus bus = BusProvider.getInstance();
     User mUser = UserProvider.getInstance();
-    Firebase mFireBase = FirebaseProvider.getInstance();
+    Firebase mFirebase = FirebaseProvider.getInstance();
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_view, container, false);
@@ -119,7 +119,8 @@ public class MapViewFragment extends Fragment {
 
     private void addMarkers() {
         map.addMarker(new MarkerOptions()
-                .position(mDestinationLocation.getDestination())
+                .position(new LatLng(mDestinationLocation.getLatitude(),
+                        mDestinationLocation.getLongitude()))
                 .title(mDestinationLocation.getDestinationName())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
@@ -155,8 +156,8 @@ public class MapViewFragment extends Fragment {
     public void setCurrentLocation(Location location) {
         mCurrentLocation = location;
         if (stateActive) {
-            mFireBase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
-            mFireBase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
+            mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
+            mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
         }
     }
 
@@ -166,7 +167,7 @@ public class MapViewFragment extends Fragment {
 
     private String getDirectionsUrl() {
         LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        LatLng dest = mDestinationLocation.getDestination();
+        LatLng dest = new LatLng(mDestinationLocation.getLatitude(), mDestinationLocation.getLongitude());
 
         // Origin of route
         String str_origin = "origin=" + origin.latitude + "," + origin.longitude;

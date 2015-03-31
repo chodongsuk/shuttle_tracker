@@ -33,3 +33,6 @@
 -keepclasseswithmembernames class * {
     @butterknife.* <methods>;
 }
+
+-keep class com.mobsandgeeks.saripaar.** {*;}
+-keep class commons.validator.routines.** {*;}

@@ -1,15 +1,15 @@
 package com.example.viktorjankov.shuttletracker.model;
 
-import com.google.android.gms.maps.model.LatLng;
-
 public class DestinationLocation {
 
     private String mDestinationName;
-    private LatLng mDestination;
+    private double mLatitude;
+    private double mLongitude;
 
     public DestinationLocation(String destinationName, double lat, double lng) {
         mDestinationName = destinationName;
-        mDestination = new LatLng(lat, lng);
+        mLatitude = lat;
+        mLongitude = lng;
     }
 
     public String getDestinationName() {
@@ -20,11 +20,20 @@ public class DestinationLocation {
         this.mDestinationName = mDestinationName;
     }
 
-    public LatLng getDestination() {
-        return mDestination;
+    public double getLatitude() {
+        return mLatitude;
     }
 
-    public void setDestination(LatLng mDestination) {
-        this.mDestination = mDestination;
+    public void setLatitude(double mLatitude) {
+        this.mLatitude = mLatitude;
+    }
+
+    public double getLongitude() {
+        return mLongitude;
+    }
+
+    public void setLongitude(double mLongitude) {
+        this.mLongitude = mLongitude;
     }
 }
+
