@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.viktorjankov.shuttletracker"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -40,4 +40,6 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'com.firebase:firebase-client-android:2.2.3+'
     compile 'com.mobsandgeeks:android-saripaar:2.0-SNAPSHOT'
+    compile 'com.github.traex:RippleEffect:v1.2.4'
+
 }

@@ -24,7 +24,6 @@ public class SplashFragment extends Fragment {
     Button signInButton;
     @InjectView(R.id.register)
     Button registerButton;
-
     Bus bus = BusProvider.getInstance();
 
     @OnClick({R.id.sign_in, R.id.register})
@@ -38,7 +37,6 @@ public class SplashFragment extends Fragment {
                 break;
         }
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -131,9 +130,13 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
                     }
                     companyCodesMap.put(companyName, companyCode);
                 }
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                        android.R.layout.simple_dropdown_item_1line, registeredCompanyList);
-                companyNameAutoCompleteTextView.setAdapter(adapter);
+
+                if (getActivity() != null) {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
+                            android.R.layout.simple_dropdown_item_1line, registeredCompanyList);
+                    companyNameAutoCompleteTextView.setAdapter(adapter);
+                }
+
             }
 
             @Override

@@ -7,27 +7,28 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:weightSum="2"
-        android:layout_marginTop="80dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginStart="20dp"
-        android:layout_height="wrap_content">
+        android:layout_marginTop="80dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
         <Button
-            android:background="@drawable/start_button"
             android:id="@+id/sign_in"
             style="@style/sign_register_button"
+            android:background="@drawable/start_button"
             android:text="@string/sign_in" />
 
         <Button
-            android:background="@drawable/start_button"
             android:id="@+id/register"
+            style="@style/sign_register_button"
             android:layout_marginLeft="5dp"
             android:layout_marginStart="5dp"
-            style="@style/sign_register_button"
+            android:background="@drawable/start_button"
             android:text="@string/register" />
 
     </LinearLayout>
-    
+
 </LinearLayout>

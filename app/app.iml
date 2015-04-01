@@ -104,6 +104,7 @@
     <orderEntry type="library" exported="" name="play-services-maps-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-fitness-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="android-saripaar-2.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="RippleEffect-v1.2.4" level="project" />
     <orderEntry type="library" exported="" name="play-services-identity-7.0.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-annotations-2.2.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-ads-7.0.0" level="project" />
