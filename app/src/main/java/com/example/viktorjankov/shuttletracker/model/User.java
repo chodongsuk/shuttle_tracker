@@ -2,7 +2,12 @@ package com.example.viktorjankov.shuttletracker.model;
 
 public class User {
 
-    private String userName;
+    private String firstName;
+
+    private String lastName;
+    private String email;
+    private String companyCode;
+
     private double latitude;
     private double longitude;
     private String destinationName;
@@ -10,7 +15,13 @@ public class User {
     private boolean active;
 
     public User() {
+    }
 
+    public User(String firstName, String lastName, String email, String companyCode) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.companyCode = companyCode;
     }
 
     public double getLatitude() {
@@ -29,21 +40,21 @@ public class User {
         this.longitude = longitude;
     }
 
-    public User(String userName) {
-        this.userName = userName;
+    public User(String firstName) {
+        this.firstName = firstName;
     }
 
-    public User(String userName, String destinationLocation) {
+    public User(String firstName, String destinationLocation) {
         this.destinationName = destinationLocation;
-        this.userName = userName;
+        this.firstName = firstName;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public boolean isActive() {
@@ -73,7 +84,7 @@ public class User {
     @Override
     public String toString() {
         return "\n" +
-                "name: " + userName + "\n" +
+                "name: " + firstName + "\n" +
                 "destination: " + destinationName + "\n" +
                 "destination_time: " + destinationTime + "\n" +
                 "active: " + active;

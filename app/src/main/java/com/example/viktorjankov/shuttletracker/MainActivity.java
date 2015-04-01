@@ -52,7 +52,7 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mUser.setUserName("viktor");
+        mUser.setFirstName("viktor");
         mapViewFragment = new MapViewFragment();
 
         manager = getSupportFragmentManager();
@@ -84,9 +84,9 @@ public class MainActivity extends FragmentActivity
         aliUser.setDestinationName("Bellevue TC");
 
         Map<String, User> users = new HashMap<String, User>();
-        users.put(mUser.getUserName(), mUser);
-        users.put(randyUser.getUserName(), randyUser);
-        users.put(aliUser.getUserName(), aliUser);
+        users.put(mUser.getFirstName(), mUser);
+        users.put(randyUser.getFirstName(), randyUser);
+        users.put(aliUser.getFirstName(), aliUser);
         mFireBaseRef.setValue(users);
     }
 
@@ -96,7 +96,7 @@ public class MainActivity extends FragmentActivity
         travelModeFragment = new TravelModeFragment();
 
         mUser.setDestinationName(mDestinationLocation.getDestinationName());
-        mFireBaseRef.child(mUser.getUserName() + "/destinationName").setValue(mUser.getDestinationName());
+        mFireBaseRef.child(mUser.getFirstName() + "/destinationName").setValue(mUser.getDestinationName());
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)

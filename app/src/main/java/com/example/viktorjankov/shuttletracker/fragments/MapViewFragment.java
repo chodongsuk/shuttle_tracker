@@ -39,9 +39,9 @@ import butterknife.OnClick;
 public class MapViewFragment extends Fragment {
 
     private static final String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
-    public static final String FIREBASE_LAT_ENDPOINT = UserProvider.getInstance().getUserName() + "/latitude";
-    public static final String FIREBASE_LNG_ENDPOINT = UserProvider.getInstance().getUserName() + "/longitude";
-    public static final String FIREBASE_ACTIVE_ENDPOINT = UserProvider.getInstance().getUserName() + "/active";
+    public static final String FIREBASE_LAT_ENDPOINT = UserProvider.getInstance().getFirstName() + "/latitude";
+    public static final String FIREBASE_LNG_ENDPOINT = UserProvider.getInstance().getFirstName() + "/longitude";
+    public static final String FIREBASE_ACTIVE_ENDPOINT = UserProvider.getInstance().getFirstName() + "/active";
 
     @InjectView(R.id.header)
     TextView destination;
@@ -126,7 +126,7 @@ public class MapViewFragment extends Fragment {
 
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                .title(mUser.getUserName() + " to: " + mDestinationLocation.getDestinationName())
+                .title(mUser.getFirstName() + " to: " + mDestinationLocation.getDestinationName())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
     }
 

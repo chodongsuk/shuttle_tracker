@@ -30,7 +30,7 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/company_name"
         android:layout_marginTop="10dp"
         android:hint="@string/company_name"
