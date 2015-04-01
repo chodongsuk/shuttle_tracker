@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -92,18 +93,11 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
         email = emailEditText.getText().toString();
         password = passwordEditText.getText().toString();
 
-        boolean companyValid = validateCompany(companyName, companyCode);
-        boolean registeredUser = checkRegisteredUser();
+        boolean companyValid = validateCompanyCode(companyName, companyCode);
         if (companyValid) {
             registerUser(email, password, firstName, lastName);
         }
 
-    }
-
-    private boolean checkRegisteredUser() {
-
-
-        return false;
     }
 
     Validator validator;
@@ -153,6 +147,7 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
 
     @Override
     public void onValidationSucceeded() {
+
     }
 
     @Override
@@ -178,11 +173,10 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
     private void registerUser(final String email, String password, final String firstName, final String lastName) {
         mFirebase.createUser(email, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
-            public void onSuccess(Map<String, Object> stringObjectMap) {
+            public void onSuccess(Map<String, Object> result) {
                 User user = new User(firstName, lastName, email, companyCode);
-
-                Map<String, Object> oneUserMap = new HashMap<String, Object>();
-                oneUserMap.put(user.getFirstName(), user);
+                Map<Object, Object> oneUserMap = new HashMap<Object, Object>();
+                oneUserMap.put(result.get("uid"), user);
                 mFirebase.child(FIREBASE_USERS).setValue(oneUserMap);
                 Toast.makeText(getActivity(), "Congrats! You're registered!", Toast.LENGTH_SHORT).show();
             }
@@ -206,7 +200,7 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
 
     }
 
-    private boolean validateCompany(String companyName, String companyCode) {
+    private boolean validateCompanyCode(String companyName, String companyCode) {
 
         String registeredCompanyCode = companyCodesMap.get(companyName);
         if (registeredCompanyCode == null) {
@@ -220,7 +214,6 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
         }
         return true;
     }
-
 
 //    private void parseCompany() {
 //        mFirebase.addListenerForSingleValueEvent(new ValueEventListener() {

@@ -1,11 +1,12 @@
 package com.example.viktorjankov.shuttletracker;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
+import com.example.viktorjankov.shuttletracker.events.StartApplicationEvent;
 import com.example.viktorjankov.shuttletracker.events.StartRegisterEvent;
 import com.example.viktorjankov.shuttletracker.events.StartSignInEvent;
 import com.example.viktorjankov.shuttletracker.fragments.splash.RegisterFragment;
@@ -50,6 +51,13 @@ public class SplashActivity extends FragmentActivity {
                 .addToBackStack(null)
                 .commit();
     }
+
+    @Subscribe
+    public void handleStartAppEvent(StartApplicationEvent e) {
+        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     protected void onResume() {
