@@ -3,7 +3,6 @@ package com.example.viktorjankov.shuttletracker.fragments.splash;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,10 +93,17 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
         password = passwordEditText.getText().toString();
 
         boolean companyValid = validateCompany(companyName, companyCode);
+        boolean registeredUser = checkRegisteredUser();
         if (companyValid) {
             registerUser(email, password, firstName, lastName);
         }
 
+    }
+
+    private boolean checkRegisteredUser() {
+
+
+        return false;
     }
 
     Validator validator;
@@ -183,7 +189,18 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
 
             @Override
             public void onError(FirebaseError firebaseError) {
-
+                String errorMessage;
+                switch (firebaseError.getCode()) {
+                    case -18:
+                        errorMessage = "Email is already in use!";
+                        break;
+                    case -16:
+                        errorMessage = "Invalid password!";
+                        break;
+                    default:
+                        errorMessage = firebaseError.toString();
+                }
+                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_LONG).show();
             }
         });
 

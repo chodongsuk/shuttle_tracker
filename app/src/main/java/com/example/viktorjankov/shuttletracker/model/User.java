@@ -14,13 +14,46 @@ public class User {
     private String destinationTime;
     private boolean active;
 
-    public User() {
+    public User() { }
+
+    public User(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public User(String firstName, String destinationLocation) {
+        this.destinationName = destinationLocation;
+        this.firstName = firstName;
     }
 
     public User(String firstName, String lastName, String email, String companyCode) {
+
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.companyCode = companyCode;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getCompanyCode() {
+        return companyCode;
+    }
+
+    public void setCompanyCode(String companyCode) {
         this.companyCode = companyCode;
     }
 
@@ -38,15 +71,6 @@ public class User {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
-    }
-
-    public User(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public User(String firstName, String destinationLocation) {
-        this.destinationName = destinationLocation;
-        this.firstName = firstName;
     }
 
     public String getFirstName() {
