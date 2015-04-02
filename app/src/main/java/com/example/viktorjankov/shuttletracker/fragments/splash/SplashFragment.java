@@ -1,5 +1,6 @@
 package com.example.viktorjankov.shuttletracker.fragments.splash;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -42,6 +43,15 @@ public class SplashFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.splash_layout, container, false);
         ButterKnife.inject(this, v);
+
+        int resource;
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
+            resource = R.drawable.ripple;
+        } else {
+            resource = R.drawable.flat_pressed;
+        }
+        signInButton.setBackgroundResource(resource);
+        registerButton.setBackgroundResource(resource);
 
         return v;
     }

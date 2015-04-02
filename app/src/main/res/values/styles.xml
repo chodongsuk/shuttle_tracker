@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar" theme="@android:style/Theme.Holo">
+    <style name="AppTheme" parent="android:Theme.Holo.Light">
         <item name="android:windowNoTitle">true</item>
     </style>
 
@@ -64,5 +64,7 @@
 
     <color name="lime">#AFB42B</color>
     <color name="light_lime">#DCE775</color>
+
+    <color name="gray">#E0E0E0</color>
 
 </resources>
