@@ -1,4 +1,4 @@
-package com.example.viktorjankov.shuttletracker.fragments.splash;
+package com.example.viktorjankov.shuttletracker.splash_classes.welcome;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -19,7 +19,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class SplashFragment extends Fragment {
+public class WelcomeFragment extends Fragment {
 
     @InjectView(R.id.sign_in)
     Button signInButton;
@@ -41,7 +41,7 @@ public class SplashFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.splash_layout, container, false);
+        View v = inflater.inflate(R.layout.welcome_layout, container, false);
         ButterKnife.inject(this, v);
 
         int resource;

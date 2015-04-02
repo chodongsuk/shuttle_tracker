@@ -2,7 +2,6 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Holo.Light">
-        <item name="android:windowNoTitle">true</item>
     </style>
 
     <style name="destination_block_style">

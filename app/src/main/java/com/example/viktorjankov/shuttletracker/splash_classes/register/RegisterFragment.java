@@ -1,4 +1,4 @@
-package com.example.viktorjankov.shuttletracker.fragments.splash;
+package com.example.viktorjankov.shuttletracker.splash_classes.register;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -102,7 +102,6 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
     Map<String, String> companyCodesMap = new HashMap<String, String>();
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -218,7 +217,7 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
         return true;
     }
 
-//    private void parseCompany() {
+    //    private void parseCompany() {
 //        mFirebase.addListenerForSingleValueEvent(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(DataSnapshot dataSnapshot) {

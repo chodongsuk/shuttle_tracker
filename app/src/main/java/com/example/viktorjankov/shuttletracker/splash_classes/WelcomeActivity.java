@@ -1,22 +1,28 @@
-package com.example.viktorjankov.shuttletracker;
+package com.example.viktorjankov.shuttletracker.splash_classes;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.view.Window;
+import android.view.WindowManager;
 
+import com.example.viktorjankov.shuttletracker.MainActivity;
+import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.StartApplicationEvent;
 import com.example.viktorjankov.shuttletracker.events.StartRegisterEvent;
 import com.example.viktorjankov.shuttletracker.events.StartSignInEvent;
-import com.example.viktorjankov.shuttletracker.fragments.splash.RegisterFragment;
-import com.example.viktorjankov.shuttletracker.fragments.splash.SignInFragment;
-import com.example.viktorjankov.shuttletracker.fragments.splash.SplashFragment;
+import com.example.viktorjankov.shuttletracker.splash_classes.register.RegisterActivity;
+import com.example.viktorjankov.shuttletracker.splash_classes.sign_in.SignInActivity;
+import com.example.viktorjankov.shuttletracker.splash_classes.welcome.WelcomeFragment;
+import com.example.viktorjankov.shuttletracker.splash_classes.register.RegisterFragment;
+import com.example.viktorjankov.shuttletracker.splash_classes.sign_in.SignInFragment;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-public class SplashActivity extends FragmentActivity {
+public class WelcomeActivity extends FragmentActivity {
 
     FragmentManager manager;
     Bus bus = BusProvider.getInstance();
@@ -24,13 +30,13 @@ public class SplashActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+        setContentView(R.layout.activity_welcome);
 
         manager = getSupportFragmentManager();
         Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
 
         if (fragment == null) {
-            fragment = new SplashFragment();
+            fragment = new WelcomeFragment();
             manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
         }
     }
@@ -38,23 +44,19 @@ public class SplashActivity extends FragmentActivity {
 
     @Subscribe
     public void handleSignInEvent(StartSignInEvent e) {
-        manager.beginTransaction()
-                .replace(R.id.fragmentContainer, new SignInFragment())
-                .addToBackStack(null)
-                .commit();
+        Intent intent = new Intent(WelcomeActivity.this, SignInActivity.class);
+        startActivity(intent);
     }
 
     @Subscribe
     public void handleRegisterEvent(StartRegisterEvent e) {
-        manager.beginTransaction()
-                .replace(R.id.fragmentContainer, new RegisterFragment())
-                .addToBackStack(null)
-                .commit();
+        Intent intent = new Intent(WelcomeActivity.this, RegisterActivity.class);
+        startActivity(intent);
     }
 
     @Subscribe
     public void handleStartAppEvent(StartApplicationEvent e) {
-        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
         startActivity(intent);
     }
 

@@ -1,4 +1,4 @@
-package com.example.viktorjankov.shuttletracker.fragments.splash;
+package com.example.viktorjankov.shuttletracker.splash_classes.sign_in;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -30,7 +30,6 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class SignInFragment extends Fragment implements Validator.ValidationListener {
-
     @InjectView(R.id.email_id)
     @NotEmpty
     @Email
