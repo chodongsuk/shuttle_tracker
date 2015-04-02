@@ -2,72 +2,61 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:layout_marginEnd="20dp"
     android:layout_marginLeft="20dp"
-    android:layout_marginStart="20dp"
     android:layout_marginRight="20dp"
-    android:layout_marginEnd="20dp">
+    android:layout_marginStart="20dp"
+    android:orientation="vertical">
+
+    <include layout="@layout/social_signin" />
 
     <LinearLayout
-        android:layout_marginTop="90dp"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:weightSum="2"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
         <EditText
             android:id="@+id/first_name"
-            android:hint="@string/first_name"
-            android:layout_weight="1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/first_name" />
 
         <EditText
             android:id="@+id/last_name"
-            android:hint="@string/last_name"
-            android:layout_weight="1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/last_name" />
     </LinearLayout>
 
     <AutoCompleteTextView
         android:id="@+id/company_name"
-        android:layout_marginTop="10dp"
-        android:hint="@string/company_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        style="@style/form_style"
+        android:hint="@string/company_name" />
 
     <EditText
         android:id="@+id/company_code"
-        android:layout_marginTop="10dp"
-        android:hint="@string/company_code"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        style="@style/form_style"
+        android:hint="@string/company_code" />
 
     <EditText
         android:id="@+id/email"
-        android:layout_marginTop="10dp"
+        style="@style/form_style"
         android:hint="@string/email"
-        android:inputType="textEmailAddress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:inputType="textEmailAddress" />
 
     <EditText
         android:id="@+id/password"
-        android:layout_marginTop="10dp"
+        style="@style/form_style"
         android:hint="@string/password"
-        android:inputType="textPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:inputType="textPassword" />
 
     <Button
         android:id="@+id/registerButton"
-        android:background="@android:color/black"
-        android:text="@string/register"
-        android:textSize="20sp"
-        android:layout_marginTop="20dp"
-        android:textColor="@android:color/white"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        style="@style/sign_register_confirm_button"
+        android:text="@string/register" />
 
 </LinearLayout>

@@ -23,4 +23,7 @@
     <string name="email">name@example.com</string>
     <string name="company_code">Company code ex. \"RM123\"</string>
     <string name="password">Password</string>
+    <string name="google_plus">google+</string>
+    <string name="facebook_login">facebook login</string>
+    <string name="or">or</string>
 </resources>
