@@ -1,8 +1,10 @@
 package com.example.viktorjankov.shuttletracker.splash_classes.register;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +12,16 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.widget.LoginButton;
+import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -96,8 +103,20 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
         if (companyValid) {
             registerUser(email, password, firstName, lastName);
         }
-
     }
+
+    @InjectView(R.id.login_button)
+    LoginButton mFacebookLoginButton;
+
+    @InjectView(R.id.facebook_button)
+    LinearLayout facebookLayout;
+
+    @OnClick(R.id.facebook_button)
+    public void performClick() {
+        Log.i(kLOG_TAG, "performClick");
+        mFacebookLoginButton.performClick();
+    }
+
 
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
@@ -110,6 +129,16 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
 
         validator = new Validator(this);
         validator.setValidationListener(this);
+
+
+        mFacebookLoginButton.setReadPermissions("email");
+        mFacebookLoginButton.setSessionStatusCallback(new Session.StatusCallback() {
+            @Override
+            public void call(Session session, SessionState state, Exception exception) {
+                Log.i(kLOG_TAG, "onFacebookSessionStateChange");
+                onFacebookSessionStateChange(session, state, exception);
+            }
+        });
 
         mFirebase.child(FIREBASE_REGISTERED_COMPANIES).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -145,6 +174,39 @@ public class RegisterFragment extends Fragment implements Validator.ValidationLi
         });
 
         return v;
+    }
+
+    private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
+        Log.i(kLOG_TAG, "ON FACEBOOK SESSION STATE CHANGE");
+        if (state.isOpened()) {
+            Log.i(kLOG_TAG, "state is opened");
+            mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
+                @Override
+                public void onAuthenticated(AuthData authData) {
+                    // The Facebook user is now authenticated with Firebase
+                    Toast.makeText(getActivity(), "FACEBOOK AUTHENTICION SUCCESSFULL", Toast.LENGTH_LONG).show();
+                    Log.i(kLOG_TAG, "onAuthenticated");
+                }
+
+                @Override
+                public void onAuthenticationError(FirebaseError firebaseError) {
+                    // there was an error
+                    Toast.makeText(getActivity(), "FACEBOOK AUTHENTICION NOT SUCCESSFULL :(", Toast.LENGTH_LONG).show();
+                    Log.i(kLOG_TAG, "onAuthenticationError");
+                }
+            });
+        } else if (state.isClosed()) {
+        /* Logged out of Facebook so do a logout from Firebase */
+            Log.i(kLOG_TAG, "ON FACEBOOK SESSION STATE CHANGE");
+            mFirebase.unauth();
+        }
+        Log.i(kLOG_TAG, state.toString());
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
