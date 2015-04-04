@@ -18,7 +18,15 @@
             android:background="@drawable/google_login"
             android:gravity="center">
 
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/login_with_google"
+                android:layout_width="wrap_content"
+                android:clickable="true"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
             <ImageButton
+                android:id="@+id/google_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_gnormal"
@@ -26,15 +34,10 @@
         </LinearLayout>
 
         <RelativeLayout
+            android:id="@+id/socialSeparator"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />
-
-        <com.facebook.widget.LoginButton
-            android:id="@+id/login_button"
-            android:layout_width="wrap_content"
-            android:visibility="gone"
-            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:id="@+id/facebook_button"
@@ -79,6 +82,12 @@
             android:layout_height="2dip"
             android:layout_weight="5"
             android:background="@color/gray" />
+
+        <com.facebook.widget.LoginButton
+            android:id="@+id/login_with_facebook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
     </LinearLayout>
 
