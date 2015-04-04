@@ -5,20 +5,16 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.StartApplicationEvent;
 import com.example.viktorjankov.shuttletracker.events.StartRegisterEvent;
 import com.example.viktorjankov.shuttletracker.events.StartSignInEvent;
+import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.splash_classes.register.RegisterActivity;
 import com.example.viktorjankov.shuttletracker.splash_classes.sign_in.SignInActivity;
 import com.example.viktorjankov.shuttletracker.splash_classes.welcome.WelcomeFragment;
-import com.example.viktorjankov.shuttletracker.splash_classes.register.RegisterFragment;
-import com.example.viktorjankov.shuttletracker.splash_classes.sign_in.SignInFragment;
-import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 

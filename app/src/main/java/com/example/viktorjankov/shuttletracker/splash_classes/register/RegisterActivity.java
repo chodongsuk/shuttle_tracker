@@ -167,7 +167,7 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
         setTitle(FRAGMENT_TITLE);
         getActionBar().setIcon(R.drawable.ic_arrow_back_black_36dp);
 
-        setContentView(R.layout.activity_welcome);
+        setContentView(R.layout.register_layout);
         ButterKnife.inject(this);
 
         validator = new Validator(this);
@@ -235,6 +235,12 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
 
             }
         });
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Authenticating with Firebase...");
+        mAuthProgressDialog.setCancelable(false);
+//        mAuthProgressDialog.show();
     }
 
     private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
@@ -278,10 +284,10 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
             mGoogleIntentInProgress = false;
             if (!mGoogleApiClient.isConnecting()) {
                 mGoogleApiClient.connect();
-            } else {
-                Session.getActiveSession()
-                        .onActivityResult(this, requestCode, resultCode, data);
             }
+        } else {
+            Session.getActiveSession()
+                    .onActivityResult(this, requestCode, resultCode, data);
         }
     }
 
@@ -370,7 +376,6 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
 
     private void getGoogleOAuthTokenAndLogin() {
         Log.i(kLOG_TAG, "GoogleOAuthTokenAndLogin");
-        mAuthProgressDialog.show();
         /* Get OAuth token in Background */
         AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
             String errorMessage = null;
