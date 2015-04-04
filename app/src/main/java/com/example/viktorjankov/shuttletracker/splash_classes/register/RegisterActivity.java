@@ -128,7 +128,6 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
     }
 
     public static final int RC_GOOGLE_LOGIN = 1;
-    private ProgressDialog mAuthProgressDialog;
     private GoogleApiClient mGoogleApiClient;
     private boolean mGoogleIntentInProgress;
     private boolean mGoogleLoginClicked;
@@ -235,12 +234,6 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
 
             }
         });
-
-        mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Authenticating with Firebase...");
-        mAuthProgressDialog.setCancelable(false);
-//        mAuthProgressDialog.show();
     }
 
     private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
@@ -416,12 +409,9 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
                     Log.i(kLOG_TAG, "Successfully got OAuth from Google");
                     mFirebase.authWithOAuthToken("google", token, new AuthResultHandler("google"));
                 } else if (errorMessage != null) {
-                    mAuthProgressDialog.hide();
                     Toast.makeText(RegisterActivity.this, "GOOGLE AUTHENTICION NOT SUCCESSFULL :(", Toast.LENGTH_LONG).show();
                 }
             }
-
-
         };
         task.execute();
     }
