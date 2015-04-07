@@ -1,6 +1,5 @@
 package com.example.viktorjankov.shuttletracker.splash_classes.register;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.AsyncTask;
@@ -18,6 +17,7 @@ import android.widget.Toast;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.splash_classes.verify.VerifyActivity;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
@@ -51,8 +51,8 @@ import butterknife.OnClick;
 public class RegisterActivity extends FragmentActivity implements Validator.ValidationListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
-    private static final String FRAGMENT_TITLE = " " + "REGISTER";
-    private static final String kLOG_TAG = "RegisterFragment";
+    private static final String ACTIVITY_TITLE = " " + "REGISTER";
+    private static final String kLOG_TAG = "RegisterActivity";
 
     private static final String FIREBASE_COMPANIES_ENDPOINT = "companies";
     private static final String FIREBASE_COMPANY_NAME = "companyName";
@@ -159,11 +159,13 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
     Map<String, String> companyCodesMap = new HashMap<String, String>();
+    ArrayList<String> registeredCompanyList;
+    ArrayList<String> registeredCompanyCodesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(FRAGMENT_TITLE);
+        setTitle(ACTIVITY_TITLE);
         getActionBar().setIcon(R.drawable.ic_arrow_back_black_36dp);
 
         setContentView(R.layout.register_layout);
@@ -207,13 +209,15 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
         mFirebase.child(FIREBASE_REGISTERED_COMPANIES).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<String> registeredCompanyList = new ArrayList<String>();
+                registeredCompanyList = new ArrayList<String>();
+                registeredCompanyCodesList = new ArrayList<String>();
                 for (DataSnapshot company : dataSnapshot.getChildren()) {
                     String companyName = "";
                     String companyCode = "";
                     for (DataSnapshot companyValues : company.getChildren()) {
                         if (companyValues.getKey().equals("companyCode")) {
                             companyCode = companyValues.getValue().toString();
+                            registeredCompanyCodesList.add(companyCode);
                         }
                         if (companyValues.getKey().equals("companyName")) {
                             companyName = companyValues.getValue().toString();
@@ -246,6 +250,24 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
                     // The Facebook user is now authenticated with Firebase
                     Toast.makeText(RegisterActivity.this, "FACEBOOK AUTHENTICION SUCCESSFULL", Toast.LENGTH_LONG).show();
                     Log.i(kLOG_TAG, "onAuthenticated");
+
+                    Intent intent = new Intent(RegisterActivity.this, VerifyActivity.class);
+
+                    String name = (String) authData.getProviderData().get("displayName");
+                    String gEmail = (String) authData.getProviderData().get("email");
+                    String[] last = name.split("\\s+");
+                    Log.i(kLOG_TAG, "First name: " + last[0]);
+                    Log.i(kLOG_TAG, "Last name: " + last[1]);
+                    Log.i(kLOG_TAG, "Email: " + gEmail);
+
+
+                    intent.putExtra(VerifyActivity.firstNameKey, last[0]);
+                    intent.putExtra(VerifyActivity.lastNameKey, last[1]);
+                    intent.putExtra(VerifyActivity.emailKey, gEmail);
+                    intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesKey, registeredCompanyList);
+                    intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesCodesKey, registeredCompanyCodesList);
+
+                    startActivity(intent);
                 }
 
                 @Override
@@ -308,9 +330,7 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
             @Override
             public void onSuccess(Map<String, Object> result) {
                 User user = new User(firstName, lastName, email, companyCode);
-                Map<Object, Object> oneUserMap = new HashMap<Object, Object>();
-                oneUserMap.put(result.get("uid"), user);
-                mFirebase.child(FIREBASE_USERS).setValue(oneUserMap);
+                mFirebase.child(FIREBASE_USERS).push().setValue(user);
                 Toast.makeText(RegisterActivity.this, "Congrats! You're registered!", Toast.LENGTH_SHORT).show();
             }
 
@@ -459,6 +479,22 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
         public void onAuthenticated(AuthData authData) {
             Log.i(kLOG_TAG, provider + " auth successful");
             Toast.makeText(RegisterActivity.this, "GOOGLE AUTHENTICION SUCCESSFULL :)", Toast.LENGTH_LONG).show();
+
+            Intent intent = new Intent(RegisterActivity.this, VerifyActivity.class);
+            String name = (String) authData.getProviderData().get("displayName");
+            String gMail = Plus.AccountApi.getAccountName(mGoogleApiClient);
+            String[] last = name.split("\\s+");
+
+            Log.i(kLOG_TAG, "First name: " + last[0]);
+            Log.i(kLOG_TAG, "Last name: " + last[1]);
+            Log.i(kLOG_TAG, "Email: " + gMail);
+            intent.putExtra(VerifyActivity.firstNameKey, last[0]);
+            intent.putExtra(VerifyActivity.lastNameKey, last[1]);
+            intent.putExtra(VerifyActivity.emailKey, (String) authData.getProviderData().get("email"));
+            intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesKey, registeredCompanyList);
+            intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesCodesKey, registeredCompanyCodesList);
+
+            startActivity(intent);
         }
 
         @Override
