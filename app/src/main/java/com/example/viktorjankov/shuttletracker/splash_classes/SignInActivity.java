@@ -2,6 +2,7 @@ package com.example.viktorjankov.shuttletracker.splash_classes;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.drawable.StateListDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -9,8 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
@@ -111,6 +112,9 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     @InjectView(R.id.google_plus_button)
     LinearLayout googlePlusLayout;
 
+    @InjectView(R.id.google_icon)
+    ImageButton googleIcon;
+
     @OnClick({R.id.google_plus_button, R.id.google_icon})
     public void googlePlusClick() {
         Log.i(kLOG_TAG, "google login button clicked");
@@ -146,6 +150,10 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         validator = new Validator(this);
         validator.setValidationListener(this);
 
+        StateListDrawable states = new StateListDrawable();
+        states.addState(new int[] {android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_light));
+        googleIcon.setImageDrawable(states);
+
         /* *************************************
          *              FACEBOOK               *
          ***************************************/
@@ -172,10 +180,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
-
-
     }
-
 
     /* *************************************
      *              FACEBOOK               *
@@ -342,6 +347,26 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             }
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_GOOGLE_LOGIN) {
+            /* This was a request by the Google API */
+            if (resultCode != RESULT_OK) {
+                mGoogleLoginClicked = false;
+            }
+            mGoogleIntentInProgress = false;
+            if (!mGoogleApiClient.isConnecting()) {
+                mGoogleApiClient.connect();
+            }
+        } else {
+            Session.getActiveSession()
+                    .onActivityResult(this, requestCode, resultCode, data);
+        }
+    }
+
 }
 
 

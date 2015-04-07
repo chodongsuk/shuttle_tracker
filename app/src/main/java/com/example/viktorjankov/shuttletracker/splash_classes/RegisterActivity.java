@@ -2,7 +2,6 @@ package com.example.viktorjankov.shuttletracker.splash_classes;
 
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;

@@ -15,13 +15,13 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="6"
-            android:background="@drawable/google_login"
+            android:background="@drawable/google_selector"
             android:gravity="center">
 
             <com.google.android.gms.common.SignInButton
                 android:id="@+id/login_with_google"
                 android:layout_width="wrap_content"
-                android:clickable="true"
+                android:clickable="false"
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
 
@@ -29,6 +29,7 @@
                 android:id="@+id/google_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:background="@drawable/btn_gnormal"
                 android:contentDescription="@string/google_plus" />
         </LinearLayout>
@@ -44,7 +45,7 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="6"
-            android:background="@drawable/facebook_login"
+            android:background="@drawable/facebook_selector"
             android:gravity="center">
 
             <ImageView
