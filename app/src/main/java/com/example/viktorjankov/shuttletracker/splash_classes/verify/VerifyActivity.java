@@ -1,7 +1,8 @@
 package com.example.viktorjankov.shuttletracker.splash_classes.verify;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -9,11 +10,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
@@ -26,7 +27,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class VerifyActivity extends Activity implements Validator.ValidationListener {
+public class VerifyActivity extends ActionBarActivity implements Validator.ValidationListener {
     public static final String ACTIVITY_TITLE = " " + "REGISTER";
     private static final String FIREBASE_USERS = "users";
 
@@ -84,7 +85,7 @@ public class VerifyActivity extends Activity implements Validator.ValidationList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(ACTIVITY_TITLE);
-        getActionBar().setIcon(R.drawable.ic_arrow_back_black_36dp);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_36dp);
 
         setContentView(R.layout.verify_layout);
         ButterKnife.inject(this);
@@ -116,6 +117,12 @@ public class VerifyActivity extends Activity implements Validator.ValidationList
         User user = new User(firstName, lastName, email, companyCode);
         mFirebase.child(FIREBASE_USERS).push().setValue(user);
         Toast.makeText(VerifyActivity.this, "Congrats! You're registered!", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(MainActivity.USER_NAME_KEY, firstName);
+        intent.putExtra(MainActivity.USER_COMPANY_CODE, companyCode);
+
+        startActivity(intent);
     }
 
     private boolean validateCompanyCode(String companyName, String companyCode) {

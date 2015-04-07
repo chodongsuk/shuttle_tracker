@@ -32,6 +32,10 @@ import java.util.Map;
 public class MainActivity extends FragmentActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
+    public static final String USER_NAME_KEY = "user_name";
+    public static final String USER_COMPANY_CODE = "company_code";
+
+
     FragmentManager manager;
 
     Bus bus = BusProvider.getInstance();

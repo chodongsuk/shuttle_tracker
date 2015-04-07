@@ -4,10 +4,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBarActivity;
 
 import com.example.viktorjankov.shuttletracker.R;
 
-public class SignInActivity extends FragmentActivity {
+public class SignInActivity extends ActionBarActivity {
     private static final String FRAGMENT_TITLE = " " + "SIGN IN";
     FragmentManager manager;
 
@@ -16,7 +17,7 @@ public class SignInActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         setTitle(FRAGMENT_TITLE);
-        getActionBar().setIcon(R.drawable.ic_arrow_back_black_36dp);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_36dp);
 
         setContentView(R.layout.activity_welcome);
 

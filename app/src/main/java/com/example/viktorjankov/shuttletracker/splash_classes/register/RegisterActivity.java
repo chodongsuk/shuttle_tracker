@@ -2,9 +2,10 @@ package com.example.viktorjankov.shuttletracker.splash_classes.register;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -14,6 +15,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
@@ -48,7 +50,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class RegisterActivity extends FragmentActivity implements Validator.ValidationListener,
+public class RegisterActivity extends ActionBarActivity implements Validator.ValidationListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
     private static final String ACTIVITY_TITLE = " " + "REGISTER";
@@ -165,8 +167,10 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(ACTIVITY_TITLE);
-        getActionBar().setIcon(R.drawable.ic_arrow_back_black_36dp);
+//        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_36dp);
+        final Drawable upArrow = getResources().getDrawable(R.drawable.ic_arrow_back_black_36dp);
+        getSupportActionBar().setHomeAsUpIndicator(upArrow);
+
 
         setContentView(R.layout.register_layout);
         ButterKnife.inject(this);
@@ -331,7 +335,12 @@ public class RegisterActivity extends FragmentActivity implements Validator.Vali
             public void onSuccess(Map<String, Object> result) {
                 User user = new User(firstName, lastName, email, companyCode);
                 mFirebase.child(FIREBASE_USERS).push().setValue(user);
-                Toast.makeText(RegisterActivity.this, "Congrats! You're registered!", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                intent.putExtra(MainActivity.USER_NAME_KEY, firstName);
+                intent.putExtra(MainActivity.USER_COMPANY_CODE, companyCode);
+
+                startActivity(intent);
             }
 
             @Override
