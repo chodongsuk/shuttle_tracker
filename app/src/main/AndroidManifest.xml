@@ -46,10 +46,10 @@
             android:label="@string/app_name" />
 
         <activity
-            android:name=".splash_classes.register.RegisterActivity"
+            android:name=".splash_classes.RegisterActivity"
             android:label="@string/app_name" />
         <activity
-            android:name=".splash_classes.sign_in.SignInActivity"
+            android:name=".splash_classes.SignInActivity"
             android:label="@string/app_name" />
 
         <activity

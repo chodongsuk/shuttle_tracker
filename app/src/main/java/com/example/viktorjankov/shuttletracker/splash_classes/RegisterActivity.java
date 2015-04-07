@@ -1,4 +1,4 @@
-package com.example.viktorjankov.shuttletracker.splash_classes.register;
+package com.example.viktorjankov.shuttletracker.splash_classes;
 
 import android.content.Intent;
 import android.content.IntentSender;
@@ -167,10 +167,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_36dp);
-        final Drawable upArrow = getResources().getDrawable(R.drawable.ic_arrow_back_black_36dp);
-        getSupportActionBar().setHomeAsUpIndicator(upArrow);
-
 
         setContentView(R.layout.register_layout);
         ButterKnife.inject(this);
@@ -287,7 +283,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             mFirebase.unauth();
         }
         Log.i(kLOG_TAG, state.toString());
-
     }
 
 
