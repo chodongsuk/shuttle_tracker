@@ -1,8 +1,13 @@
 package com.example.viktorjankov.shuttletracker.splash_classes.verify;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -75,6 +80,8 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
             registerUser(firstName, lastName, email, companyCode);
         }
     }
+    ProgressDialog mAuthProgressDialog;
+    Toolbar toolbar;
 
     Map<String, String> companyCodesMap = new HashMap<String, String>();
     List<String> registeredCompaniesList;
@@ -85,14 +92,24 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(ACTIVITY_TITLE);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_36dp);
-
         setContentView(R.layout.verify_layout);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(ACTIVITY_TITLE);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         ButterKnife.inject(this);
 
         validator = new Validator(this);
         validator.setValidationListener(this);
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Registering with Flow");
+        mAuthProgressDialog.setCancelable(false);
 
         firstName = getIntent().getExtras().getString(firstNameKey);
         lastName = getIntent().getExtras().getString(lastNameKey);
@@ -119,6 +136,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
         User user = new User(firstName, lastName, email, companyCode);
         mFirebase.child(FIREBASE_USERS).push().setValue(user);
+
         Toast.makeText(VerifyActivity.this, "Congrats! You're registered!", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(this, MainActivity.class);
@@ -146,26 +164,61 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     @Override
     public void onValidationSucceeded() {
 
+        firstName = firstNameEditText.getText().toString();
+        lastName = lastNameEditText.getText().toString();
+        companyName = companyNameAutoCompleteTextView.getText().toString();
+        companyCode = companyCodeEditText.getText().toString();
+
+        boolean companyValid = validateCompanyCode(companyName, companyCode);
+        if (companyValid) {
+            registerUser(firstName, lastName, email, companyCode);
+        }
     }
 
     @Override
     public void onValidationFailed(List<ValidationError> errors) {
         for (ValidationError error : errors) {
             View view = error.getView();
-            String message;
-
-            if (view.getId() == R.id.password) {
-                message = "Password must be at least 5 characters and contain letters and numbers only";
-            } else {
-                message = error.getCollatedErrorMessage(this);
-            }
+            String message = error.getCollatedErrorMessage(this);
 
             if (view instanceof EditText) {
                 ((EditText) view).setError(message);
-            } else {
-                Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                buildAlertDialt().show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        buildAlertDialt().show();
+    }
+
+    private AlertDialog.Builder buildAlertDialt() {
+        return new AlertDialog.Builder(this)
+                .setMessage(getResources().getString(R.string.dialog_message))
+                .setCancelable(false)
+                .setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert);
     }
 }
 

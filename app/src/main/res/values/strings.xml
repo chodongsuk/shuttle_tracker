@@ -28,4 +28,7 @@
     <string name="or">or</string>
     <string name="next">Next</string>
     <string name="facebook_app_id">1385944978395526</string>
+    <string name="dialog_message">Are you sure you want to cancel?\nYour information will not be saved</string>
+    <string name="no">NO</string>
+    <string name="yes">YES</string>
 </resources>

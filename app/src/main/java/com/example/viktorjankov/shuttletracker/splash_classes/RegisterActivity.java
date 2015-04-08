@@ -1,12 +1,16 @@
 package com.example.viktorjankov.shuttletracker.splash_classes;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -147,6 +151,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     }
 
     private ProgressDialog mAuthProgressDialog;
+    Toolbar toolbar;
 
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
@@ -157,8 +162,15 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.register_layout);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(ACTIVITY_TITLE);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         ButterKnife.inject(this);
 
         validator = new Validator(this);
@@ -333,7 +345,11 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             @Override
             public void onSuccess(Map<String, Object> result) {
                 User user = new User(firstName, lastName, email, companyCode);
+
+                // Add user and user details
                 mFirebase.child(FIREBASE_USERS).push().setValue(user);
+                // Add to registered users
+                mFirebase.child("registeredUsers/" + result.get("uid")).setValue(firstName);
 
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 intent.putExtra(MainActivity.USER_NAME_KEY, firstName);
@@ -518,5 +534,39 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth not successful");
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                buildAlertDialt().show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        buildAlertDialt().show();
+    }
+
+    private AlertDialog.Builder buildAlertDialt() {
+        return new AlertDialog.Builder(this)
+                .setMessage(getResources().getString(R.string.dialog_message))
+                .setCancelable(false)
+                .setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton(getResources().getString(R.string.no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert);
     }
 }

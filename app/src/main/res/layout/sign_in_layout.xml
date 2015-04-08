@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginEnd="20dp"
-    android:layout_marginLeft="20dp"
-    android:layout_marginRight="20dp"
-    android:layout_marginStart="20dp"
     android:orientation="vertical">
 
-    <include layout="@layout/social_signin" />
+    <include xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
 
-    <EditText
-        android:id="@+id/email_id"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:hint="@string/email"
-        android:inputType="textEmailAddress" />
+        android:layout_height="match_parent"
+        android:layout_marginEnd="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginStart="20dp"
+        android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/password_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:hint="@string/password"
-        android:inputType="textPassword" />
+        <include layout="@layout/social_signin" />
 
-    <Button
-        android:id="@+id/sign_in_id"
-        style="@style/sign_register_confirm_button"
-        android:text="@string/sign_in" />
+        <EditText
+            android:id="@+id/email_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:hint="@string/email"
+            android:inputType="textEmailAddress" />
 
+        <EditText
+            android:id="@+id/password_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
 
+        <Button
+            android:id="@+id/sign_in_id"
+            style="@style/sign_register_confirm_button"
+            android:text="@string/sign_in" />
+
+    </LinearLayout>
 </LinearLayout>

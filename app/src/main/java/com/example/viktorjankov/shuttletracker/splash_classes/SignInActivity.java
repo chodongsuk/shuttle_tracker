@@ -6,13 +6,17 @@ import android.content.IntentSender;
 import android.graphics.drawable.StateListDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
@@ -64,34 +68,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
     @OnClick(R.id.sign_in_id)
     public void onClick() {
-
         validator.validate();
-        email = emailEditText.getText().toString();
-        password = passwordEditText.getText().toString();
-
-        mAuthProgressDialog.show();
-        mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
-            @Override
-            public void onAuthenticated(AuthData authData) {
-                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-
-                mAuthProgressDialog.hide();
-                startActivity(intent);
-            }
-
-            @Override
-            public void onAuthenticationError(FirebaseError firebaseError) {
-                String message;
-                switch (firebaseError.getCode()) {
-                    case -16:
-                        message = "Incorrect Password";
-                        break;
-                    default:
-                        message = firebaseError.toString();
-                }
-
-            }
-        });
     }
 
     @InjectView(R.id.login_with_facebook)
@@ -134,20 +111,25 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 mGoogleApiClient.connect();
             }
         }
-        ;
     }
 
     private ProgressDialog mAuthProgressDialog;
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_in_layout);
 
-        setTitle(ACTIVITY_TITLE);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_36dp);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(ACTIVITY_TITLE);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         ButterKnife.inject(this);
 
         validator = new Validator(this);
@@ -346,7 +328,34 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
     @Override
     public void onValidationSucceeded() {
+        email = emailEditText.getText().toString();
+        password = passwordEditText.getText().toString();
 
+        mAuthProgressDialog.show();
+        mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
+            @Override
+            public void onAuthenticated(AuthData authData) {
+                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+
+                mAuthProgressDialog.hide();
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAuthenticationError(FirebaseError firebaseError) {
+                String message;
+                mAuthProgressDialog.hide();
+                switch (firebaseError.getCode()) {
+                    case -16:
+                        message = "Incorrect Password";
+                        break;
+                    default:
+                        message = firebaseError.toString();
+                }
+                Toast.makeText(SignInActivity.this, message, Toast.LENGTH_LONG).show();
+
+            }
+        });
     }
 
     @Override
@@ -381,6 +390,16 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
 
 
