@@ -34,6 +34,10 @@
     @butterknife.* <methods>;
 }
 
+-keepclasseswithmembernames class * {
+    @butterknife.* *;
+}
+
 -keep class com.mobsandgeeks.saripaar.** {*;}
 -keep class commons.validator.routines.** {*;}
 
