@@ -36,3 +36,5 @@
 
 -keep class com.mobsandgeeks.saripaar.** {*;}
 -keep class commons.validator.routines.** {*;}
+
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry

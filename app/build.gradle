@@ -11,13 +11,27 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    signingConfigs {
+        release {
+            storeFile file("/Users/viktorjankov/.android/release.keystore")
+            storePassword "DRr6Tqus"
+            keyAlias "alias_name"
+            keyPassword "DRr6Tqus"
+        }
+    }
+
     buildTypes {
         debug {
             debuggable true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.release
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            zipAlignEnabled true
         }
     }
 
@@ -37,10 +51,9 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.squareup:otto:1.3.6'
-    compile 'com.google.android.gms:play-services:7.0.0'
     compile 'com.jakewharton:butterknife:6.1.0'
+    compile 'com.google.android.gms:play-services:7.0.0'
     compile 'com.firebase:firebase-client-android:2.2.3+'
     compile 'com.mobsandgeeks:android-saripaar:2.0-SNAPSHOT'
-    compile 'com.github.traex:RippleEffect:v1.2.4'
     compile 'com.facebook.android:facebook-android-sdk:3.23.0'
 }
