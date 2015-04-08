@@ -1,5 +1,6 @@
 package com.example.viktorjankov.shuttletracker.splash_classes;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.drawable.StateListDrawable;
@@ -68,11 +69,13 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         email = emailEditText.getText().toString();
         password = passwordEditText.getText().toString();
 
+        mAuthProgressDialog.show();
         mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
             @Override
             public void onAuthenticated(AuthData authData) {
                 Intent intent = new Intent(SignInActivity.this, MainActivity.class);
 
+                mAuthProgressDialog.hide();
                 startActivity(intent);
             }
 
@@ -134,7 +137,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         ;
     }
 
-
+    private ProgressDialog mAuthProgressDialog;
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
 
@@ -149,6 +152,11 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
         validator = new Validator(this);
         validator.setValidationListener(this);
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Authenticating with Flow");
+        mAuthProgressDialog.setCancelable(false);
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[] {android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_light));
@@ -188,6 +196,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
     private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
         if (state.isOpened()) {
+            mAuthProgressDialog.show();
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
@@ -195,6 +204,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     Log.i(kLOG_TAG, "onAuthenticated");
 
                     Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                    mAuthProgressDialog.hide();
                     startActivity(intent);
                 }
 
@@ -229,6 +239,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     }
 
     private void getGoogleOAuthTokenAndLogin() {
+        mAuthProgressDialog.show();
         Log.i(kLOG_TAG, "GoogleOAuthTokenAndLogin");
         /* Get OAuth token in Background */
         AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
@@ -270,6 +281,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     Log.i(kLOG_TAG, "Successfully got OAuth from Google");
                     mFirebase.authWithOAuthToken("google", token, new AuthResultHandler("google"));
                 } else if (errorMessage != null) {
+                    mAuthProgressDialog.hide();
                 }
             }
         };
@@ -321,11 +333,13 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             Log.i(kLOG_TAG, provider + " auth successful");
 
             Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+            mAuthProgressDialog.hide();
             startActivity(intent);
         }
 
         @Override
         public void onAuthenticationError(FirebaseError firebaseError) {
+            mAuthProgressDialog.hide();
             Log.i(kLOG_TAG, provider + " auth not successful");
         }
     }

@@ -1,5 +1,6 @@
 package com.example.viktorjankov.shuttletracker.splash_classes;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.AsyncTask;
@@ -102,18 +103,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     @OnClick(R.id.registerButton)
     public void onClick() {
         validator.validate();
-
-        firstName = firstNameEditText.getText().toString();
-        lastName = lastNameEditText.getText().toString();
-        companyName = companyNameAutoCompleteTextView.getText().toString();
-        companyCode = companyCodeEditText.getText().toString();
-        email = emailEditText.getText().toString();
-        password = passwordEditText.getText().toString();
-
-        boolean companyValid = validateCompanyCode(companyName, companyCode);
-        if (companyValid) {
-            registerUser(email, password, firstName, lastName);
-        }
     }
 
     @InjectView(R.id.login_with_facebook)
@@ -140,7 +129,9 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     @OnClick({R.id.google_plus_button, R.id.google_icon})
     public void googlePlusClick() {
         Log.i(kLOG_TAG, "google login button clicked");
+
         mGoogleLoginClicked = true;
+
         if (!mGoogleApiClient.isConnecting()) {
             if (mGoogleConnectionResult != null) {
                 resolveSignInError();
@@ -153,9 +144,9 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 mGoogleApiClient.connect();
             }
         }
-        ;
     }
 
+    private ProgressDialog mAuthProgressDialog;
 
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
@@ -172,6 +163,11 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
         validator = new Validator(this);
         validator.setValidationListener(this);
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Registering with Flow");
+        mAuthProgressDialog.setCancelable(false);
 
         /* *************************************
          *              FACEBOOK               *
@@ -240,14 +236,14 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     }
 
     private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
-        Log.i(kLOG_TAG, "ON FACEBOOK SESSION STATE CHANGE");
         if (state.isOpened()) {
+            mAuthProgressDialog.show();
             Log.i(kLOG_TAG, "state is opened");
+
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
                     // The Facebook user is now authenticated with Firebase
-                    Toast.makeText(RegisterActivity.this, "FACEBOOK AUTHENTICION SUCCESSFULL", Toast.LENGTH_LONG).show();
                     Log.i(kLOG_TAG, "onAuthenticated");
 
                     Intent intent = new Intent(RegisterActivity.this, VerifyActivity.class);
@@ -266,13 +262,13 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesKey, registeredCompanyList);
                     intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesCodesKey, registeredCompanyCodesList);
 
+                    mAuthProgressDialog.hide();
                     startActivity(intent);
                 }
 
                 @Override
                 public void onAuthenticationError(FirebaseError firebaseError) {
                     // there was an error
-                    Toast.makeText(RegisterActivity.this, "FACEBOOK AUTHENTICION NOT SUCCESSFULL :(", Toast.LENGTH_LONG).show();
                     Log.i(kLOG_TAG, "onAuthenticationError");
                 }
             });
@@ -306,7 +302,17 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     @Override
     public void onValidationSucceeded() {
+        firstName = firstNameEditText.getText().toString();
+        lastName = lastNameEditText.getText().toString();
+        companyName = companyNameAutoCompleteTextView.getText().toString();
+        companyCode = companyCodeEditText.getText().toString();
+        email = emailEditText.getText().toString();
+        password = passwordEditText.getText().toString();
 
+        boolean companyValid = validateCompanyCode(companyName, companyCode);
+        if (companyValid) {
+            registerUser(email, password, firstName, lastName);
+        }
     }
 
     @Override
@@ -317,13 +323,12 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
             if (view instanceof EditText) {
                 ((EditText) view).setError(message);
-            } else {
-                Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_LONG).show();
             }
         }
     }
 
     private void registerUser(final String email, String password, final String firstName, final String lastName) {
+        mAuthProgressDialog.show();
         mFirebase.createUser(email, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
             public void onSuccess(Map<String, Object> result) {
@@ -334,11 +339,13 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 intent.putExtra(MainActivity.USER_NAME_KEY, firstName);
                 intent.putExtra(MainActivity.USER_COMPANY_CODE, companyCode);
 
+                mAuthProgressDialog.hide();
                 startActivity(intent);
             }
 
             @Override
             public void onError(FirebaseError firebaseError) {
+                mAuthProgressDialog.hide();
                 String errorMessage;
                 switch (firebaseError.getCode()) {
                     case -18:
@@ -346,6 +353,9 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                         break;
                     case -16:
                         errorMessage = "Invalid password!";
+                        break;
+                    case -15:
+                        errorMessage = "The Email is invalid";
                         break;
                     default:
                         errorMessage = firebaseError.toString();
@@ -391,6 +401,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     }
 
     private void getGoogleOAuthTokenAndLogin() {
+        mAuthProgressDialog.show();
         Log.i(kLOG_TAG, "GoogleOAuthTokenAndLogin");
         /* Get OAuth token in Background */
         AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
@@ -432,7 +443,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     Log.i(kLOG_TAG, "Successfully got OAuth from Google");
                     mFirebase.authWithOAuthToken("google", token, new AuthResultHandler("google"));
                 } else if (errorMessage != null) {
-                    Toast.makeText(RegisterActivity.this, "GOOGLE AUTHENTICION NOT SUCCESSFULL :(", Toast.LENGTH_LONG).show();
+                    mAuthProgressDialog.hide();
                 }
             }
         };
@@ -480,8 +491,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
         @Override
         public void onAuthenticated(AuthData authData) {
+            mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth successful");
-            Toast.makeText(RegisterActivity.this, "GOOGLE AUTHENTICION SUCCESSFULL :)", Toast.LENGTH_LONG).show();
 
             Intent intent = new Intent(RegisterActivity.this, VerifyActivity.class);
             String name = (String) authData.getProviderData().get("displayName");
@@ -497,13 +508,15 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesKey, registeredCompanyList);
             intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesCodesKey, registeredCompanyCodesList);
 
+            mAuthProgressDialog.hide();
+
             startActivity(intent);
         }
 
         @Override
         public void onAuthenticationError(FirebaseError firebaseError) {
+            mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth not successful");
-            Toast.makeText(RegisterActivity.this, "GOOGLE AUTHENTICION NOT SUCCESSFULL :(", Toast.LENGTH_LONG).show();
         }
     }
 }

@@ -75,6 +75,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
             registerUser(firstName, lastName, email, companyCode);
         }
     }
+
     Map<String, String> companyCodesMap = new HashMap<String, String>();
     List<String> registeredCompaniesList;
     List<String> registeredCompanyCodesList;
@@ -99,8 +100,10 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         registeredCompaniesList = getIntent().getExtras().getStringArrayList(registeredCompaniesKey);
         registeredCompanyCodesList = getIntent().getExtras().getStringArrayList(registeredCompaniesCodesKey);
 
-        for (int i = 0; i < registeredCompaniesList.size(); i++) {
-            companyCodesMap.put(registeredCompaniesList.get(i), registeredCompanyCodesList.get(i));
+        if (registeredCompaniesList != null) {
+            for (int i = 0; i < registeredCompaniesList.size(); i++) {
+                companyCodesMap.put(registeredCompaniesList.get(i), registeredCompanyCodesList.get(i));
+            }
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,

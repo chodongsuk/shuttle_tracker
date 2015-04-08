@@ -91,7 +91,7 @@ public class MainActivity extends FragmentActivity
         users.put(mUser.getFirstName(), mUser);
         users.put(randyUser.getFirstName(), randyUser);
         users.put(aliUser.getFirstName(), aliUser);
-        mFireBaseRef.setValue(users);
+//        mFireBaseRef.setValue(users);
     }
 
     @Subscribe
