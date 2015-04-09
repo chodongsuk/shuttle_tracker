@@ -203,8 +203,8 @@ public class MainActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_out:
-
-                break;
+                buildAlertDialt().show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -214,13 +214,13 @@ public class MainActivity extends ActionBarActivity
         return new AlertDialog.Builder(this)
                 .setMessage(getResources().getString(R.string.dialog_sign_out))
                 .setCancelable(false)
-                .setPositiveButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                .setPositiveButton(getResources().getString(R.string.sign_out), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         finish();
                     }
                 })
-                .setNegativeButton(getResources().getString(R.string.sign_out), new DialogInterface.OnClickListener() {
+                .setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
