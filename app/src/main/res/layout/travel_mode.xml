@@ -9,14 +9,14 @@
         style="@style/destination_block_style"
         android:background="@drawable/green"
         android:contentDescription="@string/car"
-        android:src="@drawable/ic_directions_car_black_24dp" />
+        android:src="@drawable/ic_directions_car_black_48dp" />
 
     <ImageButton
         android:id="@+id/travel_way_two"
         style="@style/destination_block_style"
         android:background="@drawable/light_green"
         android:contentDescription="@string/bus"
-        android:src="@drawable/ic_directions_bus_black_24dp" />
+        android:src="@drawable/ic_directions_bus_black_48dp" />
 
 
     <ImageButton
@@ -24,6 +24,6 @@
         style="@style/destination_block_style"
         android:background="@drawable/lime"
         android:contentDescription="@string/bus"
-        android:src="@drawable/ic_directions_bike_black_24dp" />
+        android:src="@drawable/ic_directions_bike_black_48dp" />
 
 </LinearLayout>
