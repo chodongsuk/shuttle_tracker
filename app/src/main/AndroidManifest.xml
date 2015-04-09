@@ -34,12 +34,16 @@
             android:name=".splash_classes.WelcomeActivity"
             android:label="@string/app_name"
             android:theme="@style/MyTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity
             android:name=".splash_classes.RegisterActivity"
-            android:label="@string/app_name"
-            android:parentActivityName=".splash_classes.WelcomeActivity" />
+            android:label="@string/app_name" />
         <activity
             android:name=".splash_classes.SignInActivity"
             android:label="@string/app_name"/>
@@ -49,16 +53,11 @@
             android:label="@string/app_name"
             android:theme="@style/MyTheme">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
             android:name="com.facebook.LoginActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@style/MyTheme" />
 
         <activity
             android:name=".splash_classes.verify.VerifyActivity"

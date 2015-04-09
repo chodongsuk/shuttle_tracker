@@ -52,3 +52,7 @@
 -dontwarn org.joda.time.**
 -dontwarn org.shaded.apache.**
 -dontwarn org.ietf.jgss.**
+
+-keep class com.facebook.** { *; }
+
+-keepattributes Signature,*Annotation*,EnclosingMethod

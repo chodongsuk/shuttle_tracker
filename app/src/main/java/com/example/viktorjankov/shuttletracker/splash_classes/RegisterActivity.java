@@ -60,13 +60,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     private static final String ACTIVITY_TITLE = " " + "REGISTER";
     private static final String kLOG_TAG = "RegisterActivity";
 
-    private static final String FIREBASE_COMPANIES_ENDPOINT = "companies";
-    private static final String FIREBASE_COMPANY_NAME = "companyName";
-    private static final String FIREBASE_COMPANY_CODE = "companyCode";
-    private static final String FIREBASE_DESTINATIONS = "destinations";
-    private static final String FIREBASE_DESTINATION_NAME = "destinationName";
-    private static final String FIREBASE_DESTINATION_LAT = "lat";
-    private static final String FIREBASE_DESTINATION_LNG = "lng";
     private static final String FIREBASE_REGISTERED_COMPANIES = "registeredCompanies";
     private static final String FIREBASE_USERS = "users";
 
@@ -248,6 +241,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     }
 
     private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
+        Log.i(kLOG_TAG,"Facebook state: " + state.toString());
+
         if (state.isOpened()) {
             mAuthProgressDialog.show();
             Log.i(kLOG_TAG, "state is opened");
@@ -281,18 +276,16 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
                 @Override
                 public void onAuthenticationError(FirebaseError firebaseError) {
-                    // there was an error
+                    mAuthProgressDialog.hide();
                     Log.i(kLOG_TAG, "onAuthenticationError");
                 }
             });
         } else if (state.isClosed()) {
         /* Logged out of Facebook so do a logout from Firebase */
             Log.i(kLOG_TAG, "ON FACEBOOK SESSION STATE CHANGE");
-            mFirebase.unauth();
         }
         Log.i(kLOG_TAG, state.toString());
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -348,7 +341,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 User user = new User(firstName, lastName, email, companyCode);
 
                 // Add user and user details
-                mFirebase.child(FIREBASE_USERS).child((String)result.get("uid")).setValue(user);
+                mFirebase.child(FIREBASE_USERS).child((String) result.get("uid")).setValue(user);
 
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 intent.putExtra(MainActivity.USER_NAME_KEY, firstName);
