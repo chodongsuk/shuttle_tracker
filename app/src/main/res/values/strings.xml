@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">ShuttleTracker</string>
+    <string name="app_name">FLOW</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="action_sign_out">Sign out</string>
     <string name="houghton_park_n_ride">Houghton Park\'n\'Ride</string>
     <string name="south_kirkland_park_n_ride">South Kirkland Park\'n\'Ride</string>
     <string name="bellevue_tc">Bellevue Transit Center</string>
@@ -29,6 +30,9 @@
     <string name="next">Next</string>
     <string name="facebook_app_id">1385944978395526</string>
     <string name="dialog_message">Are you sure you want to cancel?\nYour information will not be saved</string>
+    <string name="dialog_sign_out">Are you sure you want to sign out</string>
     <string name="no">NO</string>
+    <string name="cancel">Cancel</string>
+    <string name="sign_out">Sign out</string>
     <string name="yes">YES</string>
 </resources>
