@@ -6,7 +6,6 @@ import android.content.IntentSender;
 import android.graphics.drawable.StateListDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,12 +20,15 @@ import android.widget.Toast;
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.splash_classes.verify.VerifyActivity;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
@@ -141,7 +143,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         mAuthProgressDialog.setCancelable(false);
 
         StateListDrawable states = new StateListDrawable();
-        states.addState(new int[] {android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_light));
+        states.addState(new int[]{android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_light));
         googleIcon.setImageDrawable(states);
 
         /* *************************************
@@ -185,9 +187,11 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     // The Facebook user is now authenticated with Firebase
                     Log.i(kLOG_TAG, "onAuthenticated");
 
-                    Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-                    mAuthProgressDialog.hide();
-                    startActivity(intent);
+                    String name = (String) authData.getProviderData().get("displayName");
+                    String[] last = name.split("\\s+");
+                    String email = (String) authData.getProviderData().get("email");
+                    // check if user exists, if they do start MainActivity
+                    userExists(authData.getUid(), last[0], last[1], email);
                 }
 
                 @Override
@@ -200,6 +204,37 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         /* Logged out of Facebook so do a logout from Firebase */
             mFirebase.unauth();
         }
+    }
+
+    private void userExists(final String uid, final String first, final String last, final String email) {
+
+        mFirebase.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Intent intent;
+                if (dataSnapshot.hasChildren()) {
+                    mAuthProgressDialog.hide();
+
+                    intent = new Intent(SignInActivity.this, MainActivity.class);
+                    startActivity(intent);
+                } else {
+                    mAuthProgressDialog.hide();
+                    intent = new Intent(SignInActivity.this, VerifyActivity.class);
+
+                    intent.putExtra(VerifyActivity.firstNameKey, first);
+                    intent.putExtra(VerifyActivity.lastNameKey, last);
+                    intent.putExtra(VerifyActivity.emailKey, email);
+                    intent.putExtra(VerifyActivity.UID_KEY, uid);
+
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     /* ************************************
@@ -234,6 +269,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 try {
                     String scope = String.format("oauth2:%s", Scopes.PLUS_LOGIN);
                     token = GoogleAuthUtil.getToken(SignInActivity.this, Plus.AccountApi.getAccountName(mGoogleApiClient), scope);
+
                 } catch (IOException transientEx) {
                     /* Network or server error */
                     Log.e(kLOG_TAG, "Error authenticating with Google: " + transientEx);
@@ -314,9 +350,12 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         public void onAuthenticated(AuthData authData) {
             Log.i(kLOG_TAG, provider + " auth successful");
 
-            Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-            mAuthProgressDialog.hide();
-            startActivity(intent);
+            String name = (String) authData.getProviderData().get("displayName");
+            String[] first_last = name.split("\\s+");
+            String gMail = Plus.AccountApi.getAccountName(mGoogleApiClient);
+            // check if user exists, if they do start MainActivity
+            userExists(authData.getUid(), first_last[0], first_last[1], gMail);
+
         }
 
         @Override

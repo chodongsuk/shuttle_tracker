@@ -271,6 +271,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     intent.putExtra(VerifyActivity.firstNameKey, last[0]);
                     intent.putExtra(VerifyActivity.lastNameKey, last[1]);
                     intent.putExtra(VerifyActivity.emailKey, gEmail);
+                    intent.putExtra(VerifyActivity.UID_KEY, authData.getUid());
                     intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesKey, registeredCompanyList);
                     intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesCodesKey, registeredCompanyCodesList);
 
@@ -347,9 +348,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 User user = new User(firstName, lastName, email, companyCode);
 
                 // Add user and user details
-                mFirebase.child(FIREBASE_USERS).push().setValue(user);
-                // Add to registered users
-                mFirebase.child("registeredUsers/" + result.get("uid")).setValue(firstName);
+                mFirebase.child(FIREBASE_USERS).child((String)result.get("uid")).setValue(user);
 
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 intent.putExtra(MainActivity.USER_NAME_KEY, firstName);
@@ -520,7 +519,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             Log.i(kLOG_TAG, "Email: " + gMail);
             intent.putExtra(VerifyActivity.firstNameKey, last[0]);
             intent.putExtra(VerifyActivity.lastNameKey, last[1]);
-            intent.putExtra(VerifyActivity.emailKey, (String) authData.getProviderData().get("email"));
+            intent.putExtra(VerifyActivity.emailKey, gMail);
+            intent.putExtra(VerifyActivity.UID_KEY, authData.getUid());
             intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesKey, registeredCompanyList);
             intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesCodesKey, registeredCompanyCodesList);
 

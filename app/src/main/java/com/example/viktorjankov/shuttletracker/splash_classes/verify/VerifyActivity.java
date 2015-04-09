@@ -41,6 +41,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     public static final String emailKey = "email";
     public static final String registeredCompaniesKey = "registeredCompaniesList";
     public static final String registeredCompaniesCodesKey = "registeredCompaniesCodesKey";
+    public static final String UID_KEY = "userID";
 
 
     @InjectView(R.id.first_name)
@@ -69,16 +70,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     @OnClick(R.id.registerButton)
     public void onClick() {
         validator.validate();
-
-        firstName = firstNameEditText.getText().toString();
-        lastName = lastNameEditText.getText().toString();
-        companyName = companyNameAutoCompleteTextView.getText().toString();
-        companyCode = companyCodeEditText.getText().toString();
-
-        boolean companyValid = validateCompanyCode(companyName, companyCode);
-        if (companyValid) {
-            registerUser(firstName, lastName, email, companyCode);
-        }
     }
     ProgressDialog mAuthProgressDialog;
     Toolbar toolbar;
@@ -89,6 +80,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
     String email;
+    String uID;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +106,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         firstName = getIntent().getExtras().getString(firstNameKey);
         lastName = getIntent().getExtras().getString(lastNameKey);
         email = getIntent().getExtras().getString(emailKey);
+        uID  = getIntent().getExtras().getString(UID_KEY);
         registeredCompaniesList = getIntent().getExtras().getStringArrayList(registeredCompaniesKey);
         registeredCompanyCodesList = getIntent().getExtras().getStringArrayList(registeredCompaniesCodesKey);
 
@@ -135,7 +128,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
         User user = new User(firstName, lastName, email, companyCode);
-        mFirebase.child(FIREBASE_USERS).push().setValue(user);
+        mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
 
         Toast.makeText(VerifyActivity.this, "Congrats! You're registered!", Toast.LENGTH_SHORT).show();
 
