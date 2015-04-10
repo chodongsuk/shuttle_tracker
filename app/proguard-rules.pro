@@ -56,3 +56,11 @@
 -keep class com.facebook.** { *; }
 
 -keepattributes Signature,*Annotation*,EnclosingMethod
+
+-keep public class com.example.viktorjankov.** {
+  public void set*(***);
+  public *** get*();
+}
+-keepattributes Signature
+-keepnames class com.fasterxml.jackson.** { *; }
+-dontwarn com.fasterxml.jackson.databind.**
