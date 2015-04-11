@@ -46,9 +46,9 @@
 //
 //        int resource;
 //        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
-//            resource = R.drawable.ripple;
+//            resource = R.drawable.ripple_signin;
 //        } else {
-//            resource = R.drawable.flat_pressed;
+//            resource = R.drawable.flat_pressed_signin;
 //        }
 //        signInButton.setBackgroundResource(resource);
 //        registerButton.setBackgroundResource(resource);

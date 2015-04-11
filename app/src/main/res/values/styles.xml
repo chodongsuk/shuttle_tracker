@@ -101,6 +101,7 @@
     <color name="light_black">#BDBDBD</color>
 
     <color name="gray">#E0E0E0</color>
+    <color name="dark_gray">#808080</color>
     <color name="google_plus">#dd4b39</color>
     <color name="google_plus_light">#FF5F39</color>
     <color name="facebook">#3b5998</color>

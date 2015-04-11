@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
@@ -54,6 +55,9 @@ public class TravelModeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.travel_mode, container, false);
         ButterKnife.inject(this, v);
+
+        ((MainActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
+        ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         return v;
     }

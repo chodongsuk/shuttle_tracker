@@ -1,0 +1,6 @@
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/dark_gray">
+    <item
+        android:drawable="@drawable/sign_in_button_drawable" >
+    </item>
+</ripple>

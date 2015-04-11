@@ -3,30 +3,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/splash"
-    android:orientation="horizontal">
+    android:gravity="center|top"
+    android:orientation="horizontal"
+    android:paddingTop="50dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="50dp"
-        android:orientation="horizontal"
-        android:weightSum="2">
+    <TextView
+        android:id="@+id/sign_in"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:background="@drawable/sign_in_button_drawable"
+        android:gravity="center"
+        android:text="@string/sign_in"
+        android:textAllCaps="true"
+        android:textColor="#545454" />
 
-        <Button
-            android:id="@+id/sign_in"
-            style="@style/sign_register_button"
-            android:text="@string/sign_in" />
+    <View
+        android:layout_width="3dp"
+        android:layout_height="50dp"
+        android:background="#000" />
 
-        <Button
-            android:id="@+id/register"
-            style="@style/sign_register_button"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
-            android:text="@string/register" />
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/register"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:background="@drawable/register_button_drawable"
+        android:gravity="center"
+        android:text="@string/register"
+        android:textAllCaps="true"
+        android:textColor="#545454" />
 
 </LinearLayout>
