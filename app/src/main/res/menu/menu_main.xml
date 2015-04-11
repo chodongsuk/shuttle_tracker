@@ -2,6 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.viktorjankov.shuttletracker.MainActivity">
+
+    <item
+        android:id="@+id/change_password"
+        android:orderInCategory="50"
+        android:title="@string/change_password"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/sign_out"
         android:orderInCategory="100"

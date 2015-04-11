@@ -1,4 +1,4 @@
-package com.example.viktorjankov.shuttletracker.splash_classes.verify;
+package com.example.viktorjankov.shuttletracker.splash_classes;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

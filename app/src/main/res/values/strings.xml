@@ -42,4 +42,5 @@
     </string>
     <string name="enable">enable</string>
     <string name="reset_password">reset password</string>
+    <string name="change_password">Change Password</string>
 </resources>

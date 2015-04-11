@@ -60,7 +60,7 @@
             android:theme="@style/MyTheme" />
 
         <activity
-            android:name=".splash_classes.verify.VerifyActivity"
+            android:name=".splash_classes.VerifyActivity"
             android:label="@string/app_name" />
 
         <meta-data

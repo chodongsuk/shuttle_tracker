@@ -2,6 +2,7 @@ package com.example.viktorjankov.shuttletracker;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -205,6 +206,7 @@ public class MainActivity extends ActionBarActivity
             case R.id.sign_out:
                 buildAlertDialt().show();
                 return true;
+            case R.id.change_password:
             case android.R.id.home:
                 getSupportFragmentManager().popBackStack();
             default:

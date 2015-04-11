@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
-import com.example.viktorjankov.shuttletracker.splash_classes.verify.VerifyActivity;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
