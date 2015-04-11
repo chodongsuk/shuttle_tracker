@@ -35,4 +35,11 @@
     <string name="cancel">Cancel</string>
     <string name="sign_out">Sign out</string>
     <string name="yes">YES</string>
+    <string name="location_service_disabled">Location Services Disabled</string>
+    <string name="enabled_location">
+        Location Services Disabled\
+        Please enable location services.
+    </string>
+    <string name="enable">enable</string>
+    <string name="reset_password">reset password</string>
 </resources>

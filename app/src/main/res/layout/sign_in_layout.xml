@@ -44,5 +44,10 @@
             style="@style/sign_register_confirm_button"
             android:text="@string/sign_in" />
 
+        <TextView
+            android:text="@string/reset_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 </LinearLayout>

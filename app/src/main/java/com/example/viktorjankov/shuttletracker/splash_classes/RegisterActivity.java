@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
+import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.splash_classes.verify.VerifyActivity;
@@ -28,10 +29,8 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
 import com.firebase.client.AuthData;
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
@@ -148,9 +147,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
-    Map<String, String> companyCodesMap = new HashMap<String, String>();
-    ArrayList<String> registeredCompanyList;
-    ArrayList<String> registeredCompanyCodesList;
+    Map<String, String> companyCodesMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,44 +201,18 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         /* *************************************
          *       GET FIREBASE COMPANIES        *
          ***************************************/
-        /* Load the Google login button */
 
-        mFirebase.child(FIREBASE_REGISTERED_COMPANIES).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                registeredCompanyList = new ArrayList<String>();
-                registeredCompanyCodesList = new ArrayList<String>();
-                for (DataSnapshot company : dataSnapshot.getChildren()) {
-                    String companyName = "";
-                    String companyCode = "";
-                    for (DataSnapshot companyValues : company.getChildren()) {
-                        if (companyValues.getKey().equals("companyCode")) {
-                            companyCode = companyValues.getValue().toString();
-                            registeredCompanyCodesList.add(companyCode);
-                        }
-                        if (companyValues.getKey().equals("companyName")) {
-                            companyName = companyValues.getValue().toString();
-                            registeredCompanyList.add(companyName);
-                        }
-                    }
-                    companyCodesMap.put(companyName, companyCode);
-                }
+        companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
 
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(RegisterActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, registeredCompanyList);
-                companyNameAutoCompleteTextView.setAdapter(adapter);
 
-            }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(RegisterActivity.this,
+                android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
+        companyNameAutoCompleteTextView.setAdapter(adapter);
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
     }
 
     private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
-        Log.i(kLOG_TAG,"Facebook state: " + state.toString());
+        Log.i(kLOG_TAG, "Facebook state: " + state.toString());
 
         if (state.isOpened()) {
             mAuthProgressDialog.show();
@@ -267,8 +238,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     intent.putExtra(VerifyActivity.lastNameKey, last[1]);
                     intent.putExtra(VerifyActivity.emailKey, gEmail);
                     intent.putExtra(VerifyActivity.UID_KEY, authData.getUid());
-                    intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesKey, registeredCompanyList);
-                    intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesCodesKey, registeredCompanyCodesList);
 
                     mAuthProgressDialog.hide();
                     startActivity(intent);
@@ -514,8 +483,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             intent.putExtra(VerifyActivity.lastNameKey, last[1]);
             intent.putExtra(VerifyActivity.emailKey, gMail);
             intent.putExtra(VerifyActivity.UID_KEY, authData.getUid());
-            intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesKey, registeredCompanyList);
-            intent.putStringArrayListExtra(VerifyActivity.registeredCompaniesCodesKey, registeredCompanyCodesList);
 
             mAuthProgressDialog.hide();
 
@@ -533,7 +500,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                buildAlertDialt().show();
+                buildAlertDialog().show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -542,10 +509,10 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     @Override
     public void onBackPressed() {
-        buildAlertDialt().show();
+        buildAlertDialog().show();
     }
 
-    private AlertDialog.Builder buildAlertDialt() {
+    private AlertDialog.Builder buildAlertDialog() {
         return new AlertDialog.Builder(this)
                 .setMessage(getResources().getString(R.string.dialog_message))
                 .setCancelable(false)

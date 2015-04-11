@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
+import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.firebase.client.Firebase;
@@ -76,7 +77,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     Map<String, String> companyCodesMap = new HashMap<String, String>();
     List<String> registeredCompaniesList;
-    List<String> registeredCompanyCodesList;
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
     String email;
@@ -107,14 +107,10 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         lastName = getIntent().getExtras().getString(lastNameKey);
         email = getIntent().getExtras().getString(emailKey);
         uID  = getIntent().getExtras().getString(UID_KEY);
-        registeredCompaniesList = getIntent().getExtras().getStringArrayList(registeredCompaniesKey);
-        registeredCompanyCodesList = getIntent().getExtras().getStringArrayList(registeredCompaniesCodesKey);
 
-        if (registeredCompaniesList != null) {
-            for (int i = 0; i < registeredCompaniesList.size(); i++) {
-                companyCodesMap.put(registeredCompaniesList.get(i), registeredCompanyCodesList.get(i));
-            }
-        }
+        registeredCompaniesList = RegisteredCompaniesProvider.getCompanyList() ;
+        companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
+
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, registeredCompaniesList);
