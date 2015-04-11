@@ -62,4 +62,12 @@ public class PickupLocationFragment extends Fragment {
 
         return v;
     }
+
+    @Override
+    public void onResume() {
+        ((MainActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        ((MainActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
+        super.onResume();
+    }
 }

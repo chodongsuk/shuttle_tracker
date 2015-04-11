@@ -18,7 +18,7 @@
         android:textColor="#545454" />
 
     <View
-        android:layout_width="3dp"
+        android:layout_width="1dp"
         android:layout_height="50dp"
         android:background="#000" />
 

@@ -205,6 +205,8 @@ public class MainActivity extends ActionBarActivity
             case R.id.sign_out:
                 buildAlertDialt().show();
                 return true;
+            case android.R.id.home:
+                getSupportFragmentManager().popBackStack();
             default:
                 return super.onOptionsItemSelected(item);
         }
