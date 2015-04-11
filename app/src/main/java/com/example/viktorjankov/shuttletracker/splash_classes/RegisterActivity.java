@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
+import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
@@ -115,6 +116,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     private boolean mGoogleIntentInProgress;
     private boolean mGoogleLoginClicked;
     private ConnectionResult mGoogleConnectionResult;
+
+    AuthData mAuthData;
 
     @InjectView(R.id.google_plus_button)
     LinearLayout googlePlusLayout;
@@ -218,6 +221,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
+                    mAuthData = authData;
+                    FirebaseAuthProvider.setmAuthData(mAuthData);
                     // The Facebook user is now authenticated with Firebase
                     Log.i(kLOG_TAG, "onAuthenticated");
 
@@ -248,7 +253,10 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             });
         } else if (state.isClosed()) {
         /* Logged out of Facebook so do a logout from Firebase */
-            Log.i(kLOG_TAG, "ON FACEBOOK SESSION STATE CHANGE");
+            /* Logged out of Facebook and currently authenticated with Firebase using Facebook, so do a logout */
+            if (mAuthData != null && mAuthData.getProvider().equals("facebook")) {
+                mFirebase.unauth();
+            }
         }
         Log.i(kLOG_TAG, state.toString());
     }
@@ -465,6 +473,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
         @Override
         public void onAuthenticated(AuthData authData) {
+            mAuthData = authData;
+            FirebaseAuthProvider.setmAuthData(mAuthData);
             mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth successful");
 

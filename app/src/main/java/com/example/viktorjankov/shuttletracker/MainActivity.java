@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
+import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
 import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
 import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
@@ -26,12 +28,16 @@ import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
+import com.example.viktorjankov.shuttletracker.splash_classes.WelcomeActivity;
+import com.facebook.Session;
+import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.plus.Plus;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -43,13 +49,14 @@ public class MainActivity extends ActionBarActivity
 
     public static final String USER_NAME_KEY = "user_name";
     public static final String USER_COMPANY_CODE = "company_code";
+    public static final String OAUTH_KEY = "oAuth_token";
 
 
     FragmentManager manager;
 
     Bus bus = BusProvider.getInstance();
     User mUser = UserProvider.getInstance();
-    Firebase mFireBaseRef = FirebaseProvider.getInstance();
+    Firebase mFirebase = FirebaseProvider.getInstance();
 
     DestinationLocation mDestinationLocation;
     TravelMode mTravelMode;
@@ -60,6 +67,9 @@ public class MainActivity extends ActionBarActivity
     Location mCurrentLocation;
     MapViewFragment mapViewFragment;
     TravelModeFragment travelModeFragment;
+
+    /* Data from the authenticated user */
+    private AuthData mAuthData;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +84,8 @@ public class MainActivity extends ActionBarActivity
         title.setText("FLOW");
         title.setTextColor(Color.WHITE);
         title.setVisibility(View.VISIBLE);
+
+        mAuthData = FirebaseAuthProvider.getmAuthData();
 
         mUser.setFirstName("viktor");
         mapViewFragment = new MapViewFragment();
@@ -110,7 +122,7 @@ public class MainActivity extends ActionBarActivity
         users.put(mUser.getFirstName(), mUser);
         users.put(randyUser.getFirstName(), randyUser);
         users.put(aliUser.getFirstName(), aliUser);
-//        mFireBaseRef.setValue(users);
+//        mFirebase.setValue(users);
     }
 
     @Subscribe
@@ -119,7 +131,7 @@ public class MainActivity extends ActionBarActivity
         travelModeFragment = new TravelModeFragment();
 
         mUser.setDestinationName(mDestinationLocation.getDestinationName());
-        mFireBaseRef.child(mUser.getFirstName() + "/destinationName").setValue(mUser.getDestinationName());
+        mFirebase.child(mUser.getFirstName() + "/destinationName").setValue(mUser.getDestinationName());
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)
@@ -221,7 +233,9 @@ public class MainActivity extends ActionBarActivity
                 .setPositiveButton(getResources().getString(R.string.sign_out), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        finish();
+                        logout();
+                        startActivity(new Intent(MainActivity.this, WelcomeActivity.class));
+
                     }
                 })
                 .setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -230,6 +244,39 @@ public class MainActivity extends ActionBarActivity
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
+    }
+
+    /**
+     * Unauthenticate from Firebase and from providers where necessary.
+     */
+    private void logout() {
+        if (mAuthData != null) {
+            /* logout of Firebase */
+            Log.i("MainActivity" , "Vivace coffe: User unauthenthicated");
+            mFirebase.unauth();
+            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
+             * Facebook/Google+ after logging out of Firebase. */
+            if (mAuthData.getProvider().equals("facebook")) {
+                /* Logout from Facebook */
+                Session session = Session.getActiveSession();
+                if (session != null) {
+                    if (!session.isClosed()) {
+                        session.closeAndClearTokenInformation();
+                    }
+                } else {
+                    session = new Session(getApplicationContext());
+                    Session.setActiveSession(session);
+                    session.closeAndClearTokenInformation();
+                }
+            } else if (mAuthData.getProvider().equals("google")) {
+                /* Logout from Google+ */
+                if (mGoogleApiClient.isConnected()) {
+                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                    mGoogleApiClient.disconnect();
+                }
+            }
+        }
+
     }
 }
 

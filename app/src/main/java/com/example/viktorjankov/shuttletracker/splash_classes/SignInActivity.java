@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
+import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -119,6 +120,8 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     Firebase mFirebase = FirebaseProvider.getInstance();
     Toolbar toolbar;
 
+    AuthData mAuthData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,6 +186,8 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
+                    mAuthData = authData;
+                    FirebaseAuthProvider.setmAuthData(mAuthData);
                     // The Facebook user is now authenticated with Firebase
                     Log.i(kLOG_TAG, "onAuthenticated");
 
@@ -347,6 +352,8 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
         @Override
         public void onAuthenticated(AuthData authData) {
+            mAuthData = authData;
+            FirebaseAuthProvider.setmAuthData(mAuthData);
             Log.i(kLOG_TAG, provider + " auth successful");
 
             String name = (String) authData.getProviderData().get("displayName");
