@@ -143,7 +143,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         mAuthProgressDialog.setCancelable(false);
 
         StateListDrawable states = new StateListDrawable();
-        states.addState(new int[]{android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_light));
+        states.addState(new int[]{android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_dark));
         googleIcon.setImageDrawable(states);
 
         /* *************************************

@@ -6,5 +6,5 @@
         android:drawable="@drawable/facebook_login" />
 
     <item android:state_pressed="true"
-        android:drawable="@drawable/facebook_login_light" />
+        android:drawable="@drawable/facebook_login_dark" />
 </selector>

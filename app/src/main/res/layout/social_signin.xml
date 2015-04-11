@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
-                android:background="@drawable/btn_gnormal"
+                android:background="@drawable/btn_normal48"
                 android:contentDescription="@string/google_plus" />
         </LinearLayout>
 
