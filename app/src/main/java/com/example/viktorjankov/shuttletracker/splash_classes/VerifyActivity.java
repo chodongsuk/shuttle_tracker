@@ -20,7 +20,9 @@ import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.facebook.Session;
 import com.firebase.client.Firebase;
+import com.google.android.gms.plus.Plus;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
@@ -209,5 +211,40 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
     }
+
+//    /**
+//     * Unauthenticate from Firebase and from providers where necessary.
+//     */
+//    private void logout() {
+//        if (mAuthData != null) {
+//            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
+//             * Facebook/Google+ after logging out of Firebase. */
+//            if (mAuthData.getProvider().equals("facebook")) {
+//                /* Logout from Facebook */
+//                Session session = Session.getActiveSession();
+//                if (session != null) {
+//                    if (!session.isClosed()) {
+//                        session.closeAndClearTokenInformation();
+//                    }
+//                } else {
+//                    session = new Session(getApplicationContext());
+//                    Session.setActiveSession(session);
+//                    session.closeAndClearTokenInformation();
+//                }
+//            } else if (mAuthData.getProvider().equals("google")) {
+//                /* Logout from Google+ */
+//                if (mGoogleApiClient.isConnected()) {
+//                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+//                    mGoogleApiClient.disconnect();
+//                }
+//            }
+//        }
+//    }
+
+//    @Override
+//    protected void onResume() {
+//        logout();
+//        super.onResume();
+//    }
 }
 

@@ -29,8 +29,10 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
@@ -226,7 +228,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     // The Facebook user is now authenticated with Firebase
                     Log.i(kLOG_TAG, "onAuthenticated");
 
-                    Intent intent = new Intent(RegisterActivity.this, VerifyActivity.class);
 
                     String name = (String) authData.getProviderData().get("displayName");
                     String gEmail = (String) authData.getProviderData().get("email");
@@ -235,14 +236,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     Log.i(kLOG_TAG, "Last name: " + last[1]);
                     Log.i(kLOG_TAG, "Email: " + gEmail);
 
-
-                    intent.putExtra(VerifyActivity.firstNameKey, last[0]);
-                    intent.putExtra(VerifyActivity.lastNameKey, last[1]);
-                    intent.putExtra(VerifyActivity.emailKey, gEmail);
-                    intent.putExtra(VerifyActivity.UID_KEY, authData.getUid());
-
-                    mAuthProgressDialog.hide();
-                    startActivity(intent);
+                    userExists(authData.getUid(), last[0], last[1], email);
                 }
 
                 @Override
@@ -259,6 +253,36 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             }
         }
         Log.i(kLOG_TAG, state.toString());
+    }
+
+    private void userExists(final String uid, final String first, final String last, final String email) {
+        mFirebase.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Intent intent;
+                if (dataSnapshot.hasChildren()) {
+                    mAuthProgressDialog.hide();
+
+                    intent = new Intent(RegisterActivity.this, MainActivity.class);
+                    startActivity(intent);
+                } else {
+                    mAuthProgressDialog.hide();
+                    intent = new Intent(RegisterActivity.this, VerifyActivity.class);
+
+                    intent.putExtra(VerifyActivity.firstNameKey, first);
+                    intent.putExtra(VerifyActivity.lastNameKey, last);
+                    intent.putExtra(VerifyActivity.emailKey, email);
+                    intent.putExtra(VerifyActivity.UID_KEY, uid);
+
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -478,22 +502,11 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth successful");
 
-            Intent intent = new Intent(RegisterActivity.this, VerifyActivity.class);
             String name = (String) authData.getProviderData().get("displayName");
             String gMail = Plus.AccountApi.getAccountName(mGoogleApiClient);
             String[] last = name.split("\\s+");
 
-            Log.i(kLOG_TAG, "First name: " + last[0]);
-            Log.i(kLOG_TAG, "Last name: " + last[1]);
-            Log.i(kLOG_TAG, "Email: " + gMail);
-            intent.putExtra(VerifyActivity.firstNameKey, last[0]);
-            intent.putExtra(VerifyActivity.lastNameKey, last[1]);
-            intent.putExtra(VerifyActivity.emailKey, gMail);
-            intent.putExtra(VerifyActivity.UID_KEY, authData.getUid());
-
-            mAuthProgressDialog.hide();
-
-            startActivity(intent);
+            userExists(authData.getUid(), last[0], last[1], gMail);
         }
 
         @Override
@@ -526,6 +539,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 .setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        logout();
                         finish();
                     }
                 })
@@ -535,5 +549,40 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
+    }
+
+    @Override
+    protected void onResume() {
+        logout();
+        super.onResume();
+    }
+
+    /**
+     * Unauthenticate from Firebase and from providers where necessary.
+     */
+    private void logout() {
+        if (mAuthData != null) {
+            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
+             * Facebook/Google+ after logging out of Firebase. */
+            if (mAuthData.getProvider().equals("facebook")) {
+                /* Logout from Facebook */
+                Session session = Session.getActiveSession();
+                if (session != null) {
+                    if (!session.isClosed()) {
+                        session.closeAndClearTokenInformation();
+                    }
+                } else {
+                    session = new Session(getApplicationContext());
+                    Session.setActiveSession(session);
+                    session.closeAndClearTokenInformation();
+                }
+            } else if (mAuthData.getProvider().equals("google")) {
+                /* Logout from Google+ */
+                if (mGoogleApiClient.isConnected()) {
+                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                    mGoogleApiClient.disconnect();
+                }
+            }
+        }
     }
 }

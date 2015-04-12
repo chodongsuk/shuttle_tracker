@@ -354,6 +354,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         public void onAuthenticated(AuthData authData) {
             mAuthData = authData;
             FirebaseAuthProvider.setmAuthData(mAuthData);
+            mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth successful");
 
             String name = (String) authData.getProviderData().get("displayName");
@@ -443,6 +444,41 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        logout();
+        super.onResume();
+    }
+
+    /**
+     * Unauthenticate from Firebase and from providers where necessary.
+     */
+    private void logout() {
+        if (mAuthData != null) {
+            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
+             * Facebook/Google+ after logging out of Firebase. */
+            if (mAuthData.getProvider().equals("facebook")) {
+                /* Logout from Facebook */
+                Session session = Session.getActiveSession();
+                if (session != null) {
+                    if (!session.isClosed()) {
+                        session.closeAndClearTokenInformation();
+                    }
+                } else {
+                    session = new Session(getApplicationContext());
+                    Session.setActiveSession(session);
+                    session.closeAndClearTokenInformation();
+                }
+            } else if (mAuthData.getProvider().equals("google")) {
+                /* Logout from Google+ */
+                if (mGoogleApiClient.isConnected()) {
+                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                    mGoogleApiClient.disconnect();
+                }
+            }
         }
     }
 }
