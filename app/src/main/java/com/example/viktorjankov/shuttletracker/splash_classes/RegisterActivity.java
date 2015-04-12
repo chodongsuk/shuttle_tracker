@@ -199,6 +199,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
+        FirebaseAuthProvider.setGoogleApiClient(mGoogleApiClient);
 
         /* *************************************
          *       GET FIREBASE COMPANIES        *
@@ -224,7 +225,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 @Override
                 public void onAuthenticated(AuthData authData) {
                     mAuthData = authData;
-                    FirebaseAuthProvider.setmAuthData(mAuthData);
+                    FirebaseAuthProvider.setAuthData(mAuthData);
                     // The Facebook user is now authenticated with Firebase
                     Log.i(kLOG_TAG, "onAuthenticated");
 
@@ -232,11 +233,9 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     String name = (String) authData.getProviderData().get("displayName");
                     String gEmail = (String) authData.getProviderData().get("email");
                     String[] last = name.split("\\s+");
-                    Log.i(kLOG_TAG, "First name: " + last[0]);
-                    Log.i(kLOG_TAG, "Last name: " + last[1]);
-                    Log.i(kLOG_TAG, "Email: " + gEmail);
 
-                    userExists(authData.getUid(), last[0], last[1], email);
+                    Log.i(kLOG_TAG, "Verifying user exists");
+                    userExists(authData.getUid(), last[0], last[1], gEmail);
                 }
 
                 @Override
@@ -256,6 +255,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     }
 
     private void userExists(final String uid, final String first, final String last, final String email) {
+
         mFirebase.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -267,6 +267,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     startActivity(intent);
                 } else {
                     mAuthProgressDialog.hide();
+                    Log.i(kLOG_TAG, "User does not exists");
                     intent = new Intent(RegisterActivity.this, VerifyActivity.class);
 
                     intent.putExtra(VerifyActivity.firstNameKey, first);
@@ -498,7 +499,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         @Override
         public void onAuthenticated(AuthData authData) {
             mAuthData = authData;
-            FirebaseAuthProvider.setmAuthData(mAuthData);
+            FirebaseAuthProvider.setAuthData(mAuthData);
             mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth successful");
 
@@ -539,7 +540,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 .setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        logout();
                         finish();
                     }
                 })
@@ -549,40 +549,5 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
-    }
-
-    @Override
-    protected void onResume() {
-        logout();
-        super.onResume();
-    }
-
-    /**
-     * Unauthenticate from Firebase and from providers where necessary.
-     */
-    private void logout() {
-        if (mAuthData != null) {
-            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
-             * Facebook/Google+ after logging out of Firebase. */
-            if (mAuthData.getProvider().equals("facebook")) {
-                /* Logout from Facebook */
-                Session session = Session.getActiveSession();
-                if (session != null) {
-                    if (!session.isClosed()) {
-                        session.closeAndClearTokenInformation();
-                    }
-                } else {
-                    session = new Session(getApplicationContext());
-                    Session.setActiveSession(session);
-                    session.closeAndClearTokenInformation();
-                }
-            } else if (mAuthData.getProvider().equals("google")) {
-                /* Logout from Google+ */
-                if (mGoogleApiClient.isConnected()) {
-                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                    mGoogleApiClient.disconnect();
-                }
-            }
-        }
     }
 }

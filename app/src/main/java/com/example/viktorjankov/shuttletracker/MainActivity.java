@@ -85,7 +85,7 @@ public class MainActivity extends ActionBarActivity
         title.setTextColor(Color.WHITE);
         title.setVisibility(View.VISIBLE);
 
-        mAuthData = FirebaseAuthProvider.getmAuthData();
+        mAuthData = FirebaseAuthProvider.getAuthData();
 
         mUser.setFirstName("viktor");
         mapViewFragment = new MapViewFragment();
@@ -270,9 +270,10 @@ public class MainActivity extends ActionBarActivity
                 }
             } else if (mAuthData.getProvider().equals("google")) {
                 /* Logout from Google+ */
-                if (mGoogleApiClient.isConnected()) {
-                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                    mGoogleApiClient.disconnect();
+                GoogleApiClient googleApiClient = FirebaseAuthProvider.getGoogleApiClient();
+                if (googleApiClient.isConnected()) {
+                    Plus.AccountApi.clearDefaultAccount(googleApiClient);
+                    googleApiClient.disconnect();
                 }
             }
         }

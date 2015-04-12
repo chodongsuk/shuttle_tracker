@@ -174,6 +174,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
+        FirebaseAuthProvider.setGoogleApiClient(mGoogleApiClient);
     }
 
     /* *************************************
@@ -181,13 +182,17 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
      ***************************************/
 
     private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
+        Log.i(kLOG_TAG, "Facebook state: " + state.toString());
+
         if (state.isOpened()) {
             mAuthProgressDialog.show();
+            Log.i(kLOG_TAG, "state is opened");
+
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
                     mAuthData = authData;
-                    FirebaseAuthProvider.setmAuthData(mAuthData);
+                    FirebaseAuthProvider.setAuthData(mAuthData);
                     // The Facebook user is now authenticated with Firebase
                     Log.i(kLOG_TAG, "onAuthenticated");
 
@@ -200,13 +205,16 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
                 @Override
                 public void onAuthenticationError(FirebaseError firebaseError) {
-                    // there was an error
+                    mAuthProgressDialog.hide();
                     Log.i(kLOG_TAG, "onAuthenticationError");
                 }
             });
         } else if (state.isClosed()) {
         /* Logged out of Facebook so do a logout from Firebase */
-            mFirebase.unauth();
+            /* Logged out of Facebook and currently authenticated with Firebase using Facebook, so do a logout */
+            if (mAuthData != null && mAuthData.getProvider().equals("facebook")) {
+                mFirebase.unauth();
+            }
         }
     }
 
@@ -353,7 +361,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         @Override
         public void onAuthenticated(AuthData authData) {
             mAuthData = authData;
-            FirebaseAuthProvider.setmAuthData(mAuthData);
+            FirebaseAuthProvider.setAuthData(mAuthData);
             mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth successful");
 
@@ -444,41 +452,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        logout();
-        super.onResume();
-    }
-
-    /**
-     * Unauthenticate from Firebase and from providers where necessary.
-     */
-    private void logout() {
-        if (mAuthData != null) {
-            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
-             * Facebook/Google+ after logging out of Firebase. */
-            if (mAuthData.getProvider().equals("facebook")) {
-                /* Logout from Facebook */
-                Session session = Session.getActiveSession();
-                if (session != null) {
-                    if (!session.isClosed()) {
-                        session.closeAndClearTokenInformation();
-                    }
-                } else {
-                    session = new Session(getApplicationContext());
-                    Session.setActiveSession(session);
-                    session.closeAndClearTokenInformation();
-                }
-            } else if (mAuthData.getProvider().equals("google")) {
-                /* Logout from Google+ */
-                if (mGoogleApiClient.isConnected()) {
-                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                    mGoogleApiClient.disconnect();
-                }
-            }
         }
     }
 }
