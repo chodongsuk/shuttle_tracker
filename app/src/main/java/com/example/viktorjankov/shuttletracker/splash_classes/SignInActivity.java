@@ -228,6 +228,11 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     mAuthProgressDialog.hide();
 
                     intent = new Intent(SignInActivity.this, MainActivity.class);
+
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
                     startActivity(intent);
                 } else {
                     mAuthProgressDialog.hide();

@@ -229,7 +229,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     // The Facebook user is now authenticated with Firebase
                     Log.i(kLOG_TAG, "onAuthenticated");
 
-
                     String name = (String) authData.getProviderData().get("displayName");
                     String gEmail = (String) authData.getProviderData().get("email");
                     String[] last = name.split("\\s+");
@@ -264,6 +263,11 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     mAuthProgressDialog.hide();
 
                     intent = new Intent(RegisterActivity.this, MainActivity.class);
+
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
                     startActivity(intent);
                 } else {
                     mAuthProgressDialog.hide();

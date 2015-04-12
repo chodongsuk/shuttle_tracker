@@ -137,8 +137,10 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         Toast.makeText(VerifyActivity.this, "Congrats! You're registered!", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(MainActivity.USER_NAME_KEY, firstName);
-        intent.putExtra(MainActivity.USER_COMPANY_CODE, companyCode);
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
         startActivity(intent);
     }
