@@ -218,7 +218,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         Log.i(kLOG_TAG, "Facebook state: " + state.toString());
 
         if (state.isOpened()) {
-            mAuthProgressDialog.show();
+        mAuthProgressDialog.show();
             Log.i(kLOG_TAG, "state is opened");
 
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
@@ -250,6 +250,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 mFirebase.unauth();
             }
         }
+        mAuthProgressDialog.hide();
         Log.i(kLOG_TAG, state.toString());
     }
 
@@ -261,7 +262,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 Intent intent;
                 if (dataSnapshot.hasChildren()) {
                     mAuthProgressDialog.hide();
-
+                    Log.i(kLOG_TAG, "User does indeed exists");
                     intent = new Intent(RegisterActivity.this, MainActivity.class);
 
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -553,5 +554,13 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
+    }
+
+    @Override
+    protected void onPause() {
+        if (mAuthProgressDialog != null) {
+            mAuthProgressDialog.dismiss();
+        }
+        super.onPause();
     }
 }

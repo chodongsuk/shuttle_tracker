@@ -200,6 +200,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     String[] last = name.split("\\s+");
                     String email = (String) authData.getProviderData().get("email");
                     // check if user exists, if they do start MainActivity
+                    mAuthProgressDialog.hide();
                     userExists(authData.getUid(), last[0], last[1], email);
                 }
 
@@ -225,8 +226,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Intent intent;
                 if (dataSnapshot.hasChildren()) {
-                    mAuthProgressDialog.hide();
-
                     intent = new Intent(SignInActivity.this, MainActivity.class);
 
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -235,7 +234,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
                     startActivity(intent);
                 } else {
-                    mAuthProgressDialog.hide();
                     intent = new Intent(SignInActivity.this, VerifyActivity.class);
 
                     intent.putExtra(VerifyActivity.firstNameKey, first);
@@ -458,6 +456,14 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        if (mAuthProgressDialog != null) {
+            mAuthProgressDialog.dismiss();
+        }
+        super.onPause();
     }
 }
 
