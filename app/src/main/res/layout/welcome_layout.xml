@@ -9,8 +9,10 @@
 
     <TextView
         android:id="@+id/sign_in"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
         style="@style/sign_register_button"
-        android:text="@string/sign_in" />
+        android:text="@string/sign_in"/>
 
     <View
         android:layout_width="1dp"
@@ -19,7 +21,9 @@
 
     <TextView
         android:id="@+id/register"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
         style="@style/sign_register_button"
-        android:text="@string/register" />
+        android:text="@string/register"/>
 
 </LinearLayout>

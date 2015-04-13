@@ -54,7 +54,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     private AuthData mAuthData;
 
     protected void onCreate(Bundle savedInstanceState) {
-        // Butterknife, validator, init mAuthProgressDialog, setToolbar
+        // Validator, Toolbar, Butterknife, ProgressDialog
         prepareActivity(savedInstanceState);
 
         firstName = getIntent().getExtras().getString(firstNameKey);
@@ -203,16 +203,10 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     private void prepareActivity(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.welcome_layout);
-        ButterKnife.inject(this);
+        setContentView(R.layout.verify_layout);
 
         validator = new Validator(this);
         validator.setValidationListener(this);
-
-        mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Registering with Flow");
-        mAuthProgressDialog.setCancelable(false);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -220,6 +214,13 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        ButterKnife.inject(this);
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Registering with Flow");
+        mAuthProgressDialog.setCancelable(false);
     }
 
     @InjectView(R.id.first_name)
