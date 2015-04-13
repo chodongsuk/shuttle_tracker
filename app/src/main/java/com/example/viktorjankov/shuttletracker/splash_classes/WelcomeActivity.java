@@ -42,13 +42,12 @@ public class WelcomeActivity extends FragmentActivity {
         // Download the registered companies from Firebase
         RegisteredCompaniesProvider.init();
 
-        // Check if current user is signed in with Firebase
-        Firebase mFirebase = FirebaseProvider.getInstance();
-        mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(AuthData authData) {
-
-                if (authData != null) {
+//        Firebase mFirebase = FirebaseProvider.getInstance();
+//        mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(AuthData authData) {
+//
+//                if (authData != null) {
 //                    Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
 //                    Log.i(kLOG_TAG, "Uid: " + authData.getUid());
 //                    Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
@@ -59,11 +58,13 @@ public class WelcomeActivity extends FragmentActivity {
 //
 //                    startActivity(intent);
 //                    finish();
+//
+//                }
+//            }
+//        });
 
-                }
-            }
-        });
     }
+
 
     private void setTypeface() {
         Typeface type = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");

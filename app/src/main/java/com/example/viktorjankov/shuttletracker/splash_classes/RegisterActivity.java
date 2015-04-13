@@ -468,18 +468,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 .setIcon(android.R.drawable.ic_dialog_alert);
     }
 
-    @Override
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    @Override
-    protected void onPause() {
-        mGoogleApiClient.disconnect();
-        super.onPause();
-    }
-
     /* *************************************
      *       Activity preparation stuff    *
      ***************************************/

@@ -262,42 +262,40 @@ public class MainActivity extends ActionBarActivity
      * Unauthenticate from Firebase and from providers where necessary.
      */
     private void logout() {
-        final Firebase mFirebase = FirebaseProvider.getInstance();
-        mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(AuthData authData) {
+        if (mAuthData != null) {
+            /* logout of Firebase */
+            mFirebase.unauth();
 
-                if (authData != null) {
-                    
-                    /* logout of Firebase */
-                    mFirebase.unauth();
-                    /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
-                    * Facebook/Google+ after logging out of Firebase. */
-                    if (mAuthData.getProvider().equals("facebook")) {
-                        /* Logout from Facebook */
-                        Session session = Session.getActiveSession();
-                        if (session != null) {
-                            if (!session.isClosed()) {
-                                session.closeAndClearTokenInformation();
-                            }
-                        } else {
-                            session = new Session(getApplicationContext());
-                            Session.setActiveSession(session);
-                            session.closeAndClearTokenInformation();
-                        }
-                    } else if (mAuthData.getProvider().equals("google")) {
-                        /* Logout from Google+ */
-                        GoogleApiClient googleApiClient = FirebaseAuthProvider.getGoogleApiClient();
-                        if (googleApiClient.isConnected()) {
-                            Plus.AccountApi.clearDefaultAccount(googleApiClient);
-                        }
+            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
+            /* Facebook/Google+ after logging out of Firebase. */
+            if (mAuthData.getProvider().equals("facebook")) {
+
+                /* Logout from Facebook */
+                Session session = Session.getActiveSession();
+                if (session != null) {
+                    if (!session.isClosed()) {
+                        session.closeAndClearTokenInformation();
                     }
-                    Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
-                    Log.i(kLOG_TAG, "Uid: " + authData.getUid());
+                } else {
+                    session = new Session(getApplicationContext());
+                    Session.setActiveSession(session);
+                    session.closeAndClearTokenInformation();
+                }
+            } else if (mAuthData.getProvider().equals("google")) {
+
+                /* Logout from Google+ */
+                GoogleApiClient googleApiClient = FirebaseAuthProvider.getGoogleApiClient();
+                if (googleApiClient.isConnected()) {
+                    Plus.AccountApi.clearDefaultAccount(googleApiClient);
+                    googleApiClient.disconnect();
+                    FirebaseAuthProvider.setGoogleApiClient(null);
                 }
             }
-        });
+            Log.i(kLOG_TAG, "Provider: " + mAuthData.getProvider());
+            Log.i(kLOG_TAG, "Uid: " + mAuthData.getUid());
+        }
     }
+
 
     @Override
     public void onBackPressed() {

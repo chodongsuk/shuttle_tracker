@@ -104,8 +104,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
 
-        Log.i(kLOG_TAG, "I'm going to connect Api Client");
-        mGoogleApiClient.connect();
         FirebaseAuthProvider.setGoogleApiClient(mGoogleApiClient);
     }
 
@@ -302,7 +300,10 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 if (token != null) {
                     /* Successfully got OAuth token, now login with Google */
                     Log.i(kLOG_TAG, "Successfully got OAuth from Google");
-                    mFirebase.authWithOAuthToken("google", token, new AuthResultHandler("google"));
+                    Log.i(kLOG_TAG, "Google client is null? " + (mGoogleApiClient == null));
+                    String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+                    Log.i(kLOG_TAG, "The email is: " + email);
+                    mFirebase.authWithOAuthToken("google", token, new AuthResultHandler("google", email));
                 } else if (errorMessage != null) {
                     mAuthProgressDialog.hide();
                 }
@@ -314,6 +315,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     @Override
     public void onConnected(final Bundle bundle) {
         /* Connected with Google API, use this to authenticate with Firebase */
+        Log.i(kLOG_TAG, "Connected with google play api so call to connect to G+");
         getGoogleOAuthTokenAndLogin();
     }
 
@@ -344,9 +346,11 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     private class AuthResultHandler implements Firebase.AuthResultHandler {
 
         private final String provider;
+        private final String email;
 
-        public AuthResultHandler(String provider) {
+        public AuthResultHandler(String provider, String email) {
             this.provider = provider;
+            this.email = email;
         }
 
         @Override
@@ -355,20 +359,12 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             FirebaseAuthProvider.setAuthData(mAuthData);
             mAuthProgressDialog.show();
 
-            if (!mGoogleApiClient.isConnecting() || !mGoogleApiClient.isConnected()) {
-                mGoogleApiClient.connect();
-            }
-
             Log.i(kLOG_TAG, provider + " auth successful");
 
             String name = (String) authData.getProviderData().get("displayName");
             String[] first_last = name.split("\\s+");
             String firstName = first_last[0];
             String lastName = first_last[1];
-
-            Log.i(kLOG_TAG, "Google API client is connected though " + mGoogleApiClient.isConnected());
-
-            String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
 
             // check if user exists, if they do start MainActivity
             userExists(authData.getUid(), firstName, lastName, email);
@@ -414,18 +410,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    @Override
-    protected void onPause() {
-        mGoogleApiClient.disconnect();
-        super.onPause();
     }
 
     @Override
