@@ -29,7 +29,6 @@ import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,19 +38,16 @@ import butterknife.OnClick;
 
 public class VerifyActivity extends ActionBarActivity implements Validator.ValidationListener {
 
-    ProgressDialog mAuthProgressDialog;
-    Toolbar toolbar;
-
-    Map<String, String> companyCodesMap = new HashMap<String, String>();
-    List<String> registeredCompaniesList;
+    private AuthData mAuthData;
     Validator validator;
+    Toolbar toolbar;
     Firebase mFirebase = FirebaseProvider.getInstance();
+    ProgressDialog mAuthProgressDialog;
 
     private String firstName;
     private String lastName;
     private String email;
     private String uID;
-    private AuthData mAuthData;
 
     protected void onCreate(Bundle savedInstanceState) {
         // Validator, Toolbar, Butterknife, ProgressDialog
@@ -64,12 +60,8 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
         mAuthData = FirebaseAuthProvider.getAuthData();
 
-        registeredCompaniesList = RegisteredCompaniesProvider.getCompanyList();
-        companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
-
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, registeredCompaniesList);
+                android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
         companyNameAutoCompleteTextView.setAdapter(adapter);
 
 
@@ -91,6 +83,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     }
 
     private boolean isValidCompanyCode(String companyName, String companyCode) {
+        Map<String,String> companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
         String registeredCompanyCode = companyCodesMap.get(companyName);
 
         if (registeredCompanyCode == null) {
@@ -107,8 +100,8 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     @Override
     public void onValidationSucceeded() {
-        firstName = firstNameEditText.getText().toString();
-        lastName = lastNameEditText.getText().toString();
+        String firstName = firstNameEditText.getText().toString();
+        String lastName = lastNameEditText.getText().toString();
 
         String companyName = companyNameAutoCompleteTextView.getText().toString();
         String companyCode = companyCodeEditText.getText().toString();

@@ -57,22 +57,18 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    // Google Variables
     public static final int RC_GOOGLE_LOGIN = 1;
     private GoogleApiClient mGoogleApiClient;
     private boolean mGoogleIntentInProgress;
     private boolean mGoogleLoginClicked;
     private ConnectionResult mGoogleConnectionResult;
 
-    private String companyCode;
-
     AuthData mAuthData;
-
-    private ProgressDialog mAuthProgressDialog;
-    Toolbar toolbar;
-
     Validator validator;
+    Toolbar toolbar;
     Firebase mFirebase = FirebaseProvider.getInstance();
-    Map<String, String> companyCodesMap;
+    ProgressDialog mAuthProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,14 +107,15 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
          *       GET FIREBASE COMPANIES        *
          ***************************************/
 
-        companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(RegisterActivity.this,
                 android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
         companyNameAutoCompleteTextView.setAdapter(adapter);
 
     }
 
+    /* *************************************
+     *              FACEBOOK               *
+     ***************************************/
     private void onFacebookSessionStateChange(Session session, SessionState state, Exception exception) {
         Log.i(kLOG_TAG, "Facebook state: " + state.toString());
 
@@ -135,11 +132,14 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     Log.i(kLOG_TAG, "onAuthenticated");
 
                     String name = (String) authData.getProviderData().get("displayName");
-                    String gEmail = (String) authData.getProviderData().get("email");
-                    String[] last = name.split("\\s+");
+                    String[] first_last = name.split("\\s+");
+                    String firstName = first_last[0];
+                    String lastName = first_last[1];
+                    String email = (String) authData.getProviderData().get("email");
 
+                    // check if user exists, if they do start MainActivity
                     Log.i(kLOG_TAG, "Verifying user exists");
-                    userExists(authData.getUid(), last[0], last[1], gEmail);
+                    userExists(authData.getUid(), firstName, lastName, email);
                 }
 
                 @Override
@@ -155,8 +155,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 mFirebase.unauth();
             }
         }
-        mAuthProgressDialog.hide();
-        Log.i(kLOG_TAG, state.toString());
     }
 
     private void userExists(final String uid, final String first, final String last, final String email) {
@@ -167,7 +165,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 Intent intent;
                 if (dataSnapshot.hasChildren()) {
                     mAuthProgressDialog.hide();
-                    Log.i(kLOG_TAG, "User does indeed exists");
                     intent = new Intent(RegisterActivity.this, MainActivity.class);
 
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -177,7 +174,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     startActivity(intent);
                 } else {
                     mAuthProgressDialog.hide();
-                    Log.i(kLOG_TAG, "User does not exists");
+                    Log.i(kLOG_TAG, "User does not exists so register");
                     intent = new Intent(RegisterActivity.this, VerifyActivity.class);
 
                     intent.putExtra(VerifyActivity.firstNameKey, first);
@@ -197,36 +194,16 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_GOOGLE_LOGIN) {
-            /* This was a request by the Google API */
-            if (resultCode != RESULT_OK) {
-                mGoogleLoginClicked = false;
-            }
-            mGoogleIntentInProgress = false;
-            if (!mGoogleApiClient.isConnecting()) {
-                mGoogleApiClient.connect();
-            }
-        } else {
-            Session.getActiveSession()
-                    .onActivityResult(this, requestCode, resultCode, data);
-        }
-    }
-
-    @Override
     public void onValidationSucceeded() {
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
         String companyName = companyNameAutoCompleteTextView.getText().toString();
-        companyCode = companyCodeEditText.getText().toString();
+        String companyCode = companyCodeEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
-        boolean companyValid = validateCompanyCode(companyName, companyCode);
-        if (companyValid) {
-            registerUser(email, password, firstName, lastName);
+        if (isValidCompanyCode(companyName, companyCode)) {
+            registerUser(email, password, firstName, lastName, companyCode);
         }
     }
 
@@ -242,7 +219,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         }
     }
 
-    private void registerUser(final String email, String password, final String firstName, final String lastName) {
+    private void registerUser(final String email, String password, final String firstName, final String lastName, final String companyCode) {
         mAuthProgressDialog.show();
         mFirebase.createUser(email, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
@@ -253,8 +230,10 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 mFirebase.child(FIREBASE_USERS).child((String) result.get("uid")).setValue(user);
 
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                intent.putExtra(MainActivity.USER_NAME_KEY, firstName);
-                intent.putExtra(MainActivity.USER_COMPANY_CODE, companyCode);
+
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
                 mAuthProgressDialog.hide();
                 startActivity(intent);
@@ -283,8 +262,9 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     }
 
-    private boolean validateCompanyCode(String companyName, String companyCode) {
+    private boolean isValidCompanyCode(String companyName, String companyCode) {
 
+        Map<String, String> companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
         String registeredCompanyCode = companyCodesMap.get(companyName);
         if (registeredCompanyCode == null) {
             companyNameAutoCompleteTextView.setError("Company name is not valid");
@@ -300,8 +280,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     /* ************************************
      *              GOOGLE                *
-     **************************************
-     */
+     **************************************/
     /* A helper method to resolve the current ConnectionResult error. */
     private void resolveSignInError() {
         if (mGoogleConnectionResult.hasResolution()) {
@@ -331,6 +310,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 try {
                     String scope = String.format("oauth2:%s", Scopes.PLUS_LOGIN);
                     token = GoogleAuthUtil.getToken(RegisterActivity.this, Plus.AccountApi.getAccountName(mGoogleApiClient), scope);
+
                 } catch (IOException transientEx) {
                     /* Network or server error */
                     Log.e(kLOG_TAG, "Error authenticating with Google: " + transientEx);
@@ -414,10 +394,12 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             Log.i(kLOG_TAG, provider + " auth successful");
 
             String name = (String) authData.getProviderData().get("displayName");
+            String[] first_last = name.split("\\s+");
+            String firstName = first_last[0];
+            String lastName = first_last[1];
             String gMail = Plus.AccountApi.getAccountName(mGoogleApiClient);
-            String[] last = name.split("\\s+");
 
-            userExists(authData.getUid(), last[0], last[1], gMail);
+            userExists(authData.getUid(), firstName, lastName, gMail);
         }
 
         @Override
@@ -428,13 +410,31 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_GOOGLE_LOGIN) {
+            /* This was a request by the Google API */
+            if (resultCode != RESULT_OK) {
+                mGoogleLoginClicked = false;
+            }
+            mGoogleIntentInProgress = false;
+            if (!mGoogleApiClient.isConnecting()) {
+                mGoogleApiClient.connect();
+            }
+        } else {
+            Session.getActiveSession()
+                    .onActivityResult(this, requestCode, resultCode, data);
+        }
+    }
+
+    @Override
     protected void onPause() {
         if (mAuthProgressDialog != null) {
             mAuthProgressDialog.dismiss();
         }
         super.onPause();
     }
-
 
     /* *************************************
      *       HANDLE BACK PRESS             *
@@ -568,7 +568,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         }
     }
 
-    private  final String ACTIVITY_TITLE = " " + RegisterActivity.this.getClass().getSimpleName();
+    private final String ACTIVITY_TITLE = " " + RegisterActivity.this.getClass().getSimpleName();
     private final String kLOG_TAG = RegisterActivity.this.getClass().getSimpleName();
 
     private static final String FIREBASE_USERS = "users";

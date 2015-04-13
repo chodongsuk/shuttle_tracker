@@ -51,98 +51,25 @@ import butterknife.OnClick;
 public class SignInActivity extends ActionBarActivity implements Validator.ValidationListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
-    private static final String ACTIVITY_TITLE = " " + "SIGN IN";
-    private static final String kLOG_TAG = "SignInActivity";
 
-    @NotEmpty
-    @Email
-    @InjectView(R.id.email_id)
-    EditText emailEditText;
-    String email;
-
-    @InjectView(R.id.password_id)
-    @NotEmpty
-    EditText passwordEditText;
-    String password;
-
-    @InjectView(R.id.sign_in_id)
-    Button signInButton;
-
-    @OnClick(R.id.sign_in_id)
-    public void onClick() {
-        validator.validate();
-    }
-
-    @InjectView(R.id.login_with_facebook)
-    LoginButton mFacebookLoginButton;
-
-    @InjectView(R.id.facebook_button)
-    LinearLayout facebookLayout;
-
-    @OnClick(R.id.facebook_button)
-    public void facebookClick() {
-        Log.i(kLOG_TAG, "performClick");
-        mFacebookLoginButton.performClick();
-    }
-
+    // Google Variables
     public static final int RC_GOOGLE_LOGIN = 1;
     private GoogleApiClient mGoogleApiClient;
     private boolean mGoogleIntentInProgress;
     private boolean mGoogleLoginClicked;
     private ConnectionResult mGoogleConnectionResult;
 
-    @InjectView(R.id.google_plus_button)
-    LinearLayout googlePlusLayout;
-
-    @InjectView(R.id.google_icon)
-    ImageButton googleIcon;
-
-    @OnClick({R.id.google_plus_button, R.id.google_icon})
-    public void googlePlusClick() {
-        Log.i(kLOG_TAG, "google login button clicked");
-        mGoogleLoginClicked = true;
-        if (!mGoogleApiClient.isConnecting()) {
-            if (mGoogleConnectionResult != null) {
-                resolveSignInError();
-            } else if (mGoogleApiClient.isConnected()) {
-                Log.i(kLOG_TAG, "GoogleOAuthTokenAndLogin");
-                getGoogleOAuthTokenAndLogin();
-            } else {
-                    /* connect API now */
-                Log.d(kLOG_TAG, "Trying to connect to Google API");
-                mGoogleApiClient.connect();
-            }
-        }
-    }
-
-    private ProgressDialog mAuthProgressDialog;
-    Validator validator;
-    Firebase mFirebase = FirebaseProvider.getInstance();
-    Toolbar toolbar;
-
     AuthData mAuthData;
+    Validator validator;
+    Toolbar toolbar;
+    Firebase mFirebase = FirebaseProvider.getInstance();
+    ProgressDialog mAuthProgressDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.sign_in_layout);
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(ACTIVITY_TITLE);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        ButterKnife.inject(this);
-
-        validator = new Validator(this);
-        validator.setValidationListener(this);
-
-        mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Authenticating with Flow");
-        mAuthProgressDialog.setCancelable(false);
+        // Validator, Toolbar, Butterknife, ProgressDialog
+        prepareActivity(savedInstanceState);
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[]{android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_dark));
@@ -199,8 +126,9 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     String name = (String) authData.getProviderData().get("displayName");
                     String[] last = name.split("\\s+");
                     String email = (String) authData.getProviderData().get("email");
+
                     // check if user exists, if they do start MainActivity
-                    mAuthProgressDialog.hide();
+                    Log.i(kLOG_TAG, "Verifying user exists");
                     userExists(authData.getUid(), last[0], last[1], email);
                 }
 
@@ -226,6 +154,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Intent intent;
                 if (dataSnapshot.hasChildren()) {
+                    mAuthProgressDialog.hide();
                     intent = new Intent(SignInActivity.this, MainActivity.class);
 
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -234,6 +163,8 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
                     startActivity(intent);
                 } else {
+                    mAuthProgressDialog.hide();
+                    Log.i(kLOG_TAG, "User does not exists so register");
                     intent = new Intent(SignInActivity.this, VerifyActivity.class);
 
                     intent.putExtra(VerifyActivity.firstNameKey, first);
@@ -250,6 +181,51 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
             }
         });
+    }
+
+    @Override
+    public void onValidationSucceeded() {
+        email = emailEditText.getText().toString();
+        password = passwordEditText.getText().toString();
+
+        mAuthProgressDialog.show();
+        mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
+            @Override
+            public void onAuthenticated(AuthData authData) {
+                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+
+                mAuthProgressDialog.hide();
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAuthenticationError(FirebaseError firebaseError) {
+                String message;
+                mAuthProgressDialog.hide();
+                switch (firebaseError.getCode()) {
+                    case -16:
+                        message = "Incorrect Password";
+                        break;
+                    default:
+                        message = firebaseError.toString();
+                }
+                Toast.makeText(SignInActivity.this, message, Toast.LENGTH_LONG).show();
+
+            }
+        });
+    }
+
+    @Override
+    public void onValidationFailed(List<ValidationError> errors) {
+        for (ValidationError error : errors) {
+            View view = error.getView();
+
+            String message = error.getCollatedErrorMessage(SignInActivity.this);
+
+            if (view instanceof EditText) {
+                ((EditText) view).setError(message);
+            }
+        }
     }
 
     /* ************************************
@@ -321,13 +297,11 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         task.execute();
     }
 
-
     @Override
     public void onConnected(final Bundle bundle) {
         /* Connected with Google API, use this to authenticate with Firebase */
         getGoogleOAuthTokenAndLogin();
     }
-
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
@@ -370,9 +344,11 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
             String name = (String) authData.getProviderData().get("displayName");
             String[] first_last = name.split("\\s+");
+            String firstName = first_last[0];
+            String lastName = first_last[1];
             String gMail = Plus.AccountApi.getAccountName(mGoogleApiClient);
             // check if user exists, if they do start MainActivity
-            userExists(authData.getUid(), first_last[0], first_last[1], gMail);
+            userExists(authData.getUid(), firstName, lastName, gMail);
 
         }
 
@@ -380,51 +356,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         public void onAuthenticationError(FirebaseError firebaseError) {
             mAuthProgressDialog.hide();
             Log.i(kLOG_TAG, provider + " auth not successful");
-        }
-    }
-
-    @Override
-    public void onValidationSucceeded() {
-        email = emailEditText.getText().toString();
-        password = passwordEditText.getText().toString();
-
-        mAuthProgressDialog.show();
-        mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
-            @Override
-            public void onAuthenticated(AuthData authData) {
-                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-
-                mAuthProgressDialog.hide();
-                startActivity(intent);
-            }
-
-            @Override
-            public void onAuthenticationError(FirebaseError firebaseError) {
-                String message;
-                mAuthProgressDialog.hide();
-                switch (firebaseError.getCode()) {
-                    case -16:
-                        message = "Incorrect Password";
-                        break;
-                    default:
-                        message = firebaseError.toString();
-                }
-                Toast.makeText(SignInActivity.this, message, Toast.LENGTH_LONG).show();
-
-            }
-        });
-    }
-
-    @Override
-    public void onValidationFailed(List<ValidationError> errors) {
-        for (ValidationError error : errors) {
-            View view = error.getView();
-
-            String message = error.getCollatedErrorMessage(SignInActivity.this);
-
-            if (view instanceof EditText) {
-                ((EditText) view).setError(message);
-            }
         }
     }
 
@@ -448,6 +379,18 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     }
 
     @Override
+    protected void onPause() {
+        if (mAuthProgressDialog != null) {
+            mAuthProgressDialog.dismiss();
+        }
+        super.onPause();
+    }
+
+    /* *************************************
+     *       HANDLE BACK PRESS             *
+     ***************************************/
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -458,13 +401,89 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         }
     }
 
-    @Override
-    protected void onPause() {
-        if (mAuthProgressDialog != null) {
-            mAuthProgressDialog.dismiss();
-        }
-        super.onPause();
+    /* *************************************
+     *       Activity preparation stuff    *
+     ***************************************/
+
+    private void prepareActivity(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.verify_layout);
+
+        validator = new Validator(this);
+        validator.setValidationListener(this);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(ACTIVITY_TITLE);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        ButterKnife.inject(this);
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Registering with Flow");
+        mAuthProgressDialog.setCancelable(false);
     }
+
+    @NotEmpty
+    @Email
+    @InjectView(R.id.email_id)
+    EditText emailEditText;
+    String email;
+
+    @InjectView(R.id.password_id)
+    @NotEmpty
+    EditText passwordEditText;
+    String password;
+
+    @InjectView(R.id.sign_in_id)
+    Button signInButton;
+
+    @OnClick(R.id.sign_in_id)
+    public void onClick() {
+        validator.validate();
+    }
+
+    @InjectView(R.id.login_with_facebook)
+    LoginButton mFacebookLoginButton;
+
+    @InjectView(R.id.facebook_button)
+    LinearLayout facebookLayout;
+
+    @OnClick(R.id.facebook_button)
+    public void facebookClick() {
+        Log.i(kLOG_TAG, "performClick");
+        mFacebookLoginButton.performClick();
+    }
+
+    @InjectView(R.id.google_plus_button)
+    LinearLayout googlePlusLayout;
+
+    @InjectView(R.id.google_icon)
+    ImageButton googleIcon;
+
+    @OnClick({R.id.google_plus_button, R.id.google_icon})
+    public void googlePlusClick() {
+        Log.i(kLOG_TAG, "google login button clicked");
+        mGoogleLoginClicked = true;
+        if (!mGoogleApiClient.isConnecting()) {
+            if (mGoogleConnectionResult != null) {
+                resolveSignInError();
+            } else if (mGoogleApiClient.isConnected()) {
+                Log.i(kLOG_TAG, "GoogleOAuthTokenAndLogin");
+                getGoogleOAuthTokenAndLogin();
+            } else {
+                    /* connect API now */
+                Log.d(kLOG_TAG, "Trying to connect to Google API");
+                mGoogleApiClient.connect();
+            }
+        }
+    }
+
+    private final String ACTIVITY_TITLE = " " + SignInActivity.this.getClass().getSimpleName();
+    private final String kLOG_TAG = SignInActivity.this.getClass().getSimpleName();
 }
 
 
