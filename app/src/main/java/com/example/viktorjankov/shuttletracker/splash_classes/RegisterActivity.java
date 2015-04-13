@@ -56,62 +56,6 @@ import butterknife.OnClick;
 public class RegisterActivity extends ActionBarActivity implements Validator.ValidationListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
-    private static final String ACTIVITY_TITLE = " " + "REGISTER";
-    private static final String kLOG_TAG = "RegisterActivity";
-
-    private static final String FIREBASE_REGISTERED_COMPANIES = "registeredCompanies";
-    private static final String FIREBASE_USERS = "users";
-
-    @InjectView(R.id.first_name)
-    @NotEmpty
-    EditText firstNameEditText;
-    String firstName;
-
-    @InjectView(R.id.last_name)
-    @NotEmpty
-    EditText lastNameEditText;
-    String lastName;
-
-    @InjectView(R.id.company_name)
-    @NotEmpty
-    AutoCompleteTextView companyNameAutoCompleteTextView;
-    String companyName;
-
-    @InjectView(R.id.company_code)
-    @NotEmpty
-    EditText companyCodeEditText;
-    String companyCode;
-
-    @InjectView(R.id.email)
-    @NotEmpty
-    @Email
-    EditText emailEditText;
-    String email;
-
-    @InjectView(R.id.password)
-    @NotEmpty
-    EditText passwordEditText;
-    String password;
-
-    @InjectView(R.id.registerButton)
-    Button registerButton;
-
-    @OnClick(R.id.registerButton)
-    public void onClick() {
-        validator.validate();
-    }
-
-    @InjectView(R.id.login_with_facebook)
-    LoginButton mFacebookLoginButton;
-
-    @InjectView(R.id.facebook_button)
-    LinearLayout facebookLayout;
-
-    @OnClick(R.id.facebook_button)
-    public void facebookClick() {
-        Log.i(kLOG_TAG, "performClick");
-        mFacebookLoginButton.performClick();
-    }
 
     public static final int RC_GOOGLE_LOGIN = 1;
     private GoogleApiClient mGoogleApiClient;
@@ -119,30 +63,9 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     private boolean mGoogleLoginClicked;
     private ConnectionResult mGoogleConnectionResult;
 
+    private String companyCode;
+
     AuthData mAuthData;
-
-    @InjectView(R.id.google_plus_button)
-    LinearLayout googlePlusLayout;
-
-    @OnClick({R.id.google_plus_button, R.id.google_icon})
-    public void googlePlusClick() {
-        Log.i(kLOG_TAG, "google login button clicked");
-
-        mGoogleLoginClicked = true;
-
-        if (!mGoogleApiClient.isConnecting()) {
-            if (mGoogleConnectionResult != null) {
-                resolveSignInError();
-            } else if (mGoogleApiClient.isConnected()) {
-                Log.i(kLOG_TAG, "GoogleOAuthTokenAndLogin");
-                getGoogleOAuthTokenAndLogin();
-            } else {
-                    /* connect API now */
-                Log.d(kLOG_TAG, "Trying to connect to Google API");
-                mGoogleApiClient.connect();
-            }
-        }
-    }
 
     private ProgressDialog mAuthProgressDialog;
     Toolbar toolbar;
@@ -153,25 +76,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.register_layout);
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(ACTIVITY_TITLE);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        ButterKnife.inject(this);
-
-        validator = new Validator(this);
-        validator.setValidationListener(this);
-
-        mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Registering with Flow");
-        mAuthProgressDialog.setCancelable(false);
+        // Validator, Toolbar, Butterknife, ProgressDialog
+        prepareActivity(savedInstanceState);
 
         /* *************************************
          *              FACEBOOK               *
@@ -206,7 +112,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
          ***************************************/
 
         companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
-
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(RegisterActivity.this,
                 android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
@@ -312,12 +217,12 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     @Override
     public void onValidationSucceeded() {
-        firstName = firstNameEditText.getText().toString();
-        lastName = lastNameEditText.getText().toString();
-        companyName = companyNameAutoCompleteTextView.getText().toString();
+        String firstName = firstNameEditText.getText().toString();
+        String lastName = lastNameEditText.getText().toString();
+        String companyName = companyNameAutoCompleteTextView.getText().toString();
         companyCode = companyCodeEditText.getText().toString();
-        email = emailEditText.getText().toString();
-        password = passwordEditText.getText().toString();
+        String email = emailEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
 
         boolean companyValid = validateCompanyCode(companyName, companyCode);
         if (companyValid) {
@@ -523,6 +428,19 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     }
 
     @Override
+    protected void onPause() {
+        if (mAuthProgressDialog != null) {
+            mAuthProgressDialog.dismiss();
+        }
+        super.onPause();
+    }
+
+
+    /* *************************************
+     *       HANDLE BACK PRESS             *
+     ***************************************/
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -556,11 +474,102 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 .setIcon(android.R.drawable.ic_dialog_alert);
     }
 
-    @Override
-    protected void onPause() {
-        if (mAuthProgressDialog != null) {
-            mAuthProgressDialog.dismiss();
-        }
-        super.onPause();
+    /* *************************************
+     *       Activity preparation stuff    *
+     ***************************************/
+
+    private void prepareActivity(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.verify_layout);
+
+        validator = new Validator(this);
+        validator.setValidationListener(this);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(ACTIVITY_TITLE);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        ButterKnife.inject(this);
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Registering with Flow");
+        mAuthProgressDialog.setCancelable(false);
     }
+
+    @InjectView(R.id.first_name)
+    @NotEmpty
+    EditText firstNameEditText;
+
+    @InjectView(R.id.last_name)
+    @NotEmpty
+    EditText lastNameEditText;
+
+    @InjectView(R.id.company_name)
+    @NotEmpty
+    AutoCompleteTextView companyNameAutoCompleteTextView;
+
+    @InjectView(R.id.company_code)
+    @NotEmpty
+    EditText companyCodeEditText;
+
+    @InjectView(R.id.email)
+    @NotEmpty
+    @Email
+    EditText emailEditText;
+
+    @InjectView(R.id.password)
+    @NotEmpty
+    EditText passwordEditText;
+
+    @InjectView(R.id.registerButton)
+    Button registerButton;
+
+    @OnClick(R.id.registerButton)
+    public void onClick() {
+        validator.validate();
+    }
+
+    @InjectView(R.id.login_with_facebook)
+    LoginButton mFacebookLoginButton;
+
+    @InjectView(R.id.facebook_button)
+    LinearLayout facebookLayout;
+
+    @OnClick(R.id.facebook_button)
+    public void facebookClick() {
+        Log.i(kLOG_TAG, "performClick");
+        mFacebookLoginButton.performClick();
+    }
+
+    @InjectView(R.id.google_plus_button)
+    LinearLayout googlePlusLayout;
+
+    @OnClick({R.id.google_plus_button, R.id.google_icon})
+    public void googlePlusClick() {
+        Log.i(kLOG_TAG, "google login button clicked");
+
+        mGoogleLoginClicked = true;
+
+        if (!mGoogleApiClient.isConnecting()) {
+            if (mGoogleConnectionResult != null) {
+                resolveSignInError();
+            } else if (mGoogleApiClient.isConnected()) {
+                Log.i(kLOG_TAG, "GoogleOAuthTokenAndLogin");
+                getGoogleOAuthTokenAndLogin();
+            } else {
+                    /* connect API now */
+                Log.d(kLOG_TAG, "Trying to connect to Google API");
+                mGoogleApiClient.connect();
+            }
+        }
+    }
+
+    private  final String ACTIVITY_TITLE = " " + RegisterActivity.this.getClass().getSimpleName();
+    private final String kLOG_TAG = RegisterActivity.this.getClass().getSimpleName();
+
+    private static final String FIREBASE_USERS = "users";
 }

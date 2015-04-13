@@ -130,6 +130,10 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         }
     }
 
+
+    /* *************************************
+     *       HANDLE BACK PRESS             *
+     ***************************************/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
