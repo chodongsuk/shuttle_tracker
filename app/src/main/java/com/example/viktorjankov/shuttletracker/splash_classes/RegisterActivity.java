@@ -428,14 +428,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         }
     }
 
-    @Override
-    protected void onPause() {
-        if (mAuthProgressDialog != null) {
-            mAuthProgressDialog.dismiss();
-        }
-        super.onPause();
-    }
-
     /* *************************************
      *       HANDLE BACK PRESS             *
      ***************************************/
@@ -480,7 +472,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     private void prepareActivity(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.verify_layout);
+        setContentView(R.layout.register_layout);
 
         validator = new Validator(this);
         validator.setValidationListener(this);
