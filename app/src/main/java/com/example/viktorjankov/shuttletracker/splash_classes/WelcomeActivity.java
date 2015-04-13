@@ -27,25 +27,6 @@ import butterknife.OnClick;
 public class WelcomeActivity extends FragmentActivity {
     public final String kLOG_TAG = WelcomeActivity.this.getClass().getSimpleName();
 
-    @InjectView(R.id.sign_in)
-    TextView signInButton;
-    @InjectView(R.id.register)
-    TextView registerButton;
-
-    @OnClick({R.id.sign_in, R.id.register})
-    public void onClick(View v) {
-        Intent intent = null;
-        switch (v.getId()) {
-            case R.id.sign_in:
-                intent = new Intent(WelcomeActivity.this, SignInActivity.class);
-                break;
-            case R.id.register:
-                intent = new Intent(WelcomeActivity.this, RegisterActivity.class);
-                break;
-        }
-        startActivity(intent);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // set content view and inject butterknife
@@ -125,5 +106,24 @@ public class WelcomeActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome_layout);
         ButterKnife.inject(this);
+    }
+
+    @InjectView(R.id.sign_in)
+    TextView signInButton;
+    @InjectView(R.id.register)
+    TextView registerButton;
+
+    @OnClick({R.id.sign_in, R.id.register})
+    public void onClick(View v) {
+        Intent intent = null;
+        switch (v.getId()) {
+            case R.id.sign_in:
+                intent = new Intent(WelcomeActivity.this, SignInActivity.class);
+                break;
+            case R.id.register:
+                intent = new Intent(WelcomeActivity.this, RegisterActivity.class);
+                break;
+        }
+        startActivity(intent);
     }
 }

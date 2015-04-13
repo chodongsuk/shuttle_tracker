@@ -13,7 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
@@ -39,44 +38,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class VerifyActivity extends ActionBarActivity implements Validator.ValidationListener {
-    public static final String ACTIVITY_TITLE = " " + "REGISTER";
-    private static final String FIREBASE_USERS = "users";
 
-    public static final String firstNameKey = "first_name";
-    public static final String lastNameKey = "last_name";
-    public static final String emailKey = "email";
-    public static final String registeredCompaniesKey = "registeredCompaniesList";
-    public static final String registeredCompaniesCodesKey = "registeredCompaniesCodesKey";
-    public static final String UID_KEY = "userID";
-
-
-    @InjectView(R.id.first_name)
-    @NotEmpty
-    EditText firstNameEditText;
-    String firstName;
-
-    @InjectView(R.id.last_name)
-    @NotEmpty
-    EditText lastNameEditText;
-    String lastName;
-
-    @InjectView(R.id.company_name)
-    @NotEmpty
-    AutoCompleteTextView companyNameAutoCompleteTextView;
-    String companyName;
-
-    @InjectView(R.id.company_code)
-    @NotEmpty
-    EditText companyCodeEditText;
-    String companyCode;
-
-    @InjectView(R.id.registerButton)
-    Button registerButton;
-
-    @OnClick(R.id.registerButton)
-    public void onClick() {
-        validator.validate();
-    }
     ProgressDialog mAuthProgressDialog;
     Toolbar toolbar;
 
@@ -84,39 +46,25 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     List<String> registeredCompaniesList;
     Validator validator;
     Firebase mFirebase = FirebaseProvider.getInstance();
-    String email;
-    String uID;
-    AuthData mAuthData;
+
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String uID;
+    private AuthData mAuthData;
 
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.verify_layout);
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(ACTIVITY_TITLE);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        ButterKnife.inject(this);
-
-        validator = new Validator(this);
-        validator.setValidationListener(this);
-
-        mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Registering with Flow");
-        mAuthProgressDialog.setCancelable(false);
+        // Butterknife, validator, init mAuthProgressDialog, setToolbar
+        prepareActivity(savedInstanceState);
 
         firstName = getIntent().getExtras().getString(firstNameKey);
         lastName = getIntent().getExtras().getString(lastNameKey);
         email = getIntent().getExtras().getString(emailKey);
-        uID  = getIntent().getExtras().getString(UID_KEY);
+        uID = getIntent().getExtras().getString(UID_KEY);
 
         mAuthData = FirebaseAuthProvider.getAuthData();
 
-        registeredCompaniesList = RegisteredCompaniesProvider.getCompanyList() ;
+        registeredCompaniesList = RegisteredCompaniesProvider.getCompanyList();
         companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
 
 
@@ -127,14 +75,11 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
         firstNameEditText.setText(firstName);
         lastNameEditText.setText(lastName);
-
     }
 
     private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
         User user = new User(firstName, lastName, email, companyCode);
         mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
-
-        Toast.makeText(VerifyActivity.this, "Congrats! You're registered!", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(this, MainActivity.class);
 
@@ -145,9 +90,9 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         startActivity(intent);
     }
 
-    private boolean validateCompanyCode(String companyName, String companyCode) {
-
+    private boolean isValidCompanyCode(String companyName, String companyCode) {
         String registeredCompanyCode = companyCodesMap.get(companyName);
+
         if (registeredCompanyCode == null) {
             companyNameAutoCompleteTextView.setError("Company name is not valid");
             return false;
@@ -162,14 +107,13 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     @Override
     public void onValidationSucceeded() {
-
         firstName = firstNameEditText.getText().toString();
         lastName = lastNameEditText.getText().toString();
-        companyName = companyNameAutoCompleteTextView.getText().toString();
-        companyCode = companyCodeEditText.getText().toString();
 
-        boolean companyValid = validateCompanyCode(companyName, companyCode);
-        if (companyValid) {
+        String companyName = companyNameAutoCompleteTextView.getText().toString();
+        String companyCode = companyCodeEditText.getText().toString();
+
+        if (isValidCompanyCode(companyName, companyCode)) {
             registerUser(firstName, lastName, email, companyCode);
         }
     }
@@ -190,7 +134,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                buildAlertDialt().show();
+                buildAlertDialog().show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -199,10 +143,10 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     @Override
     public void onBackPressed() {
-        buildAlertDialt().show();
+        buildAlertDialog().show();
     }
 
-    private AlertDialog.Builder buildAlertDialt() {
+    private AlertDialog.Builder buildAlertDialog() {
         return new AlertDialog.Builder(this)
                 .setMessage(getResources().getString(R.string.dialog_message))
                 .setCancelable(false)
@@ -226,6 +170,8 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
      */
     private void logout() {
         if (mAuthData != null) {
+            /* logout of Firebase */
+            mFirebase.unauth();
             /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
              * Facebook/Google+ after logging out of Firebase. */
             if (mAuthData.getProvider().equals("facebook")) {
@@ -250,5 +196,63 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
             }
         }
     }
+
+    /* *************************************
+     *       Activity preparation stuff    *
+     ***************************************/
+
+    private void prepareActivity(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.welcome_layout);
+        ButterKnife.inject(this);
+
+        validator = new Validator(this);
+        validator.setValidationListener(this);
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Registering with Flow");
+        mAuthProgressDialog.setCancelable(false);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(ACTIVITY_TITLE);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @InjectView(R.id.first_name)
+    @NotEmpty
+    EditText firstNameEditText;
+
+    @InjectView(R.id.last_name)
+    @NotEmpty
+    EditText lastNameEditText;
+
+    @InjectView(R.id.company_name)
+    @NotEmpty
+    AutoCompleteTextView companyNameAutoCompleteTextView;
+
+    @InjectView(R.id.company_code)
+    @NotEmpty
+    EditText companyCodeEditText;
+
+    @InjectView(R.id.registerButton)
+    Button registerButton;
+
+    @OnClick(R.id.registerButton)
+    public void onClick() {
+
+        validator.validate();
+    }
+
+    public static final String firstNameKey = "first_name";
+    public static final String lastNameKey = "last_name";
+    public static final String emailKey = "email";
+    public static final String UID_KEY = "userID";
+
+    public final String ACTIVITY_TITLE = " " + VerifyActivity.this.getClass().getSimpleName();
+    private static final String FIREBASE_USERS = "users";
 }
 
