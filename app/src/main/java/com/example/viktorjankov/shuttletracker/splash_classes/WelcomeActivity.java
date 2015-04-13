@@ -10,17 +10,22 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
+import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.firebase.client.AuthData;
+import com.firebase.client.Firebase;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class WelcomeActivity extends FragmentActivity {
+    public final String kLOG_TAG = WelcomeActivity.this.getClass().getSimpleName();
 
     @InjectView(R.id.sign_in)
     TextView signInButton;
@@ -43,11 +48,39 @@ public class WelcomeActivity extends FragmentActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.welcome_layout);
-        ButterKnife.inject(this);
+        // set content view and inject butterknife
+        prepareActivity(savedInstanceState);
 
+        // Change typeface of the two front button
+        setTypeface();
+
+        // Check phone SDK version and set the correct state selector
+        setButtonsDrawables();
+
+        // Download the registered companies from Firebase
+        RegisteredCompaniesProvider.init();
+
+        // Check if current user is signed in with Firebase
+        Firebase mFirebaseRef = FirebaseProvider.getInstance();
+        mFirebaseRef.addAuthStateListener(new Firebase.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(AuthData authData) {
+
+                if (authData != null) {
+                    Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
+                    Log.i(kLOG_TAG, "Uid: " + authData.getUid());
+                }
+            }
+        });
+    }
+
+    private void setTypeface() {
         Typeface type = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
+        signInButton.setTypeface(type);
+        registerButton.setTypeface(type);
+    }
+
+    private void setButtonsDrawables() {
         int resource_sign;
         int resource_reg;
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
@@ -59,13 +92,13 @@ public class WelcomeActivity extends FragmentActivity {
         }
 
         signInButton.setBackgroundResource(resource_sign);
-        signInButton.setTypeface(type);
-
         registerButton.setBackgroundResource(resource_reg);
-        registerButton.setTypeface(type);
+    }
 
-        RegisteredCompaniesProvider.init();
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkLocationServiceEnabled();
     }
 
     private void checkLocationServiceEnabled() {
@@ -80,7 +113,7 @@ public class WelcomeActivity extends FragmentActivity {
             builder.setPositiveButton(R.string.enable, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                     startActivity(myIntent);
                 }
             });
@@ -88,9 +121,9 @@ public class WelcomeActivity extends FragmentActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        checkLocationServiceEnabled();
+    private void prepareActivity(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.welcome_layout);
+        ButterKnife.inject(this);
     }
 }

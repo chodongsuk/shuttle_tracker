@@ -218,7 +218,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         Log.i(kLOG_TAG, "Facebook state: " + state.toString());
 
         if (state.isOpened()) {
-        mAuthProgressDialog.show();
+            mAuthProgressDialog.show();
             Log.i(kLOG_TAG, "state is opened");
 
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
