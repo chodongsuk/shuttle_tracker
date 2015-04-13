@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
@@ -42,14 +43,23 @@ public class WelcomeActivity extends FragmentActivity {
         RegisteredCompaniesProvider.init();
 
         // Check if current user is signed in with Firebase
-        Firebase mFirebaseRef = FirebaseProvider.getInstance();
-        mFirebaseRef.addAuthStateListener(new Firebase.AuthStateListener() {
+        Firebase mFirebase = FirebaseProvider.getInstance();
+        mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
             @Override
             public void onAuthStateChanged(AuthData authData) {
 
                 if (authData != null) {
-                    Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
-                    Log.i(kLOG_TAG, "Uid: " + authData.getUid());
+//                    Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
+//                    Log.i(kLOG_TAG, "Uid: " + authData.getUid());
+//                    Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+//
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//
+//                    startActivity(intent);
+//                    finish();
+
                 }
             }
         });
@@ -125,5 +135,10 @@ public class WelcomeActivity extends FragmentActivity {
                 break;
         }
         startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

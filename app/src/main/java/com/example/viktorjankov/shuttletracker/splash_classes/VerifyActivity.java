@@ -188,7 +188,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
                 GoogleApiClient mGoogleApiClient = FirebaseAuthProvider.getGoogleApiClient();
                 if (mGoogleApiClient.isConnected()) {
                     Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                    mGoogleApiClient.disconnect();
                 }
             }
         }

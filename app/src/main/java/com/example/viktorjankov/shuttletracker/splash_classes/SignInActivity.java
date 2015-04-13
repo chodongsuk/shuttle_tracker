@@ -35,6 +35,7 @@ import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
@@ -70,6 +71,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     protected void onCreate(Bundle savedInstanceState) {
         // Validator, Toolbar, Butterknife, ProgressDialog
         prepareActivity(savedInstanceState);
+        Log.i(kLOG_TAG, "SignInActivity is created");
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[]{android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_dark));
@@ -101,6 +103,9 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
+
+        Log.i(kLOG_TAG, "I'm going to connect Api Client");
+        mGoogleApiClient.connect();
         FirebaseAuthProvider.setGoogleApiClient(mGoogleApiClient);
     }
 
@@ -144,28 +149,32 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             if (mAuthData != null && mAuthData.getProvider().equals("facebook")) {
                 mFirebase.unauth();
             }
+        } else {
+            Log.i(kLOG_TAG, "I don't know what the fuck is going on here");
         }
     }
 
     private void userExists(final String uid, final String first, final String last, final String email) {
 
+        Log.i(kLOG_TAG, "User exists called from: " + email);
         mFirebase.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Intent intent;
                 if (dataSnapshot.hasChildren()) {
                     mAuthProgressDialog.hide();
-                    intent = new Intent(SignInActivity.this, MainActivity.class);
+                    Intent intent = new Intent(SignInActivity.this, MainActivity.class);
 
+                    Log.i(kLOG_TAG, "I'm starting MainActivity");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
                     startActivity(intent);
+
                 } else {
                     mAuthProgressDialog.hide();
                     Log.i(kLOG_TAG, "User does not exists so register");
-                    intent = new Intent(SignInActivity.this, VerifyActivity.class);
+                    Intent intent = new Intent(SignInActivity.this, VerifyActivity.class);
 
                     intent.putExtra(VerifyActivity.firstNameKey, first);
                     intent.putExtra(VerifyActivity.lastNameKey, last);
@@ -194,8 +203,13 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             public void onAuthenticated(AuthData authData) {
                 Intent intent = new Intent(SignInActivity.this, MainActivity.class);
 
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
                 mAuthProgressDialog.hide();
                 startActivity(intent);
+                finish();
             }
 
             @Override
@@ -340,15 +354,24 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             mAuthData = authData;
             FirebaseAuthProvider.setAuthData(mAuthData);
             mAuthProgressDialog.show();
+
+            if (!mGoogleApiClient.isConnecting() || !mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.connect();
+            }
+
             Log.i(kLOG_TAG, provider + " auth successful");
 
             String name = (String) authData.getProviderData().get("displayName");
             String[] first_last = name.split("\\s+");
             String firstName = first_last[0];
             String lastName = first_last[1];
-            String gMail = Plus.AccountApi.getAccountName(mGoogleApiClient);
+
+            Log.i(kLOG_TAG, "Google API client is connected though " + mGoogleApiClient.isConnected());
+
+            String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+
             // check if user exists, if they do start MainActivity
-            userExists(authData.getUid(), firstName, lastName, gMail);
+            userExists(authData.getUid(), firstName, lastName, email);
 
         }
 
@@ -391,6 +414,24 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        mGoogleApiClient.disconnect();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(kLOG_TAG, "SigninActivity is destroyed");
+        super.onDestroy();
     }
 
     /* *************************************
@@ -476,6 +517,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
     private final String ACTIVITY_TITLE = " " + SignInActivity.this.getClass().getSimpleName();
     private final String kLOG_TAG = SignInActivity.this.getClass().getSimpleName();
+
 }
 
 

@@ -172,6 +172,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
                     startActivity(intent);
+                    finish();
                 } else {
                     mAuthProgressDialog.hide();
                     Log.i(kLOG_TAG, "User does not exists so register");
@@ -183,6 +184,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     intent.putExtra(VerifyActivity.UID_KEY, uid);
 
                     startActivity(intent);
+                    finish();
                 }
             }
 
@@ -464,6 +466,18 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
+    }
+
+    @Override
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        mGoogleApiClient.disconnect();
+        super.onPause();
     }
 
     /* *************************************

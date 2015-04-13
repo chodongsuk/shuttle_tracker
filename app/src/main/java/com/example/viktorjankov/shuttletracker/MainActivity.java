@@ -47,6 +47,7 @@ import java.util.Map;
 public class MainActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
+    public final String kLOG_TAG = MainActivity.this.getClass().getSimpleName();
     public static final String USER_NAME_KEY = "user_name";
     public static final String USER_COMPANY_CODE = "company_code";
     public static final String OAUTH_KEY = "oAuth_token";
@@ -73,6 +74,8 @@ public class MainActivity extends ActionBarActivity
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(kLOG_TAG, "YAAAY I'M CREATED");
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -216,7 +219,7 @@ public class MainActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_out:
-                buildAlertDialt().show();
+                buildAlertDialog().show();
                 return true;
             case R.id.change_password:
             case android.R.id.home:
@@ -226,15 +229,24 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private AlertDialog.Builder buildAlertDialt() {
+    private AlertDialog.Builder buildAlertDialog() {
         return new AlertDialog.Builder(this)
                 .setMessage(getResources().getString(R.string.dialog_sign_out))
                 .setCancelable(false)
                 .setPositiveButton(getResources().getString(R.string.sign_out), new DialogInterface.OnClickListener() {
+
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         logout();
-                        startActivity(new Intent(MainActivity.this, WelcomeActivity.class));
+                        Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
+
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+                        startActivity(intent);
+                        finish();
 
                     }
                 })
@@ -250,39 +262,52 @@ public class MainActivity extends ActionBarActivity
      * Unauthenticate from Firebase and from providers where necessary.
      */
     private void logout() {
-        if (mAuthData != null) {
-            /* logout of Firebase */
-            Log.i("MainActivity" , "Vivace coffe: User unauthenthicated");
-            mFirebase.unauth();
-            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
-             * Facebook/Google+ after logging out of Firebase. */
-            if (mAuthData.getProvider().equals("facebook")) {
-                /* Logout from Facebook */
-                Session session = Session.getActiveSession();
-                if (session != null) {
-                    if (!session.isClosed()) {
-                        session.closeAndClearTokenInformation();
+        final Firebase mFirebase = FirebaseProvider.getInstance();
+        mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(AuthData authData) {
+
+                if (authData != null) {
+                    
+                    /* logout of Firebase */
+                    mFirebase.unauth();
+                    /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
+                    * Facebook/Google+ after logging out of Firebase. */
+                    if (mAuthData.getProvider().equals("facebook")) {
+                        /* Logout from Facebook */
+                        Session session = Session.getActiveSession();
+                        if (session != null) {
+                            if (!session.isClosed()) {
+                                session.closeAndClearTokenInformation();
+                            }
+                        } else {
+                            session = new Session(getApplicationContext());
+                            Session.setActiveSession(session);
+                            session.closeAndClearTokenInformation();
+                        }
+                    } else if (mAuthData.getProvider().equals("google")) {
+                        /* Logout from Google+ */
+                        GoogleApiClient googleApiClient = FirebaseAuthProvider.getGoogleApiClient();
+                        if (googleApiClient.isConnected()) {
+                            Plus.AccountApi.clearDefaultAccount(googleApiClient);
+                        }
                     }
-                } else {
-                    session = new Session(getApplicationContext());
-                    Session.setActiveSession(session);
-                    session.closeAndClearTokenInformation();
-                }
-            } else if (mAuthData.getProvider().equals("google")) {
-                /* Logout from Google+ */
-                GoogleApiClient googleApiClient = FirebaseAuthProvider.getGoogleApiClient();
-                if (googleApiClient.isConnected()) {
-                    Plus.AccountApi.clearDefaultAccount(googleApiClient);
-                    googleApiClient.disconnect();
+                    Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
+                    Log.i(kLOG_TAG, "Uid: " + authData.getUid());
                 }
             }
-        }
+        });
     }
 
     @Override
     public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
 
-        super.onBackPressed();
+        if (fragment instanceof PickupLocationFragment) {
+            finish();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
 

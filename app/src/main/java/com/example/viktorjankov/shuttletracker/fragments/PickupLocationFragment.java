@@ -70,4 +70,5 @@ public class PickupLocationFragment extends Fragment {
         ((MainActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
         super.onResume();
     }
+
 }
