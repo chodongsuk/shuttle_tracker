@@ -22,6 +22,7 @@ import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
 import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
 import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
+import com.example.viktorjankov.shuttletracker.model.Company;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.example.viktorjankov.shuttletracker.model.User;
@@ -31,7 +32,10 @@ import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.example.viktorjankov.shuttletracker.splash_classes.WelcomeActivity;
 import com.facebook.Session;
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -45,6 +49,7 @@ public class MainActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     public static final String USER_INFO = "userID";
+    public static final String FIREBASE_COMPANY_DATA = "companyData";
     public static final String kLOG_TAG = MainActivity.class.getSimpleName();
 
     FragmentManager manager;
@@ -63,6 +68,7 @@ public class MainActivity extends ActionBarActivity
     TravelModeFragment travelModeFragment;
 
     User mUser;
+    Company mCompany;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +90,18 @@ public class MainActivity extends ActionBarActivity
         createLocationRequest();
 
         mUser = UserProvider.getInstance();
-        Log.i(kLOG_TAG, "Got user!");
-        Log.i(kLOG_TAG, mUser.toString());
+        mFirebase.child(FIREBASE_COMPANY_DATA).child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        }
     }
 
     @Subscribe

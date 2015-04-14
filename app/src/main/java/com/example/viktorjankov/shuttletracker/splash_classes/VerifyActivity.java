@@ -68,7 +68,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     }
 
     private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
-        User user = new User(firstName, lastName, email, companyCode);
+        User user = new User(firstName, lastName, email.toLowerCase(), companyCode.toLowerCase());
         mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
 
         Intent intent = new Intent(this, MainActivity.class);

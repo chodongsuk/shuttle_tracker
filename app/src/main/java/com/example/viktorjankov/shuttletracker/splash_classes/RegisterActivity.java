@@ -223,7 +223,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         mFirebase.createUser(email, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
             public void onSuccess(Map<String, Object> result) {
-                final User user = new User(firstName, lastName, email, companyCode);
+                final User user = new User(firstName, lastName, email.toLowerCase(), companyCode.toLowerCase());
                 mFirebase.child(FIREBASE_USERS).child((String) result.get("uid")).setValue(user);
 
                 mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
