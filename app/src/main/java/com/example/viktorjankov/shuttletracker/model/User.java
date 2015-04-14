@@ -111,10 +111,10 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return "\n" +
+                "company code: " + companyCode + "\n" +
+                "email: " + email + "\n" +
                 "first: " + firstName + "\n" +
                 "last: " + lastName + "\n" +
-                "email: " + email + "\n" +
-                "company code: " + companyCode + "\n" +
                 "destination: " + destinationName + "\n" +
                 "destination_time: " + destinationTime + "\n" +
                 "active: " + active;

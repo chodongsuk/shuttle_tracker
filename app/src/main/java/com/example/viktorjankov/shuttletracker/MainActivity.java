@@ -75,6 +75,10 @@ public class MainActivity extends ActionBarActivity
         // content view, toolbar and title
         prepareActivity(savedInstanceState);
 
+        mUser = UserProvider.getInstance();
+        Log.i(kLOG_TAG, "User info: " + mUser.toString());
+        getCompanyData();
+
         mapViewFragment = new MapViewFragment();
 
         manager = getSupportFragmentManager();
@@ -89,19 +93,6 @@ public class MainActivity extends ActionBarActivity
         mGoogleApiClient.connect();
         createLocationRequest();
 
-        mUser = UserProvider.getInstance();
-        mFirebase.child(FIREBASE_COMPANY_DATA).child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        }
     }
 
     @Subscribe
@@ -303,6 +294,51 @@ public class MainActivity extends ActionBarActivity
         title.setTextColor(Color.WHITE);
         title.setVisibility(View.VISIBLE);
 
+    }
+
+    public static final String FIREBASE_COMPANY_CODE = "companyCode";
+    public static final String FIREBASE_COMPANY_NAME = "companyName";
+    public static final String FIREBASE_DESTINATIONS = "destinations";
+    public static final String FIREBASE_DESTINATION_NAME = "destinationName";
+    public static final String FIREBASE_DESTINATION_LAT = "latitude";
+    public static final String FIREBASE_DESTINATION_LNG = "longitude";
+
+    public void getCompanyData() {
+
+        mFirebase.child("companyData").child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mCompany = new Company();
+                for (DataSnapshot companyData : dataSnapshot.getChildren()) {
+                    if (companyData.getKey().equals(FIREBASE_COMPANY_CODE)) {
+                        mCompany.setCompanyCode(companyData.getValue().toString());
+                    } else if (companyData.getKey().equals(FIREBASE_COMPANY_NAME)) {
+                        mCompany.setCompanyName(companyData.getValue().toString());
+                    } else if (companyData.getKey().equals(FIREBASE_DESTINATIONS)) {
+
+                        for (DataSnapshot destinations : companyData.getChildren()) {
+                            String destinationName = "";
+                            double lat = 0;
+                            double lng = 0;
+                            if (destinations.getKey().equals(FIREBASE_DESTINATION_NAME)) {
+                                destinationName = destinations.getValue().toString();
+                            } else if (destinations.getKey().equals(FIREBASE_DESTINATION_LAT)) {
+                                lat = Double.parseDouble(destinations.getValue().toString());
+                            } else if (destinations.getKey().equals(FIREBASE_DESTINATION_LNG)) {
+                                lng = Double.parseDouble(destinations.getValue().toString());
+                            }
+                            DestinationLocation destinationLocation = new DestinationLocation(destinationName, lat, lng);
+                            mCompany.addDestinationLocation(destinationLocation);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 }
 

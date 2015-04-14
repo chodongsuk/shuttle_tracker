@@ -17,9 +17,14 @@ import android.widget.TextView;
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
+import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -51,13 +56,27 @@ public class WelcomeActivity extends FragmentActivity {
             Log.i(kLOG_TAG, "Uid: " + authData.getUid());
 
 
-            Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+            final Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
 
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
-            startActivity(intent);
+            String uID = authData.getUid();
+            mFirebase.child("users").child(uID).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user = dataSnapshot.getValue(User.class);
+                    UserProvider.setUser(user);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
+
         }
     }
 
