@@ -41,28 +41,6 @@ public class WelcomeActivity extends FragmentActivity {
 
         // Download the registered companies from Firebase
         RegisteredCompaniesProvider.init();
-
-//        Firebase mFirebase = FirebaseProvider.getInstance();
-//        mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(AuthData authData) {
-//
-//                if (authData != null) {
-//                    Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
-//                    Log.i(kLOG_TAG, "Uid: " + authData.getUid());
-//                    Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
-//
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-//
-//                    startActivity(intent);
-//                    finish();
-//
-//                }
-//            }
-//        });
-
     }
 
 

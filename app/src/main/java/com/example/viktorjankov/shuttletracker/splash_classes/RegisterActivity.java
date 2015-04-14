@@ -162,21 +162,20 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         mFirebase.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Intent intent;
+
                 if (dataSnapshot.hasChildren()) {
                     mAuthProgressDialog.hide();
-                    intent = new Intent(RegisterActivity.this, MainActivity.class);
+                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
 
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
                     startActivity(intent);
-                    finish();
                 } else {
                     mAuthProgressDialog.hide();
                     Log.i(kLOG_TAG, "User does not exists so register");
-                    intent = new Intent(RegisterActivity.this, VerifyActivity.class);
+                    Intent intent = new Intent(RegisterActivity.this, VerifyActivity.class);
 
                     intent.putExtra(VerifyActivity.firstNameKey, first);
                     intent.putExtra(VerifyActivity.lastNameKey, last);
@@ -184,7 +183,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     intent.putExtra(VerifyActivity.UID_KEY, uid);
 
                     startActivity(intent);
-                    finish();
                 }
             }
 
