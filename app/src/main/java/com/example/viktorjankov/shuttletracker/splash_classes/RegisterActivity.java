@@ -126,8 +126,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
-                    mAuthData = authData;
-                    FirebaseAuthProvider.setAuthData(mAuthData);
                     // The Facebook user is now authenticated with Firebase
                     Log.i(kLOG_TAG, "onAuthenticated");
 
@@ -388,8 +386,6 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
         @Override
         public void onAuthenticated(AuthData authData) {
-            mAuthData = authData;
-            FirebaseAuthProvider.setAuthData(mAuthData);
             mAuthProgressDialog.show();
             Log.i(kLOG_TAG, provider + " auth successful");
 

@@ -69,8 +69,6 @@ public class MainActivity extends ActionBarActivity
     MapViewFragment mapViewFragment;
     TravelModeFragment travelModeFragment;
 
-    /* Data from the authenticated user */
-    private AuthData mAuthData;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,8 +85,6 @@ public class MainActivity extends ActionBarActivity
         title.setText("FLOW");
         title.setTextColor(Color.WHITE);
         title.setVisibility(View.VISIBLE);
-
-        mAuthData = FirebaseAuthProvider.getAuthData();
 
         mUser.setFirstName("viktor");
         mapViewFragment = new MapViewFragment();
@@ -262,6 +258,8 @@ public class MainActivity extends ActionBarActivity
      * Unauthenticate from Firebase and from providers where necessary.
      */
     private void logout() {
+        AuthData mAuthData = mFirebase.getAuth();
+
         if (mAuthData != null) {
             /* logout of Firebase */
             mFirebase.unauth();

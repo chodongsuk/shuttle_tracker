@@ -38,7 +38,6 @@ import butterknife.OnClick;
 
 public class VerifyActivity extends ActionBarActivity implements Validator.ValidationListener {
 
-    private AuthData mAuthData;
     Validator validator;
     Toolbar toolbar;
     Firebase mFirebase = FirebaseProvider.getInstance();
@@ -57,8 +56,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         lastName = getIntent().getExtras().getString(lastNameKey);
         email = getIntent().getExtras().getString(emailKey);
         uID = getIntent().getExtras().getString(UID_KEY);
-
-        mAuthData = FirebaseAuthProvider.getAuthData();
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
@@ -166,6 +163,8 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
      * Unauthenticate from Firebase and from providers where necessary.
      */
     private void logout() {
+        AuthData mAuthData = mFirebase.getAuth();
+
         if (mAuthData != null) {
             /* logout of Firebase */
             mFirebase.unauth();
