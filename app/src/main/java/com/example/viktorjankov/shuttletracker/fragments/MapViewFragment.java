@@ -39,7 +39,7 @@ import butterknife.OnClick;
 public class MapViewFragment extends Fragment {
 
     private static final String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
-    public static final String FIREBASE_LAT_ENDPOINT = UserProvider.getInstance().getFirstName() + "/latitude";
+    public static  String FIREBASE_LAT_ENDPOINT = UserProvider.getInstance().getFirstName() + "/latitude";
     public static final String FIREBASE_LNG_ENDPOINT = UserProvider.getInstance().getFirstName() + "/longitude";
     public static final String FIREBASE_ACTIVE_ENDPOINT = UserProvider.getInstance().getFirstName() + "/active";
 
@@ -78,8 +78,8 @@ public class MapViewFragment extends Fragment {
     private boolean stateActive = false;
 
     Bus bus = BusProvider.getInstance();
-    User mUser = UserProvider.getInstance();
     Firebase mFirebase = FirebaseProvider.getInstance();
+    User mUser;
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_view, container, false);

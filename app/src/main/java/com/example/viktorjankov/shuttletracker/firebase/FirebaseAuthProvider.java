@@ -1,6 +1,5 @@
 package com.example.viktorjankov.shuttletracker.firebase;
 
-import com.firebase.client.AuthData;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 public class FirebaseAuthProvider {

@@ -3,11 +3,19 @@ package com.example.viktorjankov.shuttletracker.singletons;
 import com.example.viktorjankov.shuttletracker.model.User;
 
 public class UserProvider {
-    private static final User USER = new User();
+
+    private static User mUser;
 
     public static User getInstance() {
-        USER.setActive(false);
-        return USER;
+        if (mUser != null) {
+            return mUser;
+
+        } else {
+            return new User();
+        }
     }
 
+    public static void setUser(User user) {
+        mUser = user;
+    }
 }

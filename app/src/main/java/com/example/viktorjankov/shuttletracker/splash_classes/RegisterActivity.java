@@ -25,6 +25,7 @@ import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
@@ -222,12 +223,13 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         mFirebase.createUser(email, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
             public void onSuccess(Map<String, Object> result) {
-                User user = new User(firstName, lastName, email, companyCode);
+                final User user = new User(firstName, lastName, email, companyCode);
                 mFirebase.child(FIREBASE_USERS).child((String) result.get("uid")).setValue(user);
 
                 mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
                     @Override
                     public void onAuthenticated(AuthData authData) {
+                        mAuthProgressDialog.hide();
 
                         // Add user and user details
                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
@@ -236,7 +238,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
-                        mAuthProgressDialog.hide();
+                        UserProvider.setUser(user);
+
                         startActivity(intent);
                     }
 

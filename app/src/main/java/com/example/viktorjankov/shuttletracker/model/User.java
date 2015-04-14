@@ -1,13 +1,16 @@
 package com.example.viktorjankov.shuttletracker.model;
 
-public class User {
+import java.io.Serializable;
 
+public class User implements Serializable {
+
+    // Gotten from registration page
     private String firstName;
-
     private String lastName;
     private String email;
     private String companyCode;
 
+    // Gotten from main app
     private double latitude;
     private double longitude;
     private String destinationName;
@@ -108,11 +111,13 @@ public class User {
     @Override
     public String toString() {
         return "\n" +
-                "name: " + firstName + "\n" +
+                "first: " + firstName + "\n" +
+                "last: " + lastName + "\n" +
+                "email: " + email + "\n" +
+                "company code: " + companyCode + "\n" +
                 "destination: " + destinationName + "\n" +
                 "destination_time: " + destinationTime + "\n" +
                 "active: " + active;
-
     }
 }
 

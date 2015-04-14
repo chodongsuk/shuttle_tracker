@@ -41,22 +41,15 @@ import com.google.android.gms.plus.Plus;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class MainActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    public final String kLOG_TAG = MainActivity.this.getClass().getSimpleName();
-    public static final String USER_NAME_KEY = "user_name";
-    public static final String USER_COMPANY_CODE = "company_code";
-    public static final String OAUTH_KEY = "oAuth_token";
-
+    public static final String USER_INFO = "userID";
+    public static final String kLOG_TAG = MainActivity.class.getSimpleName();
 
     FragmentManager manager;
 
     Bus bus = BusProvider.getInstance();
-    User mUser = UserProvider.getInstance();
     Firebase mFirebase = FirebaseProvider.getInstance();
 
     DestinationLocation mDestinationLocation;
@@ -69,24 +62,13 @@ public class MainActivity extends ActionBarActivity
     MapViewFragment mapViewFragment;
     TravelModeFragment travelModeFragment;
 
+    User mUser;
+
 
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i(kLOG_TAG, "YAAAY I'M CREATED");
+        // content view, toolbar and title
+        prepareActivity(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("FLOW");
-        title.setTextColor(Color.WHITE);
-        title.setVisibility(View.VISIBLE);
-
-        mUser.setFirstName("viktor");
         mapViewFragment = new MapViewFragment();
 
         manager = getSupportFragmentManager();
@@ -101,27 +83,9 @@ public class MainActivity extends ActionBarActivity
         mGoogleApiClient.connect();
         createLocationRequest();
 
-        Firebase.setAndroidContext(this);
-
-        User randyUser = new User("randy");
-        randyUser.setActive(true);
-        randyUser.setLatitude(47.6062090);
-        randyUser.setLongitude(-122.3320710);
-        randyUser.setDestinationTime("55");
-        randyUser.setDestinationName("South Kirkland");
-
-        User aliUser = new User("ali");
-        aliUser.setActive(false);
-        aliUser.setLatitude(47.6559526);
-        aliUser.setLongitude(-122.3035752);
-        aliUser.setDestinationTime("12");
-        aliUser.setDestinationName("Bellevue TC");
-
-        Map<String, User> users = new HashMap<String, User>();
-        users.put(mUser.getFirstName(), mUser);
-        users.put(randyUser.getFirstName(), randyUser);
-        users.put(aliUser.getFirstName(), aliUser);
-//        mFirebase.setValue(users);
+        mUser = UserProvider.getInstance();
+        Log.i(kLOG_TAG, "Got user!");
+        Log.i(kLOG_TAG, mUser.toString());
     }
 
     @Subscribe
@@ -304,6 +268,25 @@ public class MainActivity extends ActionBarActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+     /* *************************************
+      *       Activity preparation stuff    *
+      ***************************************/
+
+    private void prepareActivity(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText("FLOW");
+        title.setTextColor(Color.WHITE);
+        title.setVisibility(View.VISIBLE);
+
     }
 }
 

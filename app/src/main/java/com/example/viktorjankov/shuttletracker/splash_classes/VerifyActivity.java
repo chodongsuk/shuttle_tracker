@@ -20,6 +20,7 @@ import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.facebook.Session;
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
@@ -75,6 +76,8 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+        UserProvider.setUser(user);
 
         startActivity(intent);
     }
@@ -249,7 +252,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     public static final String emailKey = "email";
     public static final String UID_KEY = "userID";
 
-    public final String ACTIVITY_TITLE = " " + VerifyActivity.this.getClass().getSimpleName();
+    public static final String ACTIVITY_TITLE = " " + VerifyActivity.class.getSimpleName();
     private static final String FIREBASE_USERS = "users";
 }
 
