@@ -217,24 +217,34 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         }
     }
 
-    private void registerUser(final String email, String password, final String firstName, final String lastName, final String companyCode) {
+    private void registerUser(final String email, final String password, final String firstName, final String lastName, final String companyCode) {
         mAuthProgressDialog.show();
         mFirebase.createUser(email, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
             public void onSuccess(Map<String, Object> result) {
                 User user = new User(firstName, lastName, email, companyCode);
-
-                // Add user and user details
                 mFirebase.child(FIREBASE_USERS).child((String) result.get("uid")).setValue(user);
 
-                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
+                    @Override
+                    public void onAuthenticated(AuthData authData) {
 
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        // Add user and user details
+                        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
 
-                mAuthProgressDialog.hide();
-                startActivity(intent);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+                        mAuthProgressDialog.hide();
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onAuthenticationError(FirebaseError firebaseError) {
+
+                    }
+                });
             }
 
             @Override
