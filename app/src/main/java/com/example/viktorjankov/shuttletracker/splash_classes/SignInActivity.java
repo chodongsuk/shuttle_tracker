@@ -20,7 +20,9 @@ import android.widget.Toast;
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
+import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
@@ -70,7 +72,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     protected void onCreate(Bundle savedInstanceState) {
         // Validator, Toolbar, Butterknife, ProgressDialog
         prepareActivity(savedInstanceState);
-        Log.i(kLOG_TAG, "SignInActivity is created");
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[]{android.R.attr.state_pressed}, getResources().getDrawable(R.drawable.google_login_dark));
@@ -115,7 +116,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
         if (state.isOpened()) {
             mAuthProgressDialog.show();
-            Log.i(kLOG_TAG, "state is opened");
 
             mFirebase.authWithOAuthToken("facebook", session.getAccessToken(), new Firebase.AuthResultHandler() {
                 @Override
@@ -128,7 +128,6 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     String email = (String) authData.getProviderData().get("email");
 
                     // check if user exists, if they do start MainActivity
-                    Log.i(kLOG_TAG, "Verifying user exists");
                     userExists(authData.getUid(), last[0], last[1], email);
                 }
 
@@ -144,25 +143,25 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             if (mAuthData != null && mAuthData.getProvider().equals("facebook")) {
                 mFirebase.unauth();
             }
-        } else {
-            Log.i(kLOG_TAG, "I don't know what the fuck is going on here");
         }
     }
 
     private void userExists(final String uid, final String first, final String last, final String email) {
 
-        Log.i(kLOG_TAG, "User exists called from: " + email);
         mFirebase.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mAuthProgressDialog.hide();
                 if (dataSnapshot.hasChildren()) {
-                    mAuthProgressDialog.hide();
+
                     Intent intent = new Intent(SignInActivity.this, MainActivity.class);
 
-                    Log.i(kLOG_TAG, "I'm starting MainActivity");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+                    User user = dataSnapshot.getValue(User.class);
+                    UserProvider.setUser(user);
 
                     startActivity(intent);
 
