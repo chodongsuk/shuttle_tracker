@@ -37,11 +37,12 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class MapViewFragment extends Fragment {
+    static Firebase mFirebase = FirebaseProvider.getInstance();
 
     private static final String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
-    public static  String FIREBASE_LAT_ENDPOINT = UserProvider.getInstance().getFirstName() + "/latitude";
-    public static final String FIREBASE_LNG_ENDPOINT = UserProvider.getInstance().getFirstName() + "/longitude";
-    public static final String FIREBASE_ACTIVE_ENDPOINT = UserProvider.getInstance().getFirstName() + "/active";
+    public static String FIREBASE_LAT_ENDPOINT = "users/" + mFirebase.getAuth().getUid() +  "/latitude";
+    public static String FIREBASE_LNG_ENDPOINT = "users/" + mFirebase.getAuth().getUid() + "/longitude";
+    public static String FIREBASE_ACTIVE_ENDPOINT = "users/" + mFirebase.getAuth().getUid() + "/active";
 
     @InjectView(R.id.header)
     TextView destination;
@@ -53,17 +54,17 @@ public class MapViewFragment extends Fragment {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @OnClick(R.id.record_button)
     public void onClick() {
-        if (stateActive) {
+        if (mUser.isActive()) {
             mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_18dp);
             mRecordButton.setBackground(getResources().getDrawable(R.drawable.green_play));
-            stateActive = false;
+            mUser.setActive(false);
         } else {
             mRecordButton.setImageResource(R.drawable.ic_pause_white_18dp);
             mRecordButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
-            stateActive = true;
+            mUser.setActive(true);
         }
 
-        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(stateActive);
+        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mUser.isActive());
     }
 
     @InjectView(R.id.mapview)
@@ -75,10 +76,7 @@ public class MapViewFragment extends Fragment {
 
     Location mCurrentLocation;
 
-    private boolean stateActive = false;
-
     Bus bus = BusProvider.getInstance();
-    Firebase mFirebase = FirebaseProvider.getInstance();
     User mUser = UserProvider.getInstance();
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -87,7 +85,6 @@ public class MapViewFragment extends Fragment {
 
         setRetainInstance(true);
         destination.setText(mDestinationLocation.getDestinationName());
-
         initMap(savedInstanceState);
         addMarkers();
 
@@ -155,7 +152,7 @@ public class MapViewFragment extends Fragment {
 
     public void setCurrentLocation(Location location) {
         mCurrentLocation = location;
-        if (stateActive) {
+        if (mUser.isActive()) {
             mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
             mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
         }

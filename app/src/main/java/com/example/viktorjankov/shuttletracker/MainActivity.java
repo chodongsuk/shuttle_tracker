@@ -48,15 +48,14 @@ import com.squareup.otto.Subscribe;
 
 public class MainActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+    private String kLOG_TAG = MainActivity.class.getSimpleName();
 
-    public static final String USER_INFO = "userID";
-    public static final String FIREBASE_COMPANY_DATA = "companyData";
-    public static final String kLOG_TAG = MainActivity.class.getSimpleName();
+    Firebase mFirebase = FirebaseProvider.getInstance();
+    private String FIREBASE_DESTINATION_ENDPOINT = "users/" + mFirebase.getAuth().getUid() +  "/destinationName";
 
     FragmentManager manager;
 
     Bus bus = BusProvider.getInstance();
-    Firebase mFirebase = FirebaseProvider.getInstance();
 
     DestinationLocation mDestinationLocation;
     TravelMode mTravelMode;
@@ -94,7 +93,7 @@ public class MainActivity extends ActionBarActivity
         travelModeFragment = new TravelModeFragment();
 
         mUser.setDestinationName(mDestinationLocation.getDestinationName());
-        mFirebase.child(mUser.getFirstName() + "/destinationName").setValue(mUser.getDestinationName());
+        mFirebase.child(FIREBASE_DESTINATION_ENDPOINT).setValue(mUser.getDestinationName());
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)

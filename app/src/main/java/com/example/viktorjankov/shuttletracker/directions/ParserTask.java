@@ -20,6 +20,7 @@ import java.util.List;
  * A class to parse the Google Places in JSON format
  */
 public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+    private String FIREBASE_TIME_ENDPOINT = "users/" + FirebaseProvider.getInstance().getAuth().getUid() + "/destinationTime";
     TextView timeToDestination;
     GoogleMap map;
 
@@ -95,7 +96,7 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         timeToDestination.setText(duration);
 
         UserProvider.getInstance().setDestinationTime(duration);
-        FirebaseProvider.getInstance().child("viktor/destinationTime").setValue(duration);
+        FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(duration);
 
         // Drawing polyline in the Google Map for the i-th route
         map.addPolyline(lineOptions);
