@@ -33,7 +33,15 @@ public class DestinationLocation {
     }
 
     public void setLongitude(double mLongitude) {
+
         this.mLongitude = mLongitude;
+    }
+
+    @Override
+    public String toString() {
+        return "Destination Name: " + mDestinationName + "\n" +
+               "Latitude: " + mLatitude + "\n" +
+               "Longitude: " + mLongitude;
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.viktorjankov.shuttletracker.splash_classes;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,12 +50,11 @@ public class WelcomeActivity extends FragmentActivity {
 
         Firebase mFirebase = FirebaseProvider.getInstance();
 
+
         AuthData authData = mFirebase.getAuth();
         if (authData != null) {
-
             Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
             Log.i(kLOG_TAG, "Uid: " + authData.getUid());
-
 
             final Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
 
@@ -76,8 +76,8 @@ public class WelcomeActivity extends FragmentActivity {
 
                 }
             });
-
         }
+
     }
 
 

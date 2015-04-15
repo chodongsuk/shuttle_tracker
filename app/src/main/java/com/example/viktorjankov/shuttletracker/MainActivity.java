@@ -27,6 +27,7 @@ import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
+import com.example.viktorjankov.shuttletracker.singletons.CompanyProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.example.viktorjankov.shuttletracker.splash_classes.WelcomeActivity;
@@ -80,14 +81,6 @@ public class MainActivity extends ActionBarActivity
         getCompanyData();
 
         mapViewFragment = new MapViewFragment();
-
-        manager = getSupportFragmentManager();
-        Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
-
-        if (fragment == null) {
-            fragment = new PickupLocationFragment();
-            manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
-        }
 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -304,7 +297,6 @@ public class MainActivity extends ActionBarActivity
     public static final String FIREBASE_DESTINATION_LNG = "longitude";
 
     public void getCompanyData() {
-
         mFirebase.child("companyData").child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -317,20 +309,37 @@ public class MainActivity extends ActionBarActivity
                     } else if (companyData.getKey().equals(FIREBASE_DESTINATIONS)) {
 
                         for (DataSnapshot destinations : companyData.getChildren()) {
+
                             String destinationName = "";
                             double lat = 0;
                             double lng = 0;
-                            if (destinations.getKey().equals(FIREBASE_DESTINATION_NAME)) {
-                                destinationName = destinations.getValue().toString();
-                            } else if (destinations.getKey().equals(FIREBASE_DESTINATION_LAT)) {
-                                lat = Double.parseDouble(destinations.getValue().toString());
-                            } else if (destinations.getKey().equals(FIREBASE_DESTINATION_LNG)) {
-                                lng = Double.parseDouble(destinations.getValue().toString());
+                            for (DataSnapshot individualDestination : destinations.getChildren()) {
+
+                                Log.i(kLOG_TAG, "Destinations key: " + individualDestination.getKey());
+                                Log.i(kLOG_TAG, "Destinations value: " + individualDestination.getValue());
+
+                                if (individualDestination.getKey().equals(FIREBASE_DESTINATION_NAME)) {
+                                    destinationName = individualDestination.getValue().toString();
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LAT)) {
+                                    lat = Double.parseDouble(individualDestination.getValue().toString());
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LNG)) {
+                                    lng = Double.parseDouble(individualDestination.getValue().toString());
+                                }
+
                             }
                             DestinationLocation destinationLocation = new DestinationLocation(destinationName, lat, lng);
                             mCompany.addDestinationLocation(destinationLocation);
+                            Log.i(kLOG_TAG, "Destination: " + destinationLocation.toString());
                         }
                     }
+                }
+                Log.i(kLOG_TAG, "Companies: " + mCompany.toString());
+                CompanyProvider.setCompany(mCompany);
+                manager = getSupportFragmentManager();
+                Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
+                if (fragment == null) {
+                    fragment = new PickupLocationFragment();
+                    manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
                 }
             }
 
