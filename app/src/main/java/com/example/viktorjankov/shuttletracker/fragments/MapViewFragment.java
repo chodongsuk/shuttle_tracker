@@ -79,7 +79,7 @@ public class MapViewFragment extends Fragment {
 
     Bus bus = BusProvider.getInstance();
     Firebase mFirebase = FirebaseProvider.getInstance();
-    User mUser;
+    User mUser = UserProvider.getInstance();
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_view, container, false);

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/destination_block_style"
-    android:background="@drawable/purple" />
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:clickable="true"
+    android:enabled="true"
+    android:textColor="#fff"
+    android:textSize="22sp"
+    android:textStyle="bold" />

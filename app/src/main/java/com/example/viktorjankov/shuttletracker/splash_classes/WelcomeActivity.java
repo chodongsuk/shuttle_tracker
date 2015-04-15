@@ -49,8 +49,6 @@ public class WelcomeActivity extends FragmentActivity {
         RegisteredCompaniesProvider.init();
 
         Firebase mFirebase = FirebaseProvider.getInstance();
-
-
         AuthData authData = mFirebase.getAuth();
         if (authData != null) {
             Log.i(kLOG_TAG, "Provider: " + authData.getProvider());

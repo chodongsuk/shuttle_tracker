@@ -1,27 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/my_recycler_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="3"
-    tools:context=".StartScreenFragment">
+    android:scrollbars="vertical" />
 
-    <TextView
-        android:id="@+id/dest_one"
-        style="@style/destination_block_style"
-        android:background="@drawable/purple"
-        android:text="@string/houghton_park_n_ride" />
-
-    <TextView
-        android:id="@+id/dest_two"
-        style="@style/destination_block_style"
-        android:background="@drawable/indigo"
-        android:text="@string/south_kirkland_park_n_ride" />
-
-    <TextView
-        android:id="@+id/dest_three"
-        style="@style/destination_block_style"
-        android:background="@drawable/blue"
-        android:text="@string/bellevue_tc" />
-
-</LinearLayout>
