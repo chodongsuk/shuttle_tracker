@@ -4,8 +4,9 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
+import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
-import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -20,7 +21,8 @@ import java.util.List;
  * A class to parse the Google Places in JSON format
  */
 public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
-    private String FIREBASE_TIME_ENDPOINT = "users/" + FirebaseProvider.getInstance().getAuth().getUid() + "/destinationTime";
+    Rider mRider = RiderProvider.getRider();
+    private String FIREBASE_TIME_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationTime";
     TextView timeToDestination;
     GoogleMap map;
 
@@ -95,7 +97,7 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
 
         timeToDestination.setText(duration);
 
-        UserProvider.getInstance().setDestinationTime(duration);
+        RiderProvider.getRider().setDestinationTime(duration);
         FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(duration);
 
         // Drawing polyline in the Google Map for the i-th route

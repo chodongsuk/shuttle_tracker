@@ -16,11 +16,11 @@ import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
 import com.example.viktorjankov.shuttletracker.directions.ParserTask;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
+import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
-import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
-import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.firebase.client.Firebase;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -38,11 +38,12 @@ import butterknife.OnClick;
 
 public class MapViewFragment extends Fragment {
     static Firebase mFirebase = FirebaseProvider.getInstance();
+    Rider mRider = RiderProvider.getRider();
 
-    private static final String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
-    public static String FIREBASE_LAT_ENDPOINT = "users/" + mFirebase.getAuth().getUid() +  "/latitude";
-    public static String FIREBASE_LNG_ENDPOINT = "users/" + mFirebase.getAuth().getUid() + "/longitude";
-    public static String FIREBASE_ACTIVE_ENDPOINT = "users/" + mFirebase.getAuth().getUid() + "/active";
+    private String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
+    public String FIREBASE_LAT_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/latitude";
+    public String FIREBASE_LNG_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/longitude";
+    public String FIREBASE_ACTIVE_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/active";
 
     @InjectView(R.id.header)
     TextView destination;
@@ -54,17 +55,17 @@ public class MapViewFragment extends Fragment {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @OnClick(R.id.record_button)
     public void onClick() {
-        if (mUser.isActive()) {
+        if (mRider.isActive()) {
             mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_18dp);
             mRecordButton.setBackground(getResources().getDrawable(R.drawable.green_play));
-            mUser.setActive(false);
+            mRider.setActive(false);
         } else {
             mRecordButton.setImageResource(R.drawable.ic_pause_white_18dp);
             mRecordButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
-            mUser.setActive(true);
+            mRider.setActive(true);
         }
 
-        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mUser.isActive());
+        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mRider.isActive());
     }
 
     @InjectView(R.id.mapview)
@@ -77,7 +78,6 @@ public class MapViewFragment extends Fragment {
     Location mCurrentLocation;
 
     Bus bus = BusProvider.getInstance();
-    User mUser = UserProvider.getInstance();
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_view, container, false);
@@ -123,7 +123,7 @@ public class MapViewFragment extends Fragment {
 
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                .title(mUser.getFirstName() + " to: " + mDestinationLocation.getDestinationName())
+                .title(mRider.getFirstName() + " to: " + mDestinationLocation.getDestinationName())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
     }
 
@@ -152,7 +152,7 @@ public class MapViewFragment extends Fragment {
 
     public void setCurrentLocation(Location location) {
         mCurrentLocation = location;
-        if (mUser.isActive()) {
+        if (mRider.isActive()) {
             mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
             mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
         }

@@ -24,11 +24,13 @@ import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
 import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
 import com.example.viktorjankov.shuttletracker.model.Company;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
+import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.CompanyProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.example.viktorjankov.shuttletracker.splash_classes.WelcomeActivity;
 import com.facebook.Session;
@@ -50,8 +52,9 @@ public class MainActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     private String kLOG_TAG = MainActivity.class.getSimpleName();
 
-    Firebase mFirebase = FirebaseProvider.getInstance();
-    private String FIREBASE_DESTINATION_ENDPOINT = "users/" + mFirebase.getAuth().getUid() +  "/destinationName";
+    Rider mRider;
+    private String FIREBASE_DESTINATION_ENDPOINT;
+    private String FIREBASE_RIDER_ENDPOINT;
 
     FragmentManager manager;
 
@@ -67,6 +70,7 @@ public class MainActivity extends ActionBarActivity
     MapViewFragment mapViewFragment;
     TravelModeFragment travelModeFragment;
 
+    Firebase mFirebase = FirebaseProvider.getInstance();
     User mUser;
     Company mCompany;
 
@@ -75,10 +79,16 @@ public class MainActivity extends ActionBarActivity
         // content view, toolbar and title
         prepareActivity(savedInstanceState);
 
-        mUser = UserProvider.getInstance();
+        mUser = UserProvider.getUser();
         Log.i(kLOG_TAG, "User info: " + mUser.toString());
         getCompanyData();
 
+        mRider = new Rider(mUser.getFirstName(), mFirebase.getAuth().getUid(), mUser.getCompanyCode());
+        RiderProvider.setRider(mRider);
+        FIREBASE_DESTINATION_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationName";
+        FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
+
+        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
         mapViewFragment = new MapViewFragment();
 
         buildGoogleApiClient();
@@ -92,8 +102,8 @@ public class MainActivity extends ActionBarActivity
         mDestinationLocation = e.getPickupLocation();
         travelModeFragment = new TravelModeFragment();
 
-        mUser.setDestinationName(mDestinationLocation.getDestinationName());
-        mFirebase.child(FIREBASE_DESTINATION_ENDPOINT).setValue(mUser.getDestinationName());
+        mRider.setDestinationName(mDestinationLocation.getDestinationName());
+        mFirebase.child(FIREBASE_DESTINATION_ENDPOINT).setValue(mRider.getDestinationName());
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)

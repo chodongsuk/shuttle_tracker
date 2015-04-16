@@ -44,8 +44,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     Firebase mFirebase = FirebaseProvider.getInstance();
     ProgressDialog mAuthProgressDialog;
 
-    private String firstName;
-    private String lastName;
     private String email;
     private String uID;
 
@@ -53,8 +51,8 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         // Validator, Toolbar, Butterknife, ProgressDialog
         prepareActivity(savedInstanceState);
 
-        firstName = getIntent().getExtras().getString(firstNameKey);
-        lastName = getIntent().getExtras().getString(lastNameKey);
+        String firstName = getIntent().getExtras().getString(firstNameKey);
+        String lastName = getIntent().getExtras().getString(lastNameKey);
         email = getIntent().getExtras().getString(emailKey);
         uID = getIntent().getExtras().getString(UID_KEY);
 
@@ -68,7 +66,8 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     }
 
     private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
-        User user = new User(firstName, lastName, email.toLowerCase(), companyCode.toLowerCase());
+        User user = new User(companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
+
         mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
 
         Intent intent = new Intent(this, MainActivity.class);

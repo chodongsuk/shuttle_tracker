@@ -6,13 +6,8 @@ public class UserProvider {
 
     private static User mUser;
 
-    public static User getInstance() {
-        if (mUser != null) {
-            return mUser;
-
-        } else {
-            return new User();
-        }
+    public static User getUser() {
+        return mUser;
     }
 
     public static void setUser(User user) {

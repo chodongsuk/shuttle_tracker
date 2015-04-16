@@ -1,7 +1,6 @@
 package com.example.viktorjankov.shuttletracker.splash_classes;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -77,7 +76,6 @@ public class WelcomeActivity extends FragmentActivity {
         }
 
     }
-
 
     private void setTypeface() {
         Typeface type = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
