@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -39,6 +40,7 @@ import butterknife.OnClick;
 
 public class VerifyActivity extends ActionBarActivity implements Validator.ValidationListener {
 
+    private static final String kLOG_TAG = VerifyActivity.class.getSimpleName();
     Validator validator;
     Toolbar toolbar;
     Firebase mFirebase = FirebaseProvider.getInstance();
@@ -48,6 +50,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     private String uID;
 
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
         // Validator, Toolbar, Butterknife, ProgressDialog
         prepareActivity(savedInstanceState);
 

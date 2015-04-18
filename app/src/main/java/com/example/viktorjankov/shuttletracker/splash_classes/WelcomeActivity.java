@@ -1,6 +1,7 @@
 package com.example.viktorjankov.shuttletracker.splash_classes;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,6 +34,8 @@ import butterknife.OnClick;
 public class WelcomeActivity extends FragmentActivity {
     public final String kLOG_TAG = WelcomeActivity.this.getClass().getSimpleName();
 
+    ProgressDialog mAuthProgressDialog;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // set content view and inject butterknife
@@ -47,9 +50,11 @@ public class WelcomeActivity extends FragmentActivity {
         // Download the registered companies from Firebase
         RegisteredCompaniesProvider.init();
 
-        Firebase mFirebase = FirebaseProvider.getInstance();
+        final Firebase mFirebase = FirebaseProvider.getInstance();
+        Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
         AuthData authData = mFirebase.getAuth();
         if (authData != null) {
+            mAuthProgressDialog.show();
             Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
             Log.i(kLOG_TAG, "Uid: " + authData.getUid());
 
@@ -63,9 +68,21 @@ public class WelcomeActivity extends FragmentActivity {
             mFirebase.child("users").child(uID).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user = dataSnapshot.getValue(User.class);
-                    UserProvider.setUser(user);
-                    startActivity(intent);
+                    User user = getUserFromFirebase(dataSnapshot);
+                    if (user == null) {
+                        mFirebase.unauth();
+                        mAuthProgressDialog.hide();
+                    } else {
+                        UserProvider.setUser(user);
+
+                        Log.i(kLOG_TAG, "User: " + user.toString());
+                        Log.i(kLOG_TAG, "Will start main activity");
+
+                        intent.putExtra(MainActivity.USER_INFO, user);
+
+                        mAuthProgressDialog.hide();
+                        startActivity(intent);
+                    }
                 }
 
                 @Override
@@ -74,7 +91,6 @@ public class WelcomeActivity extends FragmentActivity {
                 }
             });
         }
-
     }
 
     private void setTypeface() {
@@ -128,6 +144,11 @@ public class WelcomeActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome_layout);
         ButterKnife.inject(this);
+
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Signing in...");
+        mAuthProgressDialog.setCancelable(false);
     }
 
     @InjectView(R.id.sign_in)
@@ -147,6 +168,37 @@ public class WelcomeActivity extends FragmentActivity {
                 break;
         }
         startActivity(intent);
+    }
+
+    private User getUserFromFirebase(DataSnapshot dataSnapshot) {
+        String companyCode = "";
+        String email = "";
+        String firstName = "";
+        String lastName = "";
+
+        for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
+            Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
+            Log.i(kLOG_TAG, "Value: " + userInfo.getValue());
+            if (userInfo.getKey().equals("companyCode")) {
+                companyCode = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("email")) {
+                email = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("firstName")) {
+                firstName = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("lastName")) {
+
+                lastName = (String) userInfo.getValue();
+            }
+        }
+
+        if (companyCode.equals("")) {
+            return null;
+        } else {
+            return new User(companyCode, email, firstName, lastName);
+        }
     }
 
     @Override

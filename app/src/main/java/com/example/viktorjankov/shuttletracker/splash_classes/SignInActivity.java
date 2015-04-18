@@ -71,6 +71,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Validator, Toolbar, Butterknife, ProgressDialog
+        Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
         prepareActivity(savedInstanceState);
 
         StateListDrawable states = new StateListDrawable();
@@ -153,17 +154,22 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mAuthProgressDialog.hide();
                 if (dataSnapshot.hasChildren()) {
+                    User user = getUserFromFirebase(dataSnapshot);
 
-                    Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                    if (user == null) {
+                        mFirebase.unauth();
+                    } else {
+                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
 
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
-                    User user = dataSnapshot.getValue(User.class);
-                    UserProvider.setUser(user);
+//                        User user = dataSnapshot.getValue(User.class);
+                        UserProvider.setUser(user);
 
-                    startActivity(intent);
+                        startActivity(intent);
+                    }
 
                 } else {
                     mAuthProgressDialog.hide();
@@ -433,8 +439,39 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
         mAuthProgressDialog = new ProgressDialog(this);
         mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Registering with Flow");
+        mAuthProgressDialog.setMessage("Signing in...");
         mAuthProgressDialog.setCancelable(false);
+    }
+
+    private User getUserFromFirebase(DataSnapshot dataSnapshot) {
+        String companyCode = "";
+        String email = "";
+        String firstName = "";
+        String lastName = "";
+
+        for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
+            Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
+            Log.i(kLOG_TAG, "Value: " + userInfo.getValue());
+            if (userInfo.getKey().equals("companyCode")) {
+                companyCode = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("email")) {
+                email = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("firstName")) {
+                firstName = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("lastName")) {
+
+                lastName = (String) userInfo.getValue();
+            }
+        }
+
+        if (companyCode.equals("")) {
+            return null;
+        } else {
+            return new User(companyCode, email, firstName, lastName);
+        }
     }
 
     @NotEmpty

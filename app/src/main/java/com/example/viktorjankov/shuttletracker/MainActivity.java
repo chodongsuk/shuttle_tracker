@@ -51,6 +51,7 @@ import com.squareup.otto.Subscribe;
 public class MainActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     private String kLOG_TAG = MainActivity.class.getSimpleName();
+    public static String USER_INFO = "userInfo";
 
     Rider mRider;
     private String FIREBASE_DESTINATION_ENDPOINT;
@@ -77,9 +78,13 @@ public class MainActivity extends ActionBarActivity
 
     protected void onCreate(Bundle savedInstanceState) {
         // content view, toolbar and title
+        Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
         prepareActivity(savedInstanceState);
 
         mUser = UserProvider.getUser();
+        if (mUser == null) {
+            mUser = (User) getIntent().getSerializableExtra(MainActivity.USER_INFO);
+        }
         Log.i(kLOG_TAG, "User info: " + mUser.toString());
         getCompanyData();
 

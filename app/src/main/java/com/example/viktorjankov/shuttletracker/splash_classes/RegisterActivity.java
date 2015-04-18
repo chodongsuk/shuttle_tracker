@@ -73,6 +73,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
         // Validator, Toolbar, Butterknife, ProgressDialog
         prepareActivity(savedInstanceState);
 
@@ -163,14 +164,23 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 if (dataSnapshot.hasChildren()) {
-                    mAuthProgressDialog.hide();
-                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                    User user = getUserFromFirebase(dataSnapshot);
 
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    if (user == null) {
+                        mFirebase.unauth();
+                        mAuthProgressDialog.hide();
+                    } else {
+                        UserProvider.setUser(user);
 
-                    startActivity(intent);
+                        mAuthProgressDialog.hide();
+                        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+                        startActivity(intent);
+                    }
                 } else {
                     mAuthProgressDialog.hide();
                     Log.i(kLOG_TAG, "User does not exists so register");
@@ -499,6 +509,37 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         mAuthProgressDialog.setTitle("Loading");
         mAuthProgressDialog.setMessage("Registering with Flow");
         mAuthProgressDialog.setCancelable(false);
+    }
+
+    private User getUserFromFirebase(DataSnapshot dataSnapshot) {
+        String companyCode = "";
+        String email = "";
+        String firstName = "";
+        String lastName = "";
+
+        for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
+            Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
+            Log.i(kLOG_TAG, "Value: " + userInfo.getValue());
+            if (userInfo.getKey().equals("companyCode")) {
+                companyCode = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("email")) {
+                email = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("firstName")) {
+                firstName = (String) userInfo.getValue();
+
+            } else if (userInfo.getKey().equals("lastName")) {
+
+                lastName = (String) userInfo.getValue();
+            }
+        }
+
+        if (companyCode.equals("")) {
+            return null;
+        } else {
+            return new User(companyCode, email, firstName, lastName);
+        }
     }
 
     @InjectView(R.id.first_name)
