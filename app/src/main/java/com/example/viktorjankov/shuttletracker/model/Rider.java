@@ -3,11 +3,12 @@ package com.example.viktorjankov.shuttletracker.model;
 public class Rider {
 
     // Gotten from main app
-    private double latitude;
-    private double longitude;
-    private String destinationName;
-    private String destinationTime;
+    private double mLatitude;
+    private double mLongitude;
+    private String mDestinationName;
     private boolean active;
+    private double mDestinationTime;
+    private double mProximity;
 
     // User personal info
     private String firstName;
@@ -30,35 +31,35 @@ public class Rider {
     }
 
     public double getLatitude() {
-        return latitude;
+        return mLatitude;
     }
 
     public void setLatitude(double latitude) {
-        this.latitude = latitude;
+        this.mLatitude = latitude;
     }
 
     public double getLongitude() {
-        return longitude;
+        return mLongitude;
     }
 
     public void setLongitude(double longitude) {
-        this.longitude = longitude;
+        this.mLongitude = longitude;
     }
 
     public String getDestinationName() {
-        return destinationName;
+        return mDestinationName;
     }
 
     public void setDestinationName(String destinationName) {
-        this.destinationName = destinationName;
+        this.mDestinationName = destinationName;
     }
 
-    public String getDestinationTime() {
-        return destinationTime;
+    public double getDestinationTime() {
+        return mDestinationTime;
     }
 
-    public void setDestinationTime(String destinationTime) {
-        this.destinationTime = destinationTime;
+    public void setDestinationTime(Double destinationTime) {
+        this.mDestinationTime = destinationTime;
     }
 
     public boolean isActive() {
@@ -82,6 +83,15 @@ public class Rider {
     }
 
     public void setCompanyID(String companyID) {
+
         this.companyID = companyID;
+    }
+
+    public double getProximity() {
+        return mProximity;
+    }
+
+    public void setProximity(double mProximity) {
+        this.mProximity = mProximity;
     }
 }

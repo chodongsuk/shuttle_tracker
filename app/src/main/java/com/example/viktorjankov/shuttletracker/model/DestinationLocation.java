@@ -37,6 +37,7 @@ public class DestinationLocation {
         this.mLongitude = mLongitude;
     }
 
+
     @Override
     public String toString() {
         return "Destination Name: " + mDestinationName + "\n" +

@@ -1,17 +1,21 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
-import android.annotation.TargetApi;
+import android.graphics.Point;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.view.ViewGroup.LayoutParams;
+
 import android.widget.TextView;
 
+import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
 import com.example.viktorjankov.shuttletracker.directions.ParserTask;
@@ -32,6 +36,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Bus;
 
+import java.math.RoundingMode;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -45,22 +51,24 @@ public class MapViewFragment extends Fragment {
     public String FIREBASE_LNG_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/longitude";
     public String FIREBASE_ACTIVE_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/active";
 
-    @InjectView(R.id.header)
-    TextView destination;
-    @InjectView(R.id.timeToDestination)
-    TextView timeToDestination;
+    @InjectView(R.id.destinationName)
+    TextView destinationNameTV;
+    @InjectView(R.id.destinationDuration)
+    TextView destinationDurationTV;
+    @InjectView(R.id.destinationProximity)
+    TextView destinationProximityTV;
+
     @InjectView(R.id.record_button)
     ImageButton mRecordButton;
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @OnClick(R.id.record_button)
     public void onClick() {
         if (mRider.isActive()) {
-            mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_18dp);
+            mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
             mRecordButton.setBackground(getResources().getDrawable(R.drawable.green_play));
             mRider.setActive(false);
         } else {
-            mRecordButton.setImageResource(R.drawable.ic_pause_white_18dp);
+            mRecordButton.setImageResource(R.drawable.ic_pause_white_36dp);
             mRecordButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
             mRider.setActive(true);
         }
@@ -84,14 +92,15 @@ public class MapViewFragment extends Fragment {
         ButterKnife.inject(this, v);
 
         setRetainInstance(true);
-        destination.setText(mDestinationLocation.getDestinationName());
         initMap(savedInstanceState);
         addMarkers();
 
         // Getting URL to the Google Directions API
         String url = getDirectionsUrl();
 
-        ParserTask parserTask = new ParserTask(map, timeToDestination);
+        ParserTask parserTask = new ParserTask(map, destinationNameTV,
+                                                    destinationDurationTV,
+                                                    destinationProximityTV);
         DownloadTask downloadTask = new DownloadTask(map, parserTask);
 
         // Start downloading json data from Google Directions API
@@ -106,7 +115,6 @@ public class MapViewFragment extends Fragment {
         map = mapView.getMap();
         map.getUiSettings().setMyLocationButtonEnabled(false);
         map.setMyLocationEnabled(true);
-
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
                 new LatLng(mCurrentLocation.getLatitude(),

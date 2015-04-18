@@ -22,13 +22,24 @@ import java.util.List;
  */
 public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
     Rider mRider = RiderProvider.getRider();
-    private String FIREBASE_TIME_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationTime";
-    TextView timeToDestination;
+    private String FIREBASE_TIME_ENDPOINT = "companyData/" + mRider.getCompanyID()
+            + "/riders/" + mRider.getuID() + "/destinationTime";
+    private String FIREBASE_DESTINATION_ENDPOINT = "companyData/" + mRider.getCompanyID()
+            + "/riders/" + mRider.getuID() + "/destinationName";
+    private String FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + mRider.getCompanyID()
+            + "/riders/" + mRider.getuID() + "/proximity";
+
+
+    TextView destinationNameTV;
+    TextView destinationDurationTV;
+    TextView destinationProximityTV;
     GoogleMap map;
 
-    public ParserTask(GoogleMap map, TextView timeToDestination) {
+    public ParserTask(GoogleMap map, TextView destinationName, TextView destinationDuration, TextView destinationProximity) {
         this.map = map;
-        this.timeToDestination = timeToDestination;
+        this.destinationNameTV = destinationName;
+        this.destinationDurationTV = destinationDuration;
+        this.destinationProximityTV = destinationProximity;
     }
 
     // Parsing the data in non-ui thread
@@ -55,7 +66,7 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
     protected void onPostExecute(List<List<HashMap<String, String>>> result) {
         ArrayList<LatLng> points = null;
         PolylineOptions lineOptions = null;
-        String distance = "";
+        String proximity = "";
         String duration = "";
 
         if (result.size() < 1) {
@@ -75,7 +86,7 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
                 HashMap<String, String> point = path.get(j);
 
                 if (j == 0) {    // Get distance from the list
-                    distance = (String) point.get("distance");
+                    proximity = (String) point.get("distance");
                     continue;
                 } else if (j == 1) { // Get duration from the list
                     duration = (String) point.get("duration");
@@ -95,12 +106,25 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
             lineOptions.color(Color.BLUE);
         }
 
-        timeToDestination.setText(duration);
-
-        RiderProvider.getRider().setDestinationTime(duration);
-        FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(duration);
-
         // Drawing polyline in the Google Map for the i-th route
         map.addPolyline(lineOptions);
+
+        String rDestination = mRider.getDestinationName();
+
+        String[] distanceParsed = proximity.split("\\s+");
+        double rProximity = Double.parseDouble(distanceParsed[0]);
+        mRider.setProximity(rProximity);
+
+        String[] durationParsed = duration.split("\\s+");
+        double rDuration = Double.parseDouble(durationParsed[0]);
+        mRider.setDestinationTime(rDuration);
+
+        FirebaseProvider.getInstance().child(FIREBASE_DESTINATION_ENDPOINT).setValue(rDestination);
+        FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(rDuration);
+        FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
+
+        destinationNameTV.setText("Destination: " + rDestination);
+        destinationDurationTV.setText("Duration: " + rDuration);
+        destinationProximityTV.setText(String.valueOf(rProximity));
     }
 }

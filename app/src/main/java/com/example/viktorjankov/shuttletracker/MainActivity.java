@@ -54,7 +54,6 @@ public class MainActivity extends ActionBarActivity
     public static String USER_INFO = "userInfo";
 
     Rider mRider;
-    private String FIREBASE_DESTINATION_ENDPOINT;
     private String FIREBASE_RIDER_ENDPOINT;
 
     FragmentManager manager;
@@ -90,7 +89,6 @@ public class MainActivity extends ActionBarActivity
 
         mRider = new Rider(mUser.getFirstName(), mFirebase.getAuth().getUid(), mUser.getCompanyCode());
         RiderProvider.setRider(mRider);
-        FIREBASE_DESTINATION_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationName";
         FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
 
         mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
@@ -108,7 +106,6 @@ public class MainActivity extends ActionBarActivity
         travelModeFragment = new TravelModeFragment();
 
         mRider.setDestinationName(mDestinationLocation.getDestinationName());
-        mFirebase.child(FIREBASE_DESTINATION_ENDPOINT).setValue(mRider.getDestinationName());
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)
