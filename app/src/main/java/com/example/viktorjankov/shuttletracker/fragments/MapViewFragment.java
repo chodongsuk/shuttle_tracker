@@ -58,7 +58,7 @@ public class MapViewFragment extends Fragment {
     public void onClick() {
         if (mRider.isActive()) {
             mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
-            mRecordButton.setBackground(getResources().getDrawable(R.drawable.green_play));
+            mRecordButton.setBackground(getResources().getDrawable(R.drawable.blue_start));
             mHandler.removeCallbacks(runnable);
             mRider.setActive(false);
         } else {
