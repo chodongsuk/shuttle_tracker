@@ -92,6 +92,7 @@ public class MapViewFragment extends Fragment {
         ButterKnife.inject(this, v);
 
         setRetainInstance(true);
+
         initMap(savedInstanceState);
         addMarkers();
 

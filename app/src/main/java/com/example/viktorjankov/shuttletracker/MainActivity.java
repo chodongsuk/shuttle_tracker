@@ -52,6 +52,10 @@ public class MainActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     private String kLOG_TAG = MainActivity.class.getSimpleName();
     public static String USER_INFO = "userInfo";
+    public static final String DESTINATION_LOCATION = "destination_name";
+    public static final String CURRENT_LOCATION_LAT = "current_location_lat";
+    public static final String CURRENT_LOCATION_LNG = "current_location_long";
+
 
     Rider mRider;
     private String FIREBASE_RIDER_ENDPOINT;
@@ -92,12 +96,11 @@ public class MainActivity extends ActionBarActivity
         FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
 
         mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
+
         mapViewFragment = new MapViewFragment();
 
         buildGoogleApiClient();
-        mGoogleApiClient.connect();
         createLocationRequest();
-
     }
 
     @Subscribe
@@ -127,15 +130,24 @@ public class MainActivity extends ActionBarActivity
                 .commit();
     }
 
-    protected synchronized void buildGoogleApiClient() {
+    public Location getCurrentLocation() {
+        return mCurrentLocation;
+    }
+
+    public DestinationLocation getDestinationLocation() {
+        return mDestinationLocation;
+    }
+
+    public synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+        mGoogleApiClient.connect();
     }
 
-    protected void createLocationRequest() {
+    public void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(20000);
         mLocationRequest.setFastestInterval(10000);
@@ -158,6 +170,7 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onConnected(Bundle bundle) {
+        mapViewFragment.setCurrentLocation(mCurrentLocation);
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         startLocationUpdates();
     }
@@ -287,6 +300,14 @@ public class MainActivity extends ActionBarActivity
 
     private void prepareActivity(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mDestinationLocation = (DestinationLocation) savedInstanceState.get(DESTINATION_LOCATION);
+            mCurrentLocation = new Location("");
+            mCurrentLocation.setLatitude(savedInstanceState.getDouble(CURRENT_LOCATION_LAT));
+            mCurrentLocation.setLongitude(savedInstanceState.getDouble(CURRENT_LOCATION_LNG));
+        }
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -359,6 +380,24 @@ public class MainActivity extends ActionBarActivity
 
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(kLOG_TAG, "MainActivity is destroyed!");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.i(kLOG_TAG, "Saving Destination Location: " + mDestinationLocation.getDestinationName());
+        outState.putSerializable(DESTINATION_LOCATION, mDestinationLocation);
+
+        Log.i(kLOG_TAG, "Saving Current Location lat: " + mCurrentLocation.getLatitude());
+        outState.putDouble(CURRENT_LOCATION_LAT, mCurrentLocation.getLatitude());
+        Log.i(kLOG_TAG, "Saving Current Location lng: " + mCurrentLocation.getLongitude());
+        outState.putDouble(CURRENT_LOCATION_LNG, mCurrentLocation.getLongitude());
+        super.onSaveInstanceState(outState);
     }
 }
 

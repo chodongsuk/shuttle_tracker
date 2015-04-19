@@ -126,9 +126,9 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(rDuration);
         FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
 
-        destinationNameTV.setText("Destination: " + rDestination);
-        destinationDurationTV.setText("Duration: " + rDuration);
-        destinationProximityTV.setText(String.valueOf(rProximity));
+        destinationNameTV.setText(String.valueOf(rDestination));
+        destinationDurationTV.setText(String.valueOf(rDuration) + " min");
+        destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
         Log.i(kLOG_TAG, "I'm updating map values!");
     }
 }

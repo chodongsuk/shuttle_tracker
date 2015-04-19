@@ -1,6 +1,8 @@
 package com.example.viktorjankov.shuttletracker.model;
 
-public class DestinationLocation {
+import java.io.Serializable;
+
+public class DestinationLocation implements Serializable {
 
     private String mDestinationName;
     private double mLatitude;
