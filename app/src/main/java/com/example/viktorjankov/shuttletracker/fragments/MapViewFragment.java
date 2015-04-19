@@ -1,21 +1,16 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
-import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.view.ViewGroup.LayoutParams;
-
 import android.widget.TextView;
 
-import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
 import com.example.viktorjankov.shuttletracker.directions.ParserTask;
@@ -35,8 +30,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Bus;
-
-import java.math.RoundingMode;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -66,10 +59,12 @@ public class MapViewFragment extends Fragment {
         if (mRider.isActive()) {
             mRecordButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
             mRecordButton.setBackground(getResources().getDrawable(R.drawable.green_play));
+            mHandler.removeCallbacks(runnable);
             mRider.setActive(false);
         } else {
             mRecordButton.setImageResource(R.drawable.ic_pause_white_36dp);
             mRecordButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
+            mHandler.postDelayed(runnable, 5000);
             mRider.setActive(true);
         }
 
@@ -86,6 +81,11 @@ public class MapViewFragment extends Fragment {
     Location mCurrentLocation;
 
     Bus bus = BusProvider.getInstance();
+    Handler mHandler;
+
+    DownloadTask downloadTask;
+    ParserTask parserTask;
+    String url;
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_view, container, false);
@@ -96,18 +96,40 @@ public class MapViewFragment extends Fragment {
         addMarkers();
 
         // Getting URL to the Google Directions API
-        String url = getDirectionsUrl();
-
-        ParserTask parserTask = new ParserTask(map, destinationNameTV,
-                                                    destinationDurationTV,
-                                                    destinationProximityTV);
-        DownloadTask downloadTask = new DownloadTask(map, parserTask);
+        parserTask = createParserTask();
+        downloadTask = createDownloadTask(parserTask);
 
         // Start downloading json data from Google Directions API
+        url = getDirectionsUrl();
         downloadTask.execute(url);
 
+        mHandler = new Handler();
         return v;
     }
+
+    private ParserTask createParserTask() {
+        parserTask = new ParserTask(map,destinationNameTV,
+                                        destinationDurationTV,
+                                        destinationProximityTV);
+        return parserTask;
+    }
+
+    private DownloadTask createDownloadTask(ParserTask parserTask) {
+        downloadTask = new DownloadTask(map, parserTask);
+        return downloadTask;
+    }
+
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            parserTask = createParserTask();
+            downloadTask = createDownloadTask(parserTask);
+            url = getDirectionsUrl();
+
+            downloadTask.execute(url);
+            mHandler.postDelayed(this, 5000);
+        }
+    };
 
     private void initMap(Bundle savedInstanceState) {
         MapsInitializer.initialize(this.getActivity());

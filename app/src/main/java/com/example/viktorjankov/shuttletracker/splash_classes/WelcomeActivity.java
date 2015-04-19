@@ -118,11 +118,6 @@ public class WelcomeActivity extends FragmentActivity {
         registerButton.setBackgroundResource(resource_reg);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        checkLocationServiceEnabled();
-    }
 
     private void checkLocationServiceEnabled() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -148,11 +143,7 @@ public class WelcomeActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome_layout);
         ButterKnife.inject(this);
-
-        mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Signing in...");
-        mAuthProgressDialog.setCancelable(false);
+        initProgressDialog();
     }
 
     @InjectView(R.id.sign_in)
@@ -210,6 +201,27 @@ public class WelcomeActivity extends FragmentActivity {
         finish();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mAuthProgressDialog == null) {
+            initProgressDialog();
+        }
+        checkLocationServiceEnabled();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAuthProgressDialog.dismiss();
+    }
+
+    private void initProgressDialog() {
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Signing in...");
+        mAuthProgressDialog.setCancelable(false);
+    }
 
     /**
      * Unauthenticate from Firebase and from providers where necessary.

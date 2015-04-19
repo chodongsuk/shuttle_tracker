@@ -2,6 +2,7 @@ package com.example.viktorjankov.shuttletracker.directions;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.model.Rider;
@@ -21,6 +22,8 @@ import java.util.List;
  * A class to parse the Google Places in JSON format
  */
 public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+    public static final String kLOG_TAG = ParserTask.class.getSimpleName();
+
     Rider mRider = RiderProvider.getRider();
     private String FIREBASE_TIME_ENDPOINT = "companyData/" + mRider.getCompanyID()
             + "/riders/" + mRider.getuID() + "/destinationTime";
@@ -126,5 +129,6 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         destinationNameTV.setText("Destination: " + rDestination);
         destinationDurationTV.setText("Duration: " + rDuration);
         destinationProximityTV.setText(String.valueOf(rProximity));
+        Log.i(kLOG_TAG, "I'm updating map values!");
     }
 }
