@@ -57,8 +57,10 @@ public class MainActivity extends ActionBarActivity
     public static final String CURRENT_LOCATION_LNG = "current_location_long";
 
 
-    Rider mRider;
+    Rider mRider = RiderProvider.getRider();
     private String FIREBASE_RIDER_ENDPOINT;
+    private String FIREBASE_RIDER_TRAVEL_MODE;
+    private String FIREBASE_RIDER_DESTINATION_LOCATION;
 
     FragmentManager manager;
 
@@ -94,6 +96,8 @@ public class MainActivity extends ActionBarActivity
         mRider = new Rider(mUser.getFirstName(), mFirebase.getAuth().getUid(), mUser.getCompanyCode());
         RiderProvider.setRider(mRider);
         FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
+        FIREBASE_RIDER_TRAVEL_MODE = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/travelMode";
+        FIREBASE_RIDER_DESTINATION_LOCATION = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationLocation";
 
         mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
 
@@ -109,6 +113,7 @@ public class MainActivity extends ActionBarActivity
         mDestinationLocation = e.getPickupLocation();
         mRider.setDestinationLocation(mDestinationLocation);
 
+        mFirebase.child(FIREBASE_RIDER_DESTINATION_LOCATION).setValue(mDestinationLocation);
         mRider.setDestinationLocation(mDestinationLocation);
 
         manager.beginTransaction()
@@ -121,6 +126,8 @@ public class MainActivity extends ActionBarActivity
     public void handleTravelModeEvent(TravelModeEvent e) {
         mTravelMode = e.getTravelSource();
         mRider.setTravelMode(mTravelMode);
+
+        mFirebase.child(FIREBASE_RIDER_TRAVEL_MODE).setValue(mTravelMode);
 
         mapViewFragment.setDestination(mDestinationLocation);
         mapViewFragment.setCurrentLocation(mCurrentLocation);
