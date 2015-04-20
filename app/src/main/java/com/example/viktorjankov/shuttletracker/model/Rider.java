@@ -2,17 +2,23 @@ package com.example.viktorjankov.shuttletracker.model;
 
 public class Rider {
 
-    // Gotten from main app
+    // Set in MainActivity
+    private DestinationLocation mDestinationLocation;
+    private TravelMode mTravelMode;
     private double mLatitude;
     private double mLongitude;
-    private String mDestinationName;
+
+    // Set in MapViewFragment
     private boolean active;
-    private double mDestinationTime;
+
+    // Set in ParserTask
+    private String mDestinationTime;
     private double mProximity;
 
-    // User personal info
+    // Set in MainActivity when parsing Firebase
     private String firstName;
     private String uID;
+    private String companyID;
 
     public String getFirstName() {
         return firstName;
@@ -22,7 +28,6 @@ public class Rider {
         this.firstName = firstName;
     }
 
-    private String companyID;
 
     public Rider(String firstName, String uID, String companyID) {
         this.uID = uID;
@@ -46,19 +51,19 @@ public class Rider {
         this.mLongitude = longitude;
     }
 
-    public String getDestinationName() {
-        return mDestinationName;
+    public DestinationLocation getDestinationLocation() {
+        return mDestinationLocation;
     }
 
-    public void setDestinationName(String destinationName) {
-        this.mDestinationName = destinationName;
+    public void setDestinationLocation(DestinationLocation destinationName) {
+        this.mDestinationLocation = destinationName;
     }
 
-    public double getDestinationTime() {
+    public String getDestinationTime() {
         return mDestinationTime;
     }
 
-    public void setDestinationTime(Double destinationTime) {
+    public void setDestinationTime(String destinationTime) {
         this.mDestinationTime = destinationTime;
     }
 
@@ -93,5 +98,13 @@ public class Rider {
 
     public void setProximity(double mProximity) {
         this.mProximity = mProximity;
+    }
+
+    public TravelMode getTravelMode() {
+        return mTravelMode;
+    }
+
+    public void setTravelMode(TravelMode mTravelMode) {
+        this.mTravelMode = mTravelMode;
     }
 }

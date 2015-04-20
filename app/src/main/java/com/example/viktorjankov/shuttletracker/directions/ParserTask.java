@@ -112,22 +112,20 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         // Drawing polyline in the Google Map for the i-th route
         map.addPolyline(lineOptions);
 
-        String rDestination = mRider.getDestinationName();
+        String rDestination = mRider.getDestinationLocation().getDestinationName();
 
         String[] distanceParsed = proximity.split("\\s+");
         double rProximity = Double.parseDouble(distanceParsed[0]);
         mRider.setProximity(rProximity);
 
-        String[] durationParsed = duration.split("\\s+");
-        double rDuration = Double.parseDouble(durationParsed[0]);
-        mRider.setDestinationTime(rDuration);
+        mRider.setDestinationTime(duration);
 
         FirebaseProvider.getInstance().child(FIREBASE_DESTINATION_ENDPOINT).setValue(rDestination);
-        FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(rDuration);
+        FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(duration);
         FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
 
         destinationNameTV.setText(String.valueOf(rDestination));
-        destinationDurationTV.setText(String.valueOf(rDuration) + " min");
+        destinationDurationTV.setText(duration);
         destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
         Log.i(kLOG_TAG, "I'm updating map values!");
     }

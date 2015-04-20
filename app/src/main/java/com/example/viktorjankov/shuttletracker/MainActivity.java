@@ -98,6 +98,7 @@ public class MainActivity extends ActionBarActivity
         mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
 
         mapViewFragment = new MapViewFragment();
+        travelModeFragment = new TravelModeFragment();
 
         buildGoogleApiClient();
         createLocationRequest();
@@ -106,9 +107,9 @@ public class MainActivity extends ActionBarActivity
     @Subscribe
     public void handlePickupLocationEvent(PickupLocationEvent e) {
         mDestinationLocation = e.getPickupLocation();
-        travelModeFragment = new TravelModeFragment();
+        mRider.setDestinationLocation(mDestinationLocation);
 
-        mRider.setDestinationName(mDestinationLocation.getDestinationName());
+        mRider.setDestinationLocation(mDestinationLocation);
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)
@@ -119,6 +120,7 @@ public class MainActivity extends ActionBarActivity
     @Subscribe
     public void handleTravelModeEvent(TravelModeEvent e) {
         mTravelMode = e.getTravelSource();
+        mRider.setTravelMode(mTravelMode);
 
         mapViewFragment.setDestination(mDestinationLocation);
         mapViewFragment.setCurrentLocation(mCurrentLocation);
@@ -301,13 +303,6 @@ public class MainActivity extends ActionBarActivity
     private void prepareActivity(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            mDestinationLocation = (DestinationLocation) savedInstanceState.get(DESTINATION_LOCATION);
-            mCurrentLocation = new Location("");
-            mCurrentLocation.setLatitude(savedInstanceState.getDouble(CURRENT_LOCATION_LAT));
-            mCurrentLocation.setLongitude(savedInstanceState.getDouble(CURRENT_LOCATION_LNG));
-        }
-
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -380,24 +375,6 @@ public class MainActivity extends ActionBarActivity
 
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.i(kLOG_TAG, "MainActivity is destroyed!");
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.i(kLOG_TAG, "Saving Destination Location: " + mDestinationLocation.getDestinationName());
-        outState.putSerializable(DESTINATION_LOCATION, mDestinationLocation);
-
-        Log.i(kLOG_TAG, "Saving Current Location lat: " + mCurrentLocation.getLatitude());
-        outState.putDouble(CURRENT_LOCATION_LAT, mCurrentLocation.getLatitude());
-        Log.i(kLOG_TAG, "Saving Current Location lng: " + mCurrentLocation.getLongitude());
-        outState.putDouble(CURRENT_LOCATION_LNG, mCurrentLocation.getLongitude());
-        super.onSaveInstanceState(outState);
     }
 }
 
