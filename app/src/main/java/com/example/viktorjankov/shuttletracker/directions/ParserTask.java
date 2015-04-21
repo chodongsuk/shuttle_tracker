@@ -24,22 +24,23 @@ import java.util.List;
 public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
     public static final String kLOG_TAG = ParserTask.class.getSimpleName();
 
-    Rider mRider = RiderProvider.getRider();
-    private String FIREBASE_TIME_ENDPOINT = "companyData/" + mRider.getCompanyID()
-            + "/riders/" + mRider.getuID() + "/destinationTime";
-    private String FIREBASE_DESTINATION_ENDPOINT = "companyData/" + mRider.getCompanyID()
-            + "/riders/" + mRider.getuID() + "/destinationName";
-    private String FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + mRider.getCompanyID()
-            + "/riders/" + mRider.getuID() + "/proximity";
+    private String FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+            + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
+    private String FIREBASE_DESTINATION_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+            + "/riders/" + RiderProvider.getRider().getuID() + "/destinationName";
+    private String FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+            + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
 
 
     TextView destinationNameTV;
     TextView destinationDurationTV;
     TextView destinationProximityTV;
     GoogleMap map;
+    Rider mRider;
 
-    public ParserTask(GoogleMap map, TextView destinationName, TextView destinationDuration, TextView destinationProximity) {
+    public ParserTask(GoogleMap map, Rider rider, TextView destinationName, TextView destinationDuration, TextView destinationProximity) {
         this.map = map;
+        this.mRider = rider;
         this.destinationNameTV = destinationName;
         this.destinationDurationTV = destinationDuration;
         this.destinationProximityTV = destinationProximity;

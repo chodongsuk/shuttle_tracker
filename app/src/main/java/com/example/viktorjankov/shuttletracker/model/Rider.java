@@ -1,6 +1,8 @@
 package com.example.viktorjankov.shuttletracker.model;
 
-public class Rider {
+import java.io.Serializable;
+
+public class Rider implements Serializable {
 
     // Set in MainActivity
     private DestinationLocation mDestinationLocation;
@@ -25,13 +27,6 @@ public class Rider {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-
-    public Rider(String firstName, String uID, String companyID) {
-        this.uID = uID;
-        this.companyID = companyID;
         this.firstName = firstName;
     }
 
@@ -106,5 +101,19 @@ public class Rider {
 
     public void setTravelMode(TravelMode mTravelMode) {
         this.mTravelMode = mTravelMode;
+    }
+
+    @Override
+    public String toString() {
+        String rider = "Name: " + firstName + "\n";
+
+        if (mDestinationLocation != null) {
+            rider += mDestinationLocation.getDestinationName() + "\n";
+        }
+
+        if (mTravelMode != null) {
+            rider += mTravelMode.getTravelMode() + "\n";
+        }
+        return rider;
     }
 }

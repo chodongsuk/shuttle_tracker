@@ -7,6 +7,9 @@ public class RiderProvider {
     private static Rider mRider;
 
     public static Rider getRider() {
+        if (mRider == null) {
+            return new Rider();
+        }
         return mRider;
     }
 

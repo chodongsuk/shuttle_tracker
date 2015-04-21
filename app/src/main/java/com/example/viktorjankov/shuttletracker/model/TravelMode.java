@@ -1,6 +1,8 @@
 package com.example.viktorjankov.shuttletracker.model;
 
-public class TravelMode {
+import java.io.Serializable;
+
+public class TravelMode implements Serializable{
     String mTravelMode;
 
     public TravelMode(String travelMode) {

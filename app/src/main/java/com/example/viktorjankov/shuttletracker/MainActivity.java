@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -39,73 +38,64 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.plus.Plus;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-public class MainActivity extends ActionBarActivity
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
-    private String kLOG_TAG = MainActivity.class.getSimpleName();
-    public static String USER_INFO = "userInfo";
-    public static final String DESTINATION_LOCATION = "destination_name";
-    public static final String CURRENT_LOCATION_LAT = "current_location_lat";
-    public static final String CURRENT_LOCATION_LNG = "current_location_long";
-
-
-    Rider mRider = RiderProvider.getRider();
-    private String FIREBASE_RIDER_ENDPOINT;
-    private String FIREBASE_RIDER_TRAVEL_MODE;
-    private String FIREBASE_RIDER_DESTINATION_LOCATION;
-
+public class MainActivity extends ActionBarActivity {
     FragmentManager manager;
 
-    Bus bus = BusProvider.getInstance();
 
     DestinationLocation mDestinationLocation;
     TravelMode mTravelMode;
 
-    GoogleApiClient mGoogleApiClient;
-    LocationRequest mLocationRequest;
-
-    Location mCurrentLocation;
     MapViewFragment mapViewFragment;
     TravelModeFragment travelModeFragment;
 
+    Bus bus = BusProvider.getInstance();
     Firebase mFirebase = FirebaseProvider.getInstance();
+    Rider mRider;
+
     User mUser;
     Company mCompany;
 
-
     protected void onCreate(Bundle savedInstanceState) {
         // content view, toolbar and title
-        Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
-        prepareActivity(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
-        mUser = UserProvider.getUser();
-        if (mUser == null) {
-            mUser = (User) getIntent().getSerializableExtra(MainActivity.USER_INFO);
+        if (savedInstanceState != null) {
+            mRider = (Rider) savedInstanceState.get(RIDER_KEY);
+            RiderProvider.setRider(mRider);
         }
-        Log.i(kLOG_TAG, "User info: " + mUser.toString());
+
+        setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText("FLOW");
+        title.setTextColor(Color.WHITE);
+        title.setVisibility(View.VISIBLE);
+
+        // Get user and company data
+        mUser = UserProvider.getUser();
         getCompanyData();
 
-        mRider = new Rider(mUser.getFirstName(), mFirebase.getAuth().getUid(), mUser.getCompanyCode());
-        RiderProvider.setRider(mRider);
-        FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
-        FIREBASE_RIDER_TRAVEL_MODE = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/travelMode";
-        FIREBASE_RIDER_DESTINATION_LOCATION = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationLocation";
+        // Set Ride info from company data
+        mRider = RiderProvider.getRider();
+        mRider.setFirstName(mUser.getFirstName());
+        mRider.setuID(mFirebase.getAuth().getUid());
+        mRider.setCompanyID(mUser.getCompanyCode());
 
-        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
+        // Set and upload the rider to firebase
+        setFirebaseEndpoints();
 
-        mapViewFragment = new MapViewFragment();
-        travelModeFragment = new TravelModeFragment();
-
-        buildGoogleApiClient();
-        createLocationRequest();
+        // init the fragments
+        mapViewFragment = MapViewFragment.newInstance(mRider);
+        travelModeFragment = TravelModeFragment.newInstance();
     }
 
     @Subscribe
@@ -113,8 +103,9 @@ public class MainActivity extends ActionBarActivity
         mDestinationLocation = e.getPickupLocation();
         mRider.setDestinationLocation(mDestinationLocation);
 
+        Log.i(kLOG_TAG, "HandlePickup Rider:" + mRider.toString());
+
         mFirebase.child(FIREBASE_RIDER_DESTINATION_LOCATION).setValue(mDestinationLocation);
-        mRider.setDestinationLocation(mDestinationLocation);
 
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)
@@ -129,97 +120,11 @@ public class MainActivity extends ActionBarActivity
 
         mFirebase.child(FIREBASE_RIDER_TRAVEL_MODE).setValue(mTravelMode);
 
-        mapViewFragment.setDestination(mDestinationLocation);
-        mapViewFragment.setCurrentLocation(mCurrentLocation);
-        mapViewFragment.setTravelMode(mTravelMode);
-
+        Log.i(kLOG_TAG, "HandleTravel Rider:" + mRider.toString());
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, mapViewFragment)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    public Location getCurrentLocation() {
-        return mCurrentLocation;
-    }
-
-    public DestinationLocation getDestinationLocation() {
-        return mDestinationLocation;
-    }
-
-    public synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        mGoogleApiClient.connect();
-    }
-
-    public void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
-    private void startLocationUpdates() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        mapViewFragment.setCurrentLocation(mCurrentLocation);
-        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        startLocationUpdates();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mCurrentLocation = location;
-        mapViewFragment.setCurrentLocation(location);
-    }
-
-    @Override
-    protected void onResume() {
-        bus.register(this);
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        bus.unregister(this);
-        super.onPause();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.sign_out:
-                buildAlertDialog().show();
-                return true;
-            case R.id.change_password:
-            case android.R.id.home:
-                getSupportFragmentManager().popBackStack();
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private AlertDialog.Builder buildAlertDialog() {
@@ -291,44 +196,9 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-
-    @Override
-    public void onBackPressed() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
-
-        if (fragment instanceof PickupLocationFragment) {
-            finish();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-     /* *************************************
-      *       Activity preparation stuff    *
-      ***************************************/
-
-    private void prepareActivity(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("FLOW");
-        title.setTextColor(Color.WHITE);
-        title.setVisibility(View.VISIBLE);
-
-    }
-
-    public static final String FIREBASE_COMPANY_CODE = "companyCode";
-    public static final String FIREBASE_COMPANY_NAME = "companyName";
-    public static final String FIREBASE_DESTINATIONS = "destinations";
-    public static final String FIREBASE_DESTINATION_NAME = "destinationName";
-    public static final String FIREBASE_DESTINATION_LAT = "latitude";
-    public static final String FIREBASE_DESTINATION_LNG = "longitude";
+    /**************************************
+     *       Firebase stuff               *
+     **************************************/
 
     public void getCompanyData() {
         mFirebase.child("companyData").child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -383,5 +253,82 @@ public class MainActivity extends ActionBarActivity
             }
         });
     }
+
+    private void setFirebaseEndpoints() {
+        FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
+        FIREBASE_RIDER_TRAVEL_MODE = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/travelMode";
+        FIREBASE_RIDER_DESTINATION_LOCATION = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationLocation";
+
+        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
+    }
+
+    /**************************************
+     *       Android methods              *
+     **************************************/
+    @Override
+    protected void onResume() {
+        bus.register(this);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        bus.unregister(this);
+        super.onPause();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+
+        if (fragment instanceof PickupLocationFragment) {
+            finish();
+        } else {
+            super.onBackPressed();
+        }
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(RIDER_KEY, mRider);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sign_out:
+                buildAlertDialog().show();
+                return true;
+            case R.id.change_password:
+            case android.R.id.home:
+                getSupportFragmentManager().popBackStack();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private String kLOG_TAG = MainActivity.class.getSimpleName();
+    public static String USER_INFO = "userInfo";
+    public static final String RIDER_KEY = "riderKey";
+
+    // firebase nodes
+    public static final String FIREBASE_COMPANY_CODE = "companyCode";
+    public static final String FIREBASE_COMPANY_NAME = "companyName";
+    public static final String FIREBASE_DESTINATIONS = "destinations";
+    public static final String FIREBASE_DESTINATION_NAME = "destinationName";
+    public static final String FIREBASE_DESTINATION_LAT = "latitude";
+    public static final String FIREBASE_DESTINATION_LNG = "longitude";
+
+    // firebase endpoints to store rider info
+    private String FIREBASE_RIDER_ENDPOINT;
+    private String FIREBASE_RIDER_TRAVEL_MODE;
+    private String FIREBASE_RIDER_DESTINATION_LOCATION;
 }
 
