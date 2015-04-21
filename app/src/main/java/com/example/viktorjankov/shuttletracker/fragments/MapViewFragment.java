@@ -117,6 +117,8 @@ public class MapViewFragment extends Fragment
         downloadTask = createDownloadTask(parserTask);
 
         mHandler = new Handler();
+
+        mStartTripButton.bringToFront();
         return v;
     }
     private void setFirebaseEndpoints() {
