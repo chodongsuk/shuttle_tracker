@@ -106,6 +106,7 @@ public class Rider implements Serializable {
     @Override
     public String toString() {
         String rider = "Name: " + firstName + "\n";
+        rider += "Active: " + active + "\n";
 
         if (mDestinationLocation != null) {
             rider += mDestinationLocation.getDestinationName() + "\n";

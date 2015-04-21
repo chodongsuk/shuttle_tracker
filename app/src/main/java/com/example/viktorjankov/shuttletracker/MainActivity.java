@@ -69,6 +69,11 @@ public class MainActivity extends ActionBarActivity {
             RiderProvider.setRider(mRider);
         }
 
+        if (mRider == null) {
+            mRider = RiderProvider.getRider();
+            RiderProvider.setRider(mRider);
+        }
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

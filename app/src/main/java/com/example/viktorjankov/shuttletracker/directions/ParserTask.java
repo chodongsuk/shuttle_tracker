@@ -24,13 +24,9 @@ import java.util.List;
 public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
     public static final String kLOG_TAG = ParserTask.class.getSimpleName();
 
-    private String FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-            + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
-    private String FIREBASE_DESTINATION_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-            + "/riders/" + RiderProvider.getRider().getuID() + "/destinationName";
-    private String FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-            + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
-
+    private String FIREBASE_TIME_ENDPOINT;
+    private String FIREBASE_DESTINATION_ENDPOINT;
+    private String FIREBASE_PROXIMITY_ENDPOINT;
 
     TextView destinationNameTV;
     TextView destinationDurationTV;
@@ -44,6 +40,16 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         this.destinationNameTV = destinationName;
         this.destinationDurationTV = destinationDuration;
         this.destinationProximityTV = destinationProximity;
+
+        FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+                + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
+
+        FIREBASE_DESTINATION_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+                + "/riders/" + RiderProvider.getRider().getuID() + "/destinationName";
+
+        FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+                + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
+
     }
 
     // Parsing the data in non-ui thread

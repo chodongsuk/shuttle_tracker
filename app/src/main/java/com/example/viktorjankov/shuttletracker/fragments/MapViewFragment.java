@@ -20,7 +20,6 @@ import com.example.viktorjankov.shuttletracker.directions.ParserTask;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
-import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.firebase.client.Firebase;
@@ -37,7 +36,6 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.squareup.otto.Bus;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -66,8 +64,7 @@ public class MapViewFragment extends Fragment
 
     String url;
 
-    public static MapViewFragment newInstance(Rider rider)
-    {
+    public static MapViewFragment newInstance(Rider rider) {
         MapViewFragment mapViewFragment = new MapViewFragment();
 
         Bundle arguments = new Bundle();
@@ -85,6 +82,9 @@ public class MapViewFragment extends Fragment
         mRider = (Rider) getArguments().get(RIDER_KEY);
         Log.i(kLOG_TAG, "MapView onCreate Rider:" + mRider.toString());
 
+        // Set and upload the rider to firebase
+        setFirebaseEndpoints();
+
         mDestinationLocation = mRider.getDestinationLocation();
         mTravelMode = mRider.getTravelMode();
 
@@ -97,15 +97,15 @@ public class MapViewFragment extends Fragment
 
         buildGoogleApiClient();
         createLocationRequest();
-
-        ((MainActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
-        ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((MainActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
     }
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.map_view, container, false);
         ButterKnife.inject(this, v);
+
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 
         initMap(savedInstanceState);
 
@@ -116,13 +116,17 @@ public class MapViewFragment extends Fragment
         mHandler = new Handler();
         return v;
     }
+    private void setFirebaseEndpoints() {
+        FIREBASE_LAT_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/latitude";
+        FIREBASE_LNG_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/longitude";
+        FIREBASE_ACTIVE_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/active";
 
+    }
     private ParserTask createParserTask() {
-        Log.i(kLOG_TAG, "Before parse task Rider: " + mRider.toString());
         parserTask = new ParserTask(map, mRider,
-                                         destinationNameTV,
-                                         destinationDurationTV,
-                                         destinationProximityTV);
+                destinationNameTV,
+                destinationDurationTV,
+                destinationProximityTV);
         return parserTask;
     }
 
@@ -225,9 +229,11 @@ public class MapViewFragment extends Fragment
     }
 
 
-    /**************************************
-     *       GMS Methods                  *
-     **************************************/
+    /**
+     * ***********************************
+     * GMS Methods                  *
+     * ************************************
+     */
 
     public synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
@@ -256,6 +262,9 @@ public class MapViewFragment extends Fragment
     @Override
     public void onConnected(Bundle bundle) {
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
+        mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
+
         updateCamera();
         addMarkers();
 
@@ -263,12 +272,15 @@ public class MapViewFragment extends Fragment
         url = getDirectionsUrl();
         downloadTask.execute(url);
 
+        handleActiveUser();
     }
 
     @Override
     public void onLocationChanged(Location location) {
         updateCamera();
         mCurrentLocation = location;
+        mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
+        mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
     }
 
     @Override
@@ -280,9 +292,11 @@ public class MapViewFragment extends Fragment
     public void onConnectionFailed(ConnectionResult connectionResult) {
     }
 
-    /**************************************
-     *       View Injections              *
-     **************************************/
+    /**
+     * ***********************************
+     * View Injections              *
+     * ************************************
+     */
     @InjectView(R.id.destinationName)
     TextView destinationNameTV;
     @InjectView(R.id.destinationDuration)
@@ -296,26 +310,38 @@ public class MapViewFragment extends Fragment
     @OnClick(R.id.start_trip_button)
     public void onClick() {
         if (mRider.isActive()) {
+            mRider.setActive(false);
+        } else {
+            mRider.setActive(true);
+        }
+        handleActiveUser();
+    }
+
+    private void handleActiveUser() {
+        if (mRider.isActive()) {
+            startLocationUpdates();
+
+            mStartTripButton.setImageResource(R.drawable.ic_pause_white_36dp);
+            mStartTripButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
+
+            mHandler.postDelayed(runnable, 5000);
+        } else {
             stopLocationUpdates();
 
             mStartTripButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
             mStartTripButton.setBackground(getResources().getDrawable(R.drawable.blue_start));
 
             mHandler.removeCallbacks(runnable);
-
-            mRider.setActive(false);
-        } else {
-            startLocationUpdates();
-
-            mStartTripButton.setImageResource(R.drawable.ic_pause_white_36dp);
-            mStartTripButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
-
-            mRider.setActive(true);
-
-            mHandler.postDelayed(runnable, 5000);
         }
 
         mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mRider.isActive());
+    }
+
+    @Override
+    public void onDetach() {
+        mHandler.removeCallbacks(runnable);
+        stopLocationUpdates();
+        super.onDetach();
     }
 
     @InjectView(R.id.mapview)
@@ -330,7 +356,7 @@ public class MapViewFragment extends Fragment
     public static final String RIDER_KEY = "riderKey";
 
     private String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
-    public String FIREBASE_LAT_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/latitude";
-    public String FIREBASE_LNG_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/longitude";
-    public String FIREBASE_ACTIVE_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/active";
+    public String FIREBASE_LAT_ENDPOINT;
+    public String FIREBASE_LNG_ENDPOINT;
+    public String FIREBASE_ACTIVE_ENDPOINT;
 }
