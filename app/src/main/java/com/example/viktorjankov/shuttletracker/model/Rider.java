@@ -50,8 +50,8 @@ public class Rider implements Serializable {
         return mDestinationLocation;
     }
 
-    public void setDestinationLocation(DestinationLocation destinationName) {
-        this.mDestinationLocation = destinationName;
+    public void setDestinationLocation(DestinationLocation destinationLocation) {
+        this.mDestinationLocation = destinationLocation;
     }
 
     public String getDestinationTime() {

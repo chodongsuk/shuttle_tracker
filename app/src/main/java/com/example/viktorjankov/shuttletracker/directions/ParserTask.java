@@ -25,27 +25,22 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
     public static final String kLOG_TAG = ParserTask.class.getSimpleName();
 
     private String FIREBASE_TIME_ENDPOINT;
-    private String FIREBASE_DESTINATION_ENDPOINT;
     private String FIREBASE_PROXIMITY_ENDPOINT;
 
-    TextView destinationNameTV;
+
     TextView destinationDurationTV;
     TextView destinationProximityTV;
     GoogleMap map;
     Rider mRider;
 
-    public ParserTask(GoogleMap map, Rider rider, TextView destinationName, TextView destinationDuration, TextView destinationProximity) {
+    public ParserTask(GoogleMap map, Rider rider, TextView destinationDuration, TextView destinationProximity) {
         this.map = map;
         this.mRider = rider;
-        this.destinationNameTV = destinationName;
         this.destinationDurationTV = destinationDuration;
         this.destinationProximityTV = destinationProximity;
 
         FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
                 + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
-
-        FIREBASE_DESTINATION_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-                + "/riders/" + RiderProvider.getRider().getuID() + "/destinationName";
 
         FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
                 + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
@@ -127,13 +122,11 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
 
         mRider.setDestinationTime(duration);
 
-        FirebaseProvider.getInstance().child(FIREBASE_DESTINATION_ENDPOINT).setValue(rDestination);
         FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(duration);
         FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
 
-        destinationNameTV.setText(String.valueOf(rDestination));
         destinationDurationTV.setText(duration);
         destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
-        Log.i(kLOG_TAG, "I'm updating map values!");
+        Log.i(kLOG_TAG,"Gramatik: ParserTask updating map values");
     }
 }

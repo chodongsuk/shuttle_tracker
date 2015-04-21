@@ -86,6 +86,7 @@ public class MapViewFragment extends Fragment
         setFirebaseEndpoints();
 
         mDestinationLocation = mRider.getDestinationLocation();
+
         mTravelMode = mRider.getTravelMode();
 
         double lat = mRider.getLatitude();
@@ -109,6 +110,8 @@ public class MapViewFragment extends Fragment
 
         initMap(savedInstanceState);
 
+        destinationNameTV.setText(mRider.getDestinationLocation().getDestinationName());
+
         // Getting URL to the Google Directions API
         parserTask = createParserTask();
         downloadTask = createDownloadTask(parserTask);
@@ -120,11 +123,11 @@ public class MapViewFragment extends Fragment
         FIREBASE_LAT_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/latitude";
         FIREBASE_LNG_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/longitude";
         FIREBASE_ACTIVE_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/active";
+        FIREBASE_DESTINATION_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/destinationName";
 
     }
     private ParserTask createParserTask() {
         parserTask = new ParserTask(map, mRider,
-                destinationNameTV,
                 destinationDurationTV,
                 destinationProximityTV);
         return parserTask;
@@ -143,7 +146,7 @@ public class MapViewFragment extends Fragment
             url = getDirectionsUrl();
 
             downloadTask.execute(url);
-            mHandler.postDelayed(this, 5000);
+            mHandler.postDelayed(this, 30000);
         }
     };
 
@@ -252,12 +255,12 @@ public class MapViewFragment extends Fragment
     }
 
     private void startLocationUpdates() {
-        Log.i(kLOG_TAG,"Starting location updates");
+        Log.i(kLOG_TAG,"Gramatik: Starting location updates!");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     private void stopLocationUpdates() {
-        Log.i(kLOG_TAG,"Stopping location updates");
+        Log.i(kLOG_TAG,"Gramatik: Stopping location updates!");
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
@@ -281,6 +284,7 @@ public class MapViewFragment extends Fragment
     public void onLocationChanged(Location location) {
         updateCamera();
         mCurrentLocation = location;
+        Log.i(kLOG_TAG,"Gramatik: Got Location!");
         mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
         mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
     }
@@ -326,7 +330,7 @@ public class MapViewFragment extends Fragment
             mStartTripButton.setImageResource(R.drawable.ic_pause_white_36dp);
             mStartTripButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
 
-            mHandler.postDelayed(runnable, 5000);
+            mHandler.post(runnable);
         } else {
             stopLocationUpdates();
 
@@ -358,7 +362,8 @@ public class MapViewFragment extends Fragment
     public static final String RIDER_KEY = "riderKey";
 
     private String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
-    public String FIREBASE_LAT_ENDPOINT;
-    public String FIREBASE_LNG_ENDPOINT;
-    public String FIREBASE_ACTIVE_ENDPOINT;
+    private String FIREBASE_LAT_ENDPOINT;
+    private String FIREBASE_LNG_ENDPOINT;
+    private String FIREBASE_ACTIVE_ENDPOINT;
+    private String FIREBASE_DESTINATION_ENDPOINT;
 }
