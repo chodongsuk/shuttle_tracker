@@ -252,10 +252,12 @@ public class MapViewFragment extends Fragment
     }
 
     private void startLocationUpdates() {
+        Log.i(kLOG_TAG,"Starting location updates");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     private void stopLocationUpdates() {
+        Log.i(kLOG_TAG,"Stopping location updates");
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
