@@ -104,5 +104,6 @@
     <color name="google_plus_dark">#c03d28</color>
     <color name="facebook">#3b5998</color>
     <color name="facebook_dark">#284480</color>
+    <color name="white">#fff</color>
 
 </resources>

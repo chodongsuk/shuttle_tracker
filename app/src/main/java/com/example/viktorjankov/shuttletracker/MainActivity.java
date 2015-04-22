@@ -74,6 +74,8 @@ public class MainActivity extends ActionBarActivity {
             RiderProvider.setRider(mRider);
         }
 
+        Log.i(kLOG_TAG, "Rider: " + mRider.toString());
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -91,9 +93,6 @@ public class MainActivity extends ActionBarActivity {
 
         // Set Ride info from company data
         mRider = RiderProvider.getRider();
-        mRider.setFirstName(mUser.getFirstName());
-        mRider.setuID(mFirebase.getAuth().getUid());
-        mRider.setCompanyID(mUser.getCompanyCode());
 
         // Set and upload the rider to firebase
         setFirebaseEndpoints();
@@ -263,11 +262,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void setFirebaseEndpoints() {
-        FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
         FIREBASE_RIDER_TRAVEL_MODE = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/travelMode";
         FIREBASE_RIDER_DESTINATION_LOCATION = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationLocation";
-
-        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
     }
 
     /**************************************

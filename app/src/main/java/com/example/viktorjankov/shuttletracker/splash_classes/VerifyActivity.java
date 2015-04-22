@@ -19,8 +19,10 @@ import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
+import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.facebook.Session;
 import com.firebase.client.AuthData;
@@ -70,7 +72,14 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
         User user = new User(companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
+        Rider mRider =  RiderProvider.getRider();
+        mRider.setCompanyID(companyCode.toLowerCase());
+        mRider.setFirstName(firstName);
+        mRider.setuID(uID);
+        RiderProvider.setRider(mRider);
 
+        String FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
+        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
         mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
 
         Intent intent = new Intent(this, MainActivity.class);
