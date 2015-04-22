@@ -18,14 +18,13 @@
         <TextView
             tools:ignore="MissingPrefix"
             android:id="@+id/destination_letter_id"
-            fontPath="fonts/Roboto-Thin.ttf"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_marginStart="10dp"
             android:gravity="center"
             android:background="@drawable/destination_list_circle_purple"
             android:textColor="#fff"
-            android:textSize="22sp" />
+            android:textSize="30sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -67,5 +66,5 @@
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#f6eee2"/>
+        android:background="#bdbdbd"/>
 </RelativeLayout>
