@@ -56,4 +56,6 @@ dependencies {
     compile 'com.mobsandgeeks:android-saripaar:2.0-SNAPSHOT'
     compile 'com.facebook.android:facebook-android-sdk:3.23.0'
     compile 'com.android.support:recyclerview-v7:+'
+    compile 'uk.co.chrisjenx:calligraphy:2.0.2'
+
 }

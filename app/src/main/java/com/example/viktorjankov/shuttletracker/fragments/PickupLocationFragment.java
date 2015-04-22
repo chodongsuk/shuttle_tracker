@@ -1,14 +1,20 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
+import android.app.ActionBar;
 import android.graphics.Point;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
@@ -65,7 +71,7 @@ public class PickupLocationFragment extends Fragment {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int position) {
-            TextView tv = (TextView) LayoutInflater.from(parent.getContext())
+            RelativeLayout tv = (RelativeLayout) LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.destination_layout, parent, false);
             tv.setOnClickListener(mOnClickListener);
             return new ViewHolder(tv);
@@ -73,9 +79,24 @@ public class PickupLocationFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.oneDestinationTextView.setText(dataSetList.get(position).getDestinationName());
-            holder.oneDestinationTextView.setBackgroundResource(holder.colors[position % 3]);
-            holder.oneDestinationTextView.setHeight(tileHeight);
+
+            String destinationName = dataSetList.get(position).getDestinationName();
+            String firstChar = String.valueOf(destinationName.charAt(0));
+            String destinationAddress = dataSetList.get(position).getDestinationAddress();
+
+            int background = holder.colors[position % 3];
+            int arrow = holder.arrows[position % 3];
+
+            holder.viewContainer.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, tileHeight));
+
+            holder.destinationLetterTV.setText(firstChar);
+
+            holder.destinationLetterTV.setBackgroundResource(background);
+
+            holder.destinationNameTV.setText(destinationName);
+            holder.destinationAddressTV.setText(destinationAddress);
+
+            holder.destinationCarrotIV.setImageResource(arrow);
         }
 
         @Override
@@ -85,12 +106,28 @@ public class PickupLocationFragment extends Fragment {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
-            public int[] colors = new int[]{R.drawable.purple, R.drawable.indigo, R.drawable.blue};
-            public TextView oneDestinationTextView;
+            public int[] colors = new int[]{R.drawable.destination_list_circle_blue,
+                                            R.drawable.destination_list_circle_indigo,
+                                            R.drawable.destination_list_circle_purple};
 
-            public ViewHolder(TextView v) {
+            public int[] arrows = new int[] {R.drawable.ic_chevron_right_blue_36dp,
+                                             R.drawable.ic_chevron_right_indigo_36dp,
+                                             R.drawable.ic_chevron_right_purple_36dp};
+
+            public RelativeLayout viewContainer;
+            public TextView destinationLetterTV;
+            public TextView destinationNameTV;
+            public TextView destinationAddressTV;
+            public ImageView destinationCarrotIV;
+
+            public ViewHolder(RelativeLayout v) {
                 super(v);
-                oneDestinationTextView = v;
+
+                viewContainer = v;
+                destinationLetterTV = (TextView) v.findViewById(R.id.destination_letter_id);
+                destinationNameTV = (TextView) v.findViewById(R.id.destination_name_id);
+                destinationAddressTV = (TextView) v.findViewById(R.id.destination_address_id);
+                destinationCarrotIV = (ImageView) v.findViewById(R.id.destination_carrot_id);
             }
         }
 

@@ -220,6 +220,7 @@ public class MainActivity extends ActionBarActivity {
                         for (DataSnapshot destinations : companyData.getChildren()) {
 
                             String destinationName = "";
+                            String destinationAddress = "";
                             double lat = 0;
                             double lng = 0;
                             for (DataSnapshot individualDestination : destinations.getChildren()) {
@@ -233,10 +234,12 @@ public class MainActivity extends ActionBarActivity {
                                     lat = Double.parseDouble(individualDestination.getValue().toString());
                                 } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LNG)) {
                                     lng = Double.parseDouble(individualDestination.getValue().toString());
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_ADDRESS)) {
+                                    destinationAddress = individualDestination.getValue().toString();
                                 }
 
                             }
-                            DestinationLocation destinationLocation = new DestinationLocation(destinationName, lat, lng);
+                            DestinationLocation destinationLocation = new DestinationLocation(destinationName, destinationAddress, lat, lng);
                             mCompany.addDestinationLocation(destinationLocation);
                             Log.i(kLOG_TAG, "Destination: " + destinationLocation.toString());
                         }
@@ -328,6 +331,7 @@ public class MainActivity extends ActionBarActivity {
     public static final String FIREBASE_COMPANY_NAME = "companyName";
     public static final String FIREBASE_DESTINATIONS = "destinations";
     public static final String FIREBASE_DESTINATION_NAME = "destinationName";
+    public static final String FIREBASE_DESTINATION_ADDRESS = "destinationAddress";
     public static final String FIREBASE_DESTINATION_LAT = "latitude";
     public static final String FIREBASE_DESTINATION_LNG = "longitude";
 

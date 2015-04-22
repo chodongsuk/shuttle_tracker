@@ -5,13 +5,23 @@ import java.io.Serializable;
 public class DestinationLocation implements Serializable {
 
     private String mDestinationName;
+    private String mDestinationAddress;
     private double mLatitude;
     private double mLongitude;
 
-    public DestinationLocation(String destinationName, double lat, double lng) {
+    public DestinationLocation(String destinationName, String destinationAddress, double lat, double lng) {
         mDestinationName = destinationName;
+        mDestinationAddress = destinationAddress;
         mLatitude = lat;
         mLongitude = lng;
+    }
+
+    public String getDestinationAddress() {
+        return mDestinationAddress;
+    }
+
+    public void setDestinationAddress(String mDestinationAddress) {
+        this.mDestinationAddress = mDestinationAddress;
     }
 
     public String getDestinationName() {
@@ -43,6 +53,7 @@ public class DestinationLocation implements Serializable {
     @Override
     public String toString() {
         return "Destination Name: " + mDestinationName + "\n" +
+                "Destination Address: " + mDestinationAddress + "\n" +
                "Latitude: " + mLatitude + "\n" +
                "Longitude: " + mLongitude;
     }
