@@ -20,6 +20,7 @@ import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.model.Company;
+import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.CompanyProvider;
@@ -28,7 +29,10 @@ import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.facebook.Session;
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 import com.mobsandgeeks.saripaar.ValidationError;
@@ -53,10 +57,17 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     private String email;
     private String uID;
 
+    User mUser;
+    Rider mRider;
+    Company mCompany;
+    Intent intent;
+
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
         // Validator, Toolbar, Butterknife, ProgressDialog
         prepareActivity(savedInstanceState);
+
+        intent = new Intent(VerifyActivity.this, MainActivity.class);
 
         String firstName = getIntent().getExtras().getString(firstNameKey);
         String lastName = getIntent().getExtras().getString(lastNameKey);
@@ -72,28 +83,23 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     }
 
     private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
-        User user = new User(uID, companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
+        mAuthProgressDialog.show();
+        mUser = new User(uID, companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
         Rider rider = new Rider(companyCode.toLowerCase(), firstName, uID);
 
-        UserProvider.setUser(user);
+        UserProvider.setUser(mUser);
         RiderProvider.setRider(rider);
 
         String FIREBASE_RIDER_ENDPOINT = "companyRiders/" + rider.getCompanyID() + "/" + rider.getuID() + "/";
         mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(rider);
-        mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
+        mFirebase.child(FIREBASE_USERS).child(uID).setValue(mUser);
 
         Intent intent = new Intent(this, MainActivity.class);
 
-        intent.putExtra(MainActivity.USER_INFO, user);
+        intent.putExtra(MainActivity.USER_INFO, mUser);
         intent.putExtra(MainActivity.RIDER_INFO, rider);
+        getCompanyData();
 
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-
-        UserProvider.setUser(user);
-
-        startActivity(intent);
     }
 
     private boolean isValidCompanyCode(String companyName, String companyCode) {
@@ -268,5 +274,70 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     public static final String ACTIVITY_TITLE = " " + VerifyActivity.class.getSimpleName();
     private static final String FIREBASE_USERS = "users";
+
+    public void getCompanyData() {
+        mFirebase.child("companyData").child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mCompany = new Company();
+                for (DataSnapshot companyData : dataSnapshot.getChildren()) {
+                    if (companyData.getKey().equals(FIREBASE_COMPANY_CODE)) {
+                        mCompany.setCompanyCode(companyData.getValue().toString());
+                    } else if (companyData.getKey().equals(FIREBASE_COMPANY_NAME)) {
+                        mCompany.setCompanyName(companyData.getValue().toString());
+                    } else if (companyData.getKey().equals(FIREBASE_DESTINATIONS)) {
+
+                        for (DataSnapshot destinations : companyData.getChildren()) {
+
+                            String destinationName = "";
+                            String destinationAddress = "";
+                            double lat = 0;
+                            double lng = 0;
+                            for (DataSnapshot individualDestination : destinations.getChildren()) {
+
+//                                Log.i(kLOG_TAG, "Destinations key: " + individualDestination.getKey());
+//                                Log.i(kLOG_TAG, "Destinations value: " + individualDestination.getValue());
+
+                                if (individualDestination.getKey().equals(FIREBASE_DESTINATION_NAME)) {
+                                    destinationName = individualDestination.getValue().toString();
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LAT)) {
+                                    lat = Double.parseDouble(individualDestination.getValue().toString());
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LNG)) {
+                                    lng = Double.parseDouble(individualDestination.getValue().toString());
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_ADDRESS)) {
+                                    destinationAddress = individualDestination.getValue().toString();
+                                }
+
+                            }
+                            DestinationLocation destinationLocation = new DestinationLocation(destinationName, destinationAddress, lat, lng);
+                            mCompany.addDestinationLocation(destinationLocation);
+//                            Log.i(kLOG_TAG, "Destination: " + destinationLocation.toString());
+                        }
+                    }
+                }
+//                Log.i(kLOG_TAG, "Companies: " + mCompany.toString());
+                CompanyProvider.setCompany(mCompany);
+
+                intent.putExtra(MainActivity.COMPANY_INFO, mCompany);
+
+                mAuthProgressDialog.hide();
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    // firebase nodes
+    public static final String FIREBASE_COMPANY_CODE = "companyCode";
+    public static final String FIREBASE_COMPANY_NAME = "companyName";
+    public static final String FIREBASE_DESTINATIONS = "destinations";
+    public static final String FIREBASE_DESTINATION_NAME = "destinationName";
+    public static final String FIREBASE_DESTINATION_ADDRESS = "destinationAddress";
+    public static final String FIREBASE_DESTINATION_LAT = "latitude";
+    public static final String FIREBASE_DESTINATION_LNG = "longitude";
 }
 

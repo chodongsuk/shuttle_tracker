@@ -1,5 +1,7 @@
 package com.example.viktorjankov.shuttletracker.firebase;
 
+import android.widget.TextView;
+
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
