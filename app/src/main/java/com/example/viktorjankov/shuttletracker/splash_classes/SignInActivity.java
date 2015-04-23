@@ -161,6 +161,8 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     } else {
                         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
 
+                        intent.putExtra(MainActivity.USER_INFO, user);
+
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -202,13 +204,29 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             @Override
             public void onAuthenticated(AuthData authData) {
                 mAuthProgressDialog.hide();
-                Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                final Intent intent = new Intent(SignInActivity.this, MainActivity.class);
 
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                mFirebase.child("users").child(authData.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User user = getUserFromFirebase(dataSnapshot);
 
-                startActivity(intent);
+                        intent.putExtra(MainActivity.USER_INFO, user);
+
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+                        startActivity(intent);
+
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+
             }
 
             @Override
@@ -448,6 +466,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         String email = "";
         String firstName = "";
         String lastName = "";
+        String uID = "";
 
         for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
             Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
@@ -464,13 +483,16 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             } else if (userInfo.getKey().equals("lastName")) {
 
                 lastName = (String) userInfo.getValue();
+            } else if (userInfo.getKey().equals("uID")) {
+                uID = (String) userInfo.getValue();
             }
         }
 
         if (companyCode.equals("")) {
             return null;
         } else {
-            return new User(companyCode, email, firstName, lastName);
+            return new User(uID, companyCode, email, firstName, lastName);
+
         }
     }
 

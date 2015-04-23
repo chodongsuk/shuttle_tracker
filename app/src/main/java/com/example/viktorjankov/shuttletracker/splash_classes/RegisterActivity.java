@@ -23,8 +23,10 @@ import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
+import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -166,6 +168,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 if (dataSnapshot.hasChildren()) {
                     User user = getUserFromFirebase(dataSnapshot);
 
+
                     if (user == null) {
                         mFirebase.unauth();
                         mAuthProgressDialog.hide();
@@ -174,6 +177,8 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
                         mAuthProgressDialog.hide();
                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+
+                        intent.putExtra(MainActivity.USER_INFO, user);
 
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -233,8 +238,17 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         mFirebase.createUser(email, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
             public void onSuccess(Map<String, Object> result) {
-                final User user = new User(companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
-                mFirebase.child(FIREBASE_USERS).child((String) result.get("uid")).setValue(user);
+                String uID = (String) result.get("uid");
+                final User user = new User(uID, companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
+                final Rider rider = new Rider(companyCode.toLowerCase(), firstName, uID);
+
+                UserProvider.setUser(user);
+                RiderProvider.setRider(rider);
+
+                String FIREBASE_RIDER_ENDPOINT = "companyRiders/" + rider.getCompanyID() + "/" + rider.getuID() + "/";
+
+                mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
+                mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(rider);
 
                 mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
                     @Override
@@ -243,6 +257,9 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
                         // Add user and user details
                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+
+                        intent.putExtra(MainActivity.USER_INFO, user);
+                        intent.putExtra(MainActivity.RIDER_INFO, rider);
 
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -516,6 +533,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         String email = "";
         String firstName = "";
         String lastName = "";
+        String uID = "";
 
         for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
             Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
@@ -532,13 +550,15 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             } else if (userInfo.getKey().equals("lastName")) {
 
                 lastName = (String) userInfo.getValue();
+            } else if (userInfo.getKey().equals("uID")) {
+                uID = (String) userInfo.getValue();
             }
         }
 
         if (companyCode.equals("")) {
             return null;
         } else {
-            return new User(companyCode, email, firstName, lastName);
+            return new User(uID, companyCode, email, firstName, lastName);
         }
     }
 

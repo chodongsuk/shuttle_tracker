@@ -19,8 +19,13 @@ import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
+import com.example.viktorjankov.shuttletracker.model.Company;
+import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
+import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.User;
+import com.example.viktorjankov.shuttletracker.singletons.CompanyProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.facebook.Session;
 import com.firebase.client.AuthData;
@@ -40,6 +45,10 @@ public class WelcomeActivity extends FragmentActivity {
 
     ProgressDialog mAuthProgressDialog;
     Firebase mFirebase = FirebaseProvider.getInstance();
+    User mUser;
+    Rider mRider;
+    Company mCompany;
+    Intent intent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,14 +64,14 @@ public class WelcomeActivity extends FragmentActivity {
         // Download the registered companies from Firebase
         RegisteredCompaniesProvider.init();
 
-        Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
+        intent = new Intent(WelcomeActivity.this, MainActivity.class);
+
         AuthData authData = mFirebase.getAuth();
         if (authData != null) {
             mAuthProgressDialog.show();
+
             Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
             Log.i(kLOG_TAG, "Uid: " + authData.getUid());
-
-            final Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
 
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -72,20 +81,14 @@ public class WelcomeActivity extends FragmentActivity {
             mFirebase.child("users").child(uID).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user = getUserFromFirebase(dataSnapshot);
-                    if (user == null) {
+                    mUser = getUserFromFirebase(dataSnapshot);
+                    if (mUser == null) {
                         logout();
                         mAuthProgressDialog.hide();
                     } else {
-                        UserProvider.setUser(user);
-
-                        Log.i(kLOG_TAG, "User: " + user.toString());
-                        Log.i(kLOG_TAG, "Will start main activity");
-
-                        intent.putExtra(MainActivity.USER_INFO, user);
-
-                        mAuthProgressDialog.hide();
-                        startActivity(intent);
+                        UserProvider.setUser(mUser);
+                        getRiderData();
+                        getCompanyData();
                     }
                 }
 
@@ -170,6 +173,7 @@ public class WelcomeActivity extends FragmentActivity {
         String email = "";
         String firstName = "";
         String lastName = "";
+        String uID = "";
 
         for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
             Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
@@ -186,13 +190,15 @@ public class WelcomeActivity extends FragmentActivity {
             } else if (userInfo.getKey().equals("lastName")) {
 
                 lastName = (String) userInfo.getValue();
+            } else if (userInfo.getKey().equals("uID")) {
+                uID = (String) userInfo.getValue();
             }
         }
 
         if (companyCode.equals("")) {
             return null;
         } else {
-            return new User(companyCode, email, firstName, lastName);
+            return new User(uID, companyCode, email, firstName, lastName);
         }
     }
 
@@ -228,6 +234,7 @@ public class WelcomeActivity extends FragmentActivity {
      */
     private void logout() {
         AuthData mAuthData = mFirebase.getAuth();
+        Log.i(kLOG_TAG, "Logging out!");
 
         if (mAuthData != null) {
             /* logout of Firebase */
@@ -256,4 +263,138 @@ public class WelcomeActivity extends FragmentActivity {
             }
         }
     }
+
+    private void getRiderData() {
+
+        mFirebase.child("companyRiders/" + mUser.getCompanyCode() + "/" + mUser.getuID()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mRider = new Rider();
+                for (DataSnapshot rider : dataSnapshot.getChildren()) {
+
+                    if (rider.getKey().equals("uID")) {
+                        String uID = (String) rider.getValue();
+                        mRider.setuID(uID);
+                    } else if (rider.getKey().equals("companyID")) {
+                        String companyID = (String) rider.getValue();
+                        mRider.setCompanyID(companyID);
+                    } else if (rider.getKey().equals("firstName")) {
+                        String firstName = (String) rider.getValue();
+                        mRider.setFirstName(firstName);
+                    } else if (rider.getKey().equals("proximity")) {
+                        double proximity = (double) rider.getValue();
+                        mRider.setProximity(proximity);
+                    } else if (rider.getKey().equals("destinationTime")) {
+                        String destinationTime = (String) rider.getValue();
+                        mRider.setDestinationTime(destinationTime);
+                    } else if (rider.getKey().equals("active")) {
+                        boolean active = (boolean) rider.getValue();
+                        mRider.setActive(active);
+                    } else if (rider.getKey().equals("longitude")) {
+                        double lng = (double) rider.getValue();
+                        mRider.setLongitude(lng);
+                    } else if (rider.getKey().equals("latitude")) {
+                        double lat = (double) rider.getValue();
+                        mRider.setLatitude(lat);
+                    } else if (rider.getKey().equals("travelMode")) {
+                        String travelMode = (String) rider.getValue();
+                        mRider.setTravelMode(travelMode);
+                    } else if (rider.getKey().equals("destinationLocation")) {
+                        DestinationLocation destination = new DestinationLocation();
+                        for (DataSnapshot dest : rider.getChildren()) {
+                            if (dest.getKey().equals("destinationName")) {
+                                String destName = (String) dest.getValue();
+                                destination.setDestinationName(destName);
+                            } else if (dest.getKey().equals("destinationAddress")) {
+                                String destAddr = (String) dest.getValue();
+                                destination.setDestinationAddress(destAddr);
+                            } else if (dest.getKey().equals("latitude")) {
+                                double lat = (double) dest.getValue();
+                                destination.setLatitude(lat);
+                            } else if (dest.getKey().equals("longitude")) {
+                                double lng = (double) dest.getValue();
+                                destination.setLongitude(lng);
+                            }
+                        }
+                        mRider.setDestinationLocation(destination);
+                    }
+                }
+                Log.i(kLOG_TAG, mRider.toString());
+                Log.i(kLOG_TAG, "Rider in MainActivity: " + mRider.toString());
+                RiderProvider.setRider(mRider);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    public void getCompanyData() {
+        mFirebase.child("companyData").child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mCompany = new Company();
+                for (DataSnapshot companyData : dataSnapshot.getChildren()) {
+                    if (companyData.getKey().equals(FIREBASE_COMPANY_CODE)) {
+                        mCompany.setCompanyCode(companyData.getValue().toString());
+                    } else if (companyData.getKey().equals(FIREBASE_COMPANY_NAME)) {
+                        mCompany.setCompanyName(companyData.getValue().toString());
+                    } else if (companyData.getKey().equals(FIREBASE_DESTINATIONS)) {
+
+                        for (DataSnapshot destinations : companyData.getChildren()) {
+
+                            String destinationName = "";
+                            String destinationAddress = "";
+                            double lat = 0;
+                            double lng = 0;
+                            for (DataSnapshot individualDestination : destinations.getChildren()) {
+
+//                                Log.i(kLOG_TAG, "Destinations key: " + individualDestination.getKey());
+//                                Log.i(kLOG_TAG, "Destinations value: " + individualDestination.getValue());
+
+                                if (individualDestination.getKey().equals(FIREBASE_DESTINATION_NAME)) {
+                                    destinationName = individualDestination.getValue().toString();
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LAT)) {
+                                    lat = Double.parseDouble(individualDestination.getValue().toString());
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LNG)) {
+                                    lng = Double.parseDouble(individualDestination.getValue().toString());
+                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_ADDRESS)) {
+                                    destinationAddress = individualDestination.getValue().toString();
+                                }
+
+                            }
+                            DestinationLocation destinationLocation = new DestinationLocation(destinationName, destinationAddress, lat, lng);
+                            mCompany.addDestinationLocation(destinationLocation);
+//                            Log.i(kLOG_TAG, "Destination: " + destinationLocation.toString());
+                        }
+                    }
+                }
+//                Log.i(kLOG_TAG, "Companies: " + mCompany.toString());
+                CompanyProvider.setCompany(mCompany);
+
+                intent.putExtra(MainActivity.USER_INFO, mUser);
+                intent.putExtra(MainActivity.RIDER_INFO, mRider);
+                intent.putExtra(MainActivity.COMPANY_INFO, mCompany);
+
+                mAuthProgressDialog.hide();
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    // firebase nodes
+    public static final String FIREBASE_COMPANY_CODE = "companyCode";
+    public static final String FIREBASE_COMPANY_NAME = "companyName";
+    public static final String FIREBASE_DESTINATIONS = "destinations";
+    public static final String FIREBASE_DESTINATION_NAME = "destinationName";
+    public static final String FIREBASE_DESTINATION_ADDRESS = "destinationAddress";
+    public static final String FIREBASE_DESTINATION_LAT = "latitude";
+    public static final String FIREBASE_DESTINATION_LNG = "longitude";
 }

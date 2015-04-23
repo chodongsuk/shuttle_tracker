@@ -9,15 +9,26 @@ public class User implements Serializable {
     private String email;
     private String firstName;
     private String lastName;
+    private String uID;
+
 
     public User () {
     }
 
-    public User(String companyCode, String email, String firstName, String lastName) {
+    public User(String uID, String companyCode, String email, String firstName, String lastName) {
+        this.uID = uID;
         this.companyCode = companyCode;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
+    }
+
+    public String getuID() {
+        return uID;
+    }
+
+    public void setuID(String uID) {
+        this.uID = uID;
     }
 
     public String getLastName() {

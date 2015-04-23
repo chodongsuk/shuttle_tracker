@@ -6,7 +6,7 @@ public class Rider implements Serializable {
 
     // Set in MainActivity
     private DestinationLocation mDestinationLocation;
-    private TravelMode mTravelMode;
+    private String mTravelMode;
     private double mLatitude;
     private double mLongitude;
 
@@ -19,8 +19,18 @@ public class Rider implements Serializable {
 
     // Set in MainActivity when parsing Firebase
     private String firstName;
-    private String uID;
     private String companyID;
+    private String uID;
+
+    public Rider() {
+
+    }
+
+    public Rider(String companyID, String firstName, String uID) {
+        this.companyID = companyID;
+        this.firstName = firstName;
+        this.uID = uID;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -95,26 +105,26 @@ public class Rider implements Serializable {
         this.mProximity = mProximity;
     }
 
-    public TravelMode getTravelMode() {
+    public String getTravelMode() {
         return mTravelMode;
     }
 
-    public void setTravelMode(TravelMode mTravelMode) {
+    public void setTravelMode(String mTravelMode) {
         this.mTravelMode = mTravelMode;
     }
 
     @Override
     public String toString() {
         String rider = "Name: " + firstName + "\n";
+        rider += "UID: " + uID + "\n";
+        rider += "Company ID: " + companyID + "\n";
         rider += "Active: " + active + "\n";
+        rider += "TravelMode: " + mTravelMode;
 
         if (mDestinationLocation != null) {
             rider += mDestinationLocation.getDestinationName() + "\n";
         }
 
-        if (mTravelMode != null) {
-            rider += mTravelMode.getTravelMode() + "\n";
-        }
         return rider;
     }
 }

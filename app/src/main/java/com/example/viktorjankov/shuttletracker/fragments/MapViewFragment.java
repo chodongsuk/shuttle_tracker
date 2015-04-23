@@ -19,7 +19,6 @@ import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
 import com.example.viktorjankov.shuttletracker.directions.ParserTask;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
-import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.firebase.client.Firebase;
@@ -50,7 +49,7 @@ public class MapViewFragment extends Fragment
 
     // Models
     DestinationLocation mDestinationLocation;
-    TravelMode mTravelMode;
+    String mTravelMode;
 
     // GMS classes
     GoogleApiClient mGoogleApiClient;
@@ -122,10 +121,10 @@ public class MapViewFragment extends Fragment
         return v;
     }
     private void setFirebaseEndpoints() {
-        FIREBASE_LAT_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/latitude";
-        FIREBASE_LNG_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/longitude";
-        FIREBASE_ACTIVE_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/active";
-        FIREBASE_DESTINATION_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/destinationName";
+        FIREBASE_LAT_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/latitude";
+        FIREBASE_LNG_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/longitude";
+        FIREBASE_ACTIVE_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/active";
+        FIREBASE_DESTINATION_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/destinationName";
 
     }
     private ParserTask createParserTask() {
@@ -221,7 +220,7 @@ public class MapViewFragment extends Fragment
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
 
         // Travel mode
-        String travel_mode = "mode=" + mTravelMode.getTravelMode();
+        String travel_mode = "mode=" + mTravelMode;
 
         // Building the parameters to the web service
         String parameters = str_origin + "&" + str_dest + "&" + travel_mode;

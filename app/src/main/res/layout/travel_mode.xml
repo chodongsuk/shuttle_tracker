@@ -4,12 +4,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ImageButton
-        android:id="@+id/travel_way_one"
-        style="@style/destination_block_style"
-        android:background="@drawable/green"
-        android:contentDescription="@string/car"
-        android:src="@drawable/ic_directions_car_black_48dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:id="@+id/travel_way_one"
+            style="@style/destination_block_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/green"
+            android:clickable="true"
+            android:contentDescription="@string/car"
+            android:enabled="true"
+            android:gravity="center"
+            android:src="@drawable/ic_directions_car_black_48dp"
+            android:textColor="#FFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:text="Approximately 20 minutes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
     <ImageButton
         android:id="@+id/travel_way_two"

@@ -12,7 +12,6 @@ import android.widget.ImageButton;
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
-import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.squareup.otto.Bus;
 
@@ -56,26 +55,21 @@ public class TravelModeFragment extends Fragment {
     }
 
     @InjectView(R.id.travel_way_one) ImageButton mCarImageButton;
-    TravelMode mCar = new TravelMode("driving");
-
     @InjectView(R.id.travel_way_two) ImageButton mBusImageButton;
-    TravelMode mBussing = new TravelMode("transit");
-
     @InjectView(R.id.travel_way_three) ImageButton mBikeTextView;
-    TravelMode mBike = new TravelMode("bicycling");
 
     @OnClick({R.id.travel_way_one, R.id.travel_way_two, R.id.travel_way_three})
     public void onClickListener(View v) {
-        TravelMode travelMode = null;
+        String travelMode = null;
         switch (v.getId()) {
             case R.id.travel_way_one:
-                travelMode = mCar;
+                travelMode = "driving";
                 break;
             case R.id.travel_way_two:
-                travelMode = mBussing;
+                travelMode = "transit";
                 break;
             case R.id.travel_way_three:
-                travelMode = mBike;
+                travelMode = "bicycling";
                 break;
         }
         bus.post(new TravelModeEvent(travelMode));

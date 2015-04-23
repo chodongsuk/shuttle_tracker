@@ -39,11 +39,12 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         this.destinationDurationTV = destinationDuration;
         this.destinationProximityTV = destinationProximity;
 
-        FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-                + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
+        FIREBASE_TIME_ENDPOINT = "companyRiders/" + mRider.getCompanyID()
 
-        FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-                + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
+                + "/" + mRider.getuID() + "/destinationTime";
+
+        FIREBASE_PROXIMITY_ENDPOINT = "companyRiders/" + RiderProvider.getRider().getCompanyID()
+                + "/" + mRider.getuID() + "/proximity";
 
     }
 

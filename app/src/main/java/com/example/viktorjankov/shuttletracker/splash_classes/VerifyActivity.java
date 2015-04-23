@@ -19,8 +19,10 @@ import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
+import com.example.viktorjankov.shuttletracker.model.Company;
 import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.User;
+import com.example.viktorjankov.shuttletracker.singletons.CompanyProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
@@ -65,24 +67,25 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
                 android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
         companyNameAutoCompleteTextView.setAdapter(adapter);
 
-
         firstNameEditText.setText(firstName);
         lastNameEditText.setText(lastName);
     }
 
     private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
-        User user = new User(companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
-        Rider mRider =  RiderProvider.getRider();
-        mRider.setCompanyID(companyCode.toLowerCase());
-        mRider.setFirstName(firstName);
-        mRider.setuID(uID);
-        RiderProvider.setRider(mRider);
+        User user = new User(uID, companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
+        Rider rider = new Rider(companyCode.toLowerCase(), firstName, uID);
 
-        String FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
-        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
+        UserProvider.setUser(user);
+        RiderProvider.setRider(rider);
+
+        String FIREBASE_RIDER_ENDPOINT = "companyRiders/" + rider.getCompanyID() + "/" + rider.getuID() + "/";
+        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(rider);
         mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
 
         Intent intent = new Intent(this, MainActivity.class);
+
+        intent.putExtra(MainActivity.USER_INFO, user);
+        intent.putExtra(MainActivity.RIDER_INFO, rider);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
