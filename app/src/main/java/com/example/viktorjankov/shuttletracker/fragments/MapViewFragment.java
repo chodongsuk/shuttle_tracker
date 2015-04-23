@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -329,12 +331,18 @@ public class MapViewFragment extends Fragment
         if (mRider.isActive()) {
             startLocationUpdates();
 
+            Animation pulse = AnimationUtils.loadAnimation(getActivity(), R.anim.pulse);
+            pulse.setRepeatCount(Animation.INFINITE);
+            mStartTripButton.startAnimation(pulse);
+
             mStartTripButton.setImageResource(R.drawable.ic_pause_white_36dp);
             mStartTripButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
 
             mHandler.post(runnable);
         } else {
             stopLocationUpdates();
+
+            mStartTripButton.clearAnimation();
 
             mStartTripButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
             mStartTripButton.setBackground(getResources().getDrawable(R.drawable.blue_start));
