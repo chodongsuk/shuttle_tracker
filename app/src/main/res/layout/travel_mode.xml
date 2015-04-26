@@ -2,28 +2,79 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:weightSum="3">
 
-    <ImageButton
+    <RelativeLayout
         android:id="@+id/travel_way_one"
-        style="@style/destination_block_style"
-        android:background="@drawable/green"
-        android:contentDescription="@string/car"
-        android:src="@drawable/ic_directions_car_black_48dp" />
+        style="@style/travel_mode_container">
 
-    <ImageButton
+        <LinearLayout style="@style/travel_mode_ll">
+
+            <ImageButton
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/travel_mode_circle_red"
+                android:contentDescription="@string/car"
+                android:src="@drawable/ic_directions_car_black_48dp" />
+
+            <TextView
+                style="@style/travel_mode_tv"
+                android:text="@string/car" />
+        </LinearLayout>
+
+        <ImageView style="@style/travel_mode_iv" />
+
+    </RelativeLayout>
+
+    <View style="@style/chevron_right" />
+
+    <RelativeLayout
         android:id="@+id/travel_way_two"
-        style="@style/destination_block_style"
-        android:background="@drawable/light_green"
-        android:contentDescription="@string/bus"
-        android:src="@drawable/ic_directions_bus_black_48dp" />
+        style="@style/travel_mode_container">
 
+        <LinearLayout style="@style/travel_mode_ll">
 
-    <ImageButton
+            <ImageButton
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/travel_mode_circle_green"
+                android:contentDescription="@string/car"
+                android:src="@drawable/ic_directions_bus_black_48dp" />
+
+            <TextView
+                style="@style/travel_mode_tv"
+                android:text="@string/bus" />
+        </LinearLayout>
+
+        <ImageView style="@style/travel_mode_iv" />
+
+    </RelativeLayout>
+
+    <View style="@style/chevron_right" />
+
+    <RelativeLayout
         android:id="@+id/travel_way_three"
-        style="@style/destination_block_style"
-        android:background="@drawable/lime"
-        android:contentDescription="@string/bus"
-        android:src="@drawable/ic_directions_bike_black_48dp" />
+        style="@style/travel_mode_container">
+
+        <LinearLayout style="@style/travel_mode_ll">
+
+            <ImageButton
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/travel_mode_circle_cyan"
+                android:contentDescription="@string/car"
+                android:src="@drawable/ic_directions_bike_black_48dp" />
+
+            <TextView
+                style="@style/travel_mode_tv"
+                android:text="@string/bike" />
+        </LinearLayout>
+
+        <ImageView style="@style/travel_mode_iv" />
+
+    </RelativeLayout>
+
+    <View style="@style/chevron_right" />
 
 </LinearLayout>

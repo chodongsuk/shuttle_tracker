@@ -1,19 +1,15 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
-import android.app.ActionBar;
 import android.graphics.Point;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -84,19 +80,22 @@ public class PickupLocationFragment extends Fragment {
             String firstChar = String.valueOf(destinationName.charAt(0));
             String destinationAddress = dataSetList.get(position).getDestinationAddress();
 
-            int background = holder.colors[position % 3];
+            int circleColor = holder.circle_colors[position % 3];
             int arrow = holder.arrows[position % 3];
+//            int backgroundDrawable = holder.backgroundDrawable[position % 3];
+
 
             holder.viewContainer.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, tileHeight));
 
             holder.destinationLetterTV.setText(firstChar);
 
-            holder.destinationLetterTV.setBackgroundResource(background);
+            holder.destinationLetterTV.setBackgroundResource(circleColor);
 
             holder.destinationNameTV.setText(destinationName);
             holder.destinationAddressTV.setText(destinationAddress);
 
             holder.destinationCarrotIV.setImageResource(arrow);
+//            holder.viewContainer.setBackgroundResource(backgroundDrawable);
         }
 
         @Override
@@ -106,13 +105,17 @@ public class PickupLocationFragment extends Fragment {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
-            public int[] colors = new int[]{R.drawable.destination_list_circle_blue,
+            public int[] circle_colors = new int[]{R.drawable.destination_list_circle_blue,
                                             R.drawable.destination_list_circle_indigo,
                                             R.drawable.destination_list_circle_purple};
 
             public int[] arrows = new int[] {R.drawable.ic_chevron_right_blue_36dp,
                                              R.drawable.ic_chevron_right_indigo_36dp,
                                              R.drawable.ic_chevron_right_purple_36dp};
+
+//            public int[] backgroundDrawable = new int[] {R.drawable.blue,
+//                                                         R.drawable.indigo,
+//                                                         R.drawable.purple};
 
             public RelativeLayout viewContainer;
             public TextView destinationLetterTV;

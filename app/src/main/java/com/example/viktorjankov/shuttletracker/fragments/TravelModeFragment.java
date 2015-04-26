@@ -55,13 +55,8 @@ public class TravelModeFragment extends Fragment {
         }
     }
 
-    @InjectView(R.id.travel_way_one) ImageButton mCarImageButton;
     TravelMode mCar = new TravelMode("driving");
-
-    @InjectView(R.id.travel_way_two) ImageButton mBusImageButton;
     TravelMode mBussing = new TravelMode("transit");
-
-    @InjectView(R.id.travel_way_three) ImageButton mBikeTextView;
     TravelMode mBike = new TravelMode("bicycling");
 
     @OnClick({R.id.travel_way_one, R.id.travel_way_two, R.id.travel_way_three})
