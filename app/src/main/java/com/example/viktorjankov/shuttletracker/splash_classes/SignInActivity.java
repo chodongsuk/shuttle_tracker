@@ -184,6 +184,9 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                     intent.putExtra(VerifyActivity.emailKey, email);
                     intent.putExtra(VerifyActivity.UID_KEY, uid);
 
+                    // Logout the social platforms since the user is verified
+                    logoutSocial();
+
                     startActivity(intent);
                 }
             }

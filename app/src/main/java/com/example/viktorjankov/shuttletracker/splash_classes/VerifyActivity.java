@@ -161,7 +161,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
                 .setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        logout();
                         finish();
                     }
                 })
@@ -171,40 +170,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
-    }
-
-    /**
-     * Unauthenticate from Firebase and from providers where necessary.
-     */
-    private void logout() {
-        AuthData mAuthData = mFirebase.getAuth();
-
-        if (mAuthData != null) {
-            /* logout of Firebase */
-            mFirebase.unauth();
-            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
-             * Facebook/Google+ after logging out of Firebase. */
-            if (mAuthData.getProvider().equals("facebook")) {
-                /* Logout from Facebook */
-                Session session = Session.getActiveSession();
-                if (session != null) {
-                    if (!session.isClosed()) {
-                        session.closeAndClearTokenInformation();
-                    }
-                } else {
-                    session = new Session(getApplicationContext());
-                    Session.setActiveSession(session);
-                    session.closeAndClearTokenInformation();
-                }
-            } else if (mAuthData.getProvider().equals("google")) {
-                /* Logout from Google+ */
-                GoogleApiClient mGoogleApiClient = FirebaseAuthProvider.getGoogleApiClient();
-                if (mGoogleApiClient.isConnected()) {
-                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                    mGoogleApiClient.disconnect();
-                }
-            }
-        }
     }
 
     /* *************************************
