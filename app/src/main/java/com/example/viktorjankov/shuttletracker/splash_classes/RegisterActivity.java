@@ -179,6 +179,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
+                        logoutSocial();
                         startActivity(intent);
                     }
                 } else {
@@ -191,6 +192,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                     intent.putExtra(VerifyActivity.emailKey, email);
                     intent.putExtra(VerifyActivity.UID_KEY, uid);
 
+                    logoutSocial();
                     startActivity(intent);
                 }
             }
@@ -539,6 +541,37 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             return null;
         } else {
             return new User(companyCode, email, firstName, lastName);
+        }
+    }
+
+    /**
+     * Unauthenticate from Firebase and from providers where necessary.
+     */
+    private void logoutSocial() {
+        AuthData mAuthData = mFirebase.getAuth();
+        if (mAuthData != null) {
+            /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
+             * Facebook/Google+ after logging out of Firebase. */
+            if (mAuthData.getProvider().equals("facebook")) {
+                /* Logout from Facebook */
+                Session session = Session.getActiveSession();
+                if (session != null) {
+                    if (!session.isClosed()) {
+                        session.closeAndClearTokenInformation();
+                    }
+                } else {
+                    session = new Session(getApplicationContext());
+                    Session.setActiveSession(session);
+                    session.closeAndClearTokenInformation();
+                }
+            } else if (mAuthData.getProvider().equals("google")) {
+                /* Logout from Google+ */
+                GoogleApiClient mGoogleApiClient = FirebaseAuthProvider.getGoogleApiClient();
+                if (mGoogleApiClient.isConnected()) {
+                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                    mGoogleApiClient.disconnect();
+                }
+            }
         }
     }
 
