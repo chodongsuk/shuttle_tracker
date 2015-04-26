@@ -85,8 +85,8 @@ public class MainActivity extends ActionBarActivity {
 
         Log.i(kLOG_TAG, "HandlePickup Rider:" + mRider.toString());
 
+        travelModeFragment.setClickable(true);
         mFirebase.child(FIREBASE_RIDER_DESTINATION_LOCATION).setValue(mDestinationLocation);
-
         manager.beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)
                 .addToBackStack(null)
@@ -152,9 +152,11 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    /**************************************
-     *       Firebase stuff               *
-     **************************************/
+    /**
+     * ***********************************
+     * Firebase stuff               *
+     * ************************************
+     */
 
     public void getCompanyData() {
         mFirebase.child("companyData").child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -164,9 +166,11 @@ public class MainActivity extends ActionBarActivity {
                 for (DataSnapshot companyData : dataSnapshot.getChildren()) {
                     if (companyData.getKey().equals(FIREBASE_COMPANY_CODE)) {
                         mCompany.setCompanyCode(companyData.getValue().toString());
-                    } else if (companyData.getKey().equals(FIREBASE_COMPANY_NAME)) {
+                    }
+                    else if (companyData.getKey().equals(FIREBASE_COMPANY_NAME)) {
                         mCompany.setCompanyName(companyData.getValue().toString());
-                    } else if (companyData.getKey().equals(FIREBASE_DESTINATIONS)) {
+                    }
+                    else if (companyData.getKey().equals(FIREBASE_DESTINATIONS)) {
 
                         for (DataSnapshot destinations : companyData.getChildren()) {
 
@@ -181,11 +185,14 @@ public class MainActivity extends ActionBarActivity {
 
                                 if (individualDestination.getKey().equals(FIREBASE_DESTINATION_NAME)) {
                                     destinationName = individualDestination.getValue().toString();
-                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LAT)) {
+                                }
+                                else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LAT)) {
                                     lat = Double.parseDouble(individualDestination.getValue().toString());
-                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LNG)) {
+                                }
+                                else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_LNG)) {
                                     lng = Double.parseDouble(individualDestination.getValue().toString());
-                                } else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_ADDRESS)) {
+                                }
+                                else if (individualDestination.getKey().equals(FIREBASE_DESTINATION_ADDRESS)) {
                                     destinationAddress = individualDestination.getValue().toString();
                                 }
 
@@ -217,43 +224,55 @@ public class MainActivity extends ActionBarActivity {
                     if (rider.getKey().equals("uID")) {
                         String uID = (String) rider.getValue();
                         mRider.setuID(uID);
-                    } else if (rider.getKey().equals("companyID")) {
+                    }
+                    else if (rider.getKey().equals("companyID")) {
                         String companyID = (String) rider.getValue();
                         mRider.setCompanyID(companyID);
-                    } else if (rider.getKey().equals("firstName")) {
+                    }
+                    else if (rider.getKey().equals("firstName")) {
                         String firstName = (String) rider.getValue();
                         mRider.setFirstName(firstName);
-                    } else if (rider.getKey().equals("proximity")) {
+                    }
+                    else if (rider.getKey().equals("proximity")) {
                         double proximity = (double) rider.getValue();
                         mRider.setProximity(proximity);
-                    } else if (rider.getKey().equals("destinationTime")) {
+                    }
+                    else if (rider.getKey().equals("destinationTime")) {
                         String destinationTime = (String) rider.getValue();
                         mRider.setDestinationTime(destinationTime);
-                    } else if (rider.getKey().equals("active")) {
+                    }
+                    else if (rider.getKey().equals("active")) {
                         boolean active = (boolean) rider.getValue();
                         mRider.setActive(active);
-                    } else if (rider.getKey().equals("longitude")) {
+                    }
+                    else if (rider.getKey().equals("longitude")) {
                         double lng = (double) rider.getValue();
                         mRider.setLongitude(lng);
-                    } else if (rider.getKey().equals("latitude")) {
+                    }
+                    else if (rider.getKey().equals("latitude")) {
                         double lat = (double) rider.getValue();
                         mRider.setLatitude(lat);
-                    } else if (rider.getKey().equals("travelMode")) {
+                    }
+                    else if (rider.getKey().equals("travelMode")) {
                         String travelMode = (String) rider.getValue();
                         mRider.setTravelMode(travelMode);
-                    } else if (rider.getKey().equals("destinationLocation")) {
+                    }
+                    else if (rider.getKey().equals("destinationLocation")) {
                         DestinationLocation destination = new DestinationLocation();
                         for (DataSnapshot dest : rider.getChildren()) {
                             if (dest.getKey().equals("destinationName")) {
                                 String destName = (String) dest.getValue();
                                 destination.setDestinationName(destName);
-                            } else if (dest.getKey().equals("destinationAddress")) {
+                            }
+                            else if (dest.getKey().equals("destinationAddress")) {
                                 String destAddr = (String) dest.getValue();
                                 destination.setDestinationAddress(destAddr);
-                            } else if (dest.getKey().equals("latitude")) {
+                            }
+                            else if (dest.getKey().equals("latitude")) {
                                 double lat = (double) dest.getValue();
                                 destination.setLatitude(lat);
-                            } else if (dest.getKey().equals("longitude")) {
+                            }
+                            else if (dest.getKey().equals("longitude")) {
                                 double lng = (double) dest.getValue();
                                 destination.setLongitude(lng);
                             }
@@ -275,11 +294,16 @@ public class MainActivity extends ActionBarActivity {
                 Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
                 if (fragment == null) {
                     fragment = PickupLocationFragment.newInstance(mCompany);
+                    ((PickupLocationFragment) fragment).setClickable(true);
                     manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
-                } else if (fragment instanceof TravelModeFragment) {
-                    ((TravelModeFragment)fragment).setLayoutsClickable(true);
-                } else if (fragment instanceof PickupLocationFragment) {
-                    ((PickupLocationFragment)fragment).setLayoutsClickable(true);
+
+                }
+                else if (fragment instanceof TravelModeFragment) {
+
+                    ((TravelModeFragment) fragment).setLayoutsClickable(true);
+                }
+                else if (fragment instanceof PickupLocationFragment) {
+                    ((PickupLocationFragment) fragment).setClickable(true);
                 }
             }
 
@@ -291,15 +315,16 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-
     private void setFirebaseEndpoints() {
         FIREBASE_RIDER_TRAVEL_MODE = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/travelMode";
         FIREBASE_RIDER_DESTINATION_LOCATION = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/destinationLocation";
     }
 
-    /**************************************
-     *       Android methods              *
-     **************************************/
+    /**
+     * ***********************************
+     * Android methods              *
+     * ************************************
+     */
     @Override
     protected void onResume() {
         bus.register(this);
@@ -324,10 +349,12 @@ public class MainActivity extends ActionBarActivity {
 
         if (fragment instanceof PickupLocationFragment) {
             finish();
-        } else {
+        }
+        else {
             super.onBackPressed();
         }
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(RIDER_KEY, mRider);

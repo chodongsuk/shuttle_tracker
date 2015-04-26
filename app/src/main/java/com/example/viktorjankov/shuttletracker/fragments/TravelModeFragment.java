@@ -24,6 +24,8 @@ public class TravelModeFragment extends Fragment {
     public static final String kLOG_TAG = "TravelSourceFragment";
 
     Bus bus = BusProvider.getInstance();
+    private boolean clickable = false;
+
 
     public static TravelModeFragment newInstance() {
         return new TravelModeFragment();
@@ -38,9 +40,9 @@ public class TravelModeFragment extends Fragment {
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 
-        travelWayOneRL.setClickable(false);
-        travelWayTwoRL.setClickable(false);
-        travelWayThreeRL.setClickable(false);
+        travelWayOneRL.setClickable(clickable);
+        travelWayTwoRL.setClickable(clickable);
+        travelWayThreeRL.setClickable(clickable);
 
         return v;
     }
@@ -57,11 +59,19 @@ public class TravelModeFragment extends Fragment {
         }
     }
 
+    public boolean isClickable() {
+        return clickable;
+    }
+
+    public void setClickable(boolean clickable) {
+        this.clickable = clickable;
+    }
 
     public void setLayoutsClickable(boolean state) {
-        travelWayOneRL.setClickable(state);
-        travelWayTwoRL.setClickable(state);
-        travelWayThreeRL.setClickable(state);
+        clickable = state;
+        travelWayOneRL.setClickable(clickable);
+        travelWayTwoRL.setClickable(clickable);
+        travelWayThreeRL.setClickable(clickable);
     }
 
     String mCar = "driving";

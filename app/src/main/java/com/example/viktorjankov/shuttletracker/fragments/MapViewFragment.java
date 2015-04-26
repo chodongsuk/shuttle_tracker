@@ -81,7 +81,8 @@ public class MapViewFragment extends Fragment
         arguments.putSerializable(RIDER_KEY, rider);
 
         mapViewFragment.setArguments(arguments);
-        Log.i(kLOG_TAG, "\nPutting as Argument Rider: " + rider.toString());
+//        Log.i(kLOG_TAG, "\nPutting as Argument Rider: " + rider.toString());
+        Log.i(kLOG_TAG, "Rider From MainActivity" + rider.toString());
 
         return mapViewFragment;
     }

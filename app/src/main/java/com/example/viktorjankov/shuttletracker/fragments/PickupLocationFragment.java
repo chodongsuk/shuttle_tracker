@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,9 +18,7 @@ import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.model.Company;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
-import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
-import com.example.viktorjankov.shuttletracker.singletons.CompanyProvider;
 import com.squareup.otto.Bus;
 
 import java.util.List;
@@ -36,6 +33,9 @@ public class PickupLocationFragment extends Fragment {
     Company mCompany;
     int tileHeight;
     RecyclerView mRecyclerView;
+    RelativeLayout relativeLayout;
+    private boolean clickable = false;
+    private final View.OnClickListener mOnClickListener = new MyOnClickListener();
 
     public static PickupLocationFragment newInstance(Company company) {
         PickupLocationFragment pickupLocationFragment = new PickupLocationFragment();
@@ -60,7 +60,6 @@ public class PickupLocationFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mCompany = (Company) getArguments().getSerializable(COMPANY_KEY);
-        mCompany = CompanyProvider.getCompany();
         RecyclerView.Adapter mAdapter = new DestinationsAdapter(mCompany.getDestinationList());
         mRecyclerView.setAdapter(mAdapter);
 
@@ -69,7 +68,6 @@ public class PickupLocationFragment extends Fragment {
         return v;
     }
 
-    private final View.OnClickListener mOnClickListener = new MyOnClickListener();
 
     public class DestinationsAdapter extends RecyclerView.Adapter<DestinationsAdapter.ViewHolder> {
 
@@ -81,10 +79,15 @@ public class PickupLocationFragment extends Fragment {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int position) {
-            RelativeLayout tv = (RelativeLayout) LayoutInflater.from(parent.getContext())
+            relativeLayout = (RelativeLayout) LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.destination_layout, parent, false);
-            tv.setOnClickListener(mOnClickListener);
-            return new ViewHolder(tv);
+            if (clickable) {
+                relativeLayout.setOnClickListener(mOnClickListener);
+            }
+            else {
+                relativeLayout.setOnClickListener(null);
+            }
+            return new ViewHolder(relativeLayout);
         }
 
         @Override
@@ -120,12 +123,12 @@ public class PickupLocationFragment extends Fragment {
         public class ViewHolder extends RecyclerView.ViewHolder {
 
             public int[] circle_colors = new int[]{R.drawable.destination_list_circle_blue,
-                                            R.drawable.destination_list_circle_indigo,
-                                            R.drawable.destination_list_circle_purple};
+                    R.drawable.destination_list_circle_indigo,
+                    R.drawable.destination_list_circle_purple};
 
-            public int[] arrows = new int[] {R.drawable.ic_chevron_right_blue_36dp,
-                                             R.drawable.ic_chevron_right_indigo_36dp,
-                                             R.drawable.ic_chevron_right_purple_36dp};
+            public int[] arrows = new int[]{R.drawable.ic_chevron_right_blue_36dp,
+                    R.drawable.ic_chevron_right_indigo_36dp,
+                    R.drawable.ic_chevron_right_purple_36dp};
 
 //            public int[] backgroundDrawable = new int[] {R.drawable.blue,
 //                                                         R.drawable.indigo,
@@ -196,8 +199,11 @@ public class PickupLocationFragment extends Fragment {
         super.onResume();
     }
 
-    public void setLayoutsClickable(boolean state) {
-        mRecyclerView.setOnClickListener(null);
+    public void setClickable(boolean clickable) {
+        this.clickable = clickable;
+        if (mRecyclerView != null) {
+            RecyclerView.Adapter mAdapter = new DestinationsAdapter(mCompany.getDestinationList());
+            mRecyclerView.setAdapter(mAdapter);
+        }
     }
-
 }
