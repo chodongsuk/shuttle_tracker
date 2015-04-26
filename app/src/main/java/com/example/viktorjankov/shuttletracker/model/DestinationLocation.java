@@ -9,6 +9,10 @@ public class DestinationLocation implements Serializable {
     private double mLatitude;
     private double mLongitude;
 
+    public DestinationLocation() {
+
+    }
+
     public DestinationLocation(String destinationName, String destinationAddress, double lat, double lng) {
         mDestinationName = destinationName;
         mDestinationAddress = destinationAddress;

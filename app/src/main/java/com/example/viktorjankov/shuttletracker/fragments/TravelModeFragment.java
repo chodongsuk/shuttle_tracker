@@ -7,17 +7,14 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
-import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.squareup.otto.Bus;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 
@@ -26,8 +23,7 @@ public class TravelModeFragment extends Fragment {
 
     Bus bus = BusProvider.getInstance();
 
-    public static TravelModeFragment newInstance()
-    {
+    public static TravelModeFragment newInstance() {
         return new TravelModeFragment();
     }
 
@@ -36,9 +32,9 @@ public class TravelModeFragment extends Fragment {
         View v = inflater.inflate(R.layout.travel_mode, container, false);
         ButterKnife.inject(this, v);
 
-        ((MainActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
-        ((MainActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((MainActivity)getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 
         return v;
     }
@@ -55,13 +51,13 @@ public class TravelModeFragment extends Fragment {
         }
     }
 
-    TravelMode mCar = new TravelMode("driving");
-    TravelMode mBussing = new TravelMode("transit");
-    TravelMode mBike = new TravelMode("bicycling");
+    String mCar = "driving";
+    String mBussing = "transit";
+    String mBike = "bicycling";
 
     @OnClick({R.id.travel_way_one, R.id.travel_way_two, R.id.travel_way_three})
     public void onClickListener(View v) {
-        TravelMode travelMode = null;
+        String travelMode = null;
         switch (v.getId()) {
             case R.id.travel_way_one:
                 travelMode = mCar;

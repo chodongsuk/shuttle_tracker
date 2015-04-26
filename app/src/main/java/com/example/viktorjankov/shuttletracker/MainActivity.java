@@ -17,14 +17,12 @@ import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
-import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
 import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
 import com.example.viktorjankov.shuttletracker.fragments.TravelModeFragment;
 import com.example.viktorjankov.shuttletracker.model.Company;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
-import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.CompanyProvider;
@@ -32,23 +30,19 @@ import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.example.viktorjankov.shuttletracker.splash_classes.WelcomeActivity;
-import com.facebook.Session;
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.plus.Plus;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 public class MainActivity extends ActionBarActivity {
     FragmentManager manager;
 
-
     DestinationLocation mDestinationLocation;
-    TravelMode mTravelMode;
+    String mTravelMode;
 
     MapViewFragment mapViewFragment;
     TravelModeFragment travelModeFragment;
@@ -64,20 +58,16 @@ public class MainActivity extends ActionBarActivity {
         // content view, toolbar and title
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            mRider = (Rider) savedInstanceState.get(RIDER_KEY);
-            RiderProvider.setRider(mRider);
-        }
-
-        if (mRider == null) {
-            mRider = RiderProvider.getRider();
-            RiderProvider.setRider(mRider);
-        }
-
-        Log.i(kLOG_TAG, "Rider: " + mRider.toString());
-
         setContentView(R.layout.activity_main);
+        setToolbarStuff();
 
+        // Get user and company data
+        mUser = UserProvider.getUser();
+        getCompanyData();
+        getRiderData();
+    }
+
+    private void setToolbarStuff() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -86,20 +76,6 @@ public class MainActivity extends ActionBarActivity {
         title.setText("FLOW");
         title.setTextColor(Color.WHITE);
         title.setVisibility(View.VISIBLE);
-
-        // Get user and company data
-        mUser = UserProvider.getUser();
-        getCompanyData();
-
-        // Set Ride info from company data
-        mRider = RiderProvider.getRider();
-
-        // Set and upload the rider to firebase
-        setFirebaseEndpoints();
-
-        // init the fragments
-        mapViewFragment = MapViewFragment.newInstance(mRider);
-        travelModeFragment = TravelModeFragment.newInstance();
     }
 
     @Subscribe
@@ -235,9 +211,83 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
+    private void getRiderData() {
+        mFirebase.child("companyRiders/" + mUser.getCompanyCode() + "/" + mUser.getuID()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mRider = new Rider();
+                for (DataSnapshot rider : dataSnapshot.getChildren()) {
+
+                    if (rider.getKey().equals("uID")) {
+                        String uID = (String) rider.getValue();
+                        mRider.setuID(uID);
+                    } else if (rider.getKey().equals("companyID")) {
+                        String companyID = (String) rider.getValue();
+                        mRider.setCompanyID(companyID);
+                    } else if (rider.getKey().equals("firstName")) {
+                        String firstName = (String) rider.getValue();
+                        mRider.setFirstName(firstName);
+                    } else if (rider.getKey().equals("proximity")) {
+                        double proximity = (double) rider.getValue();
+                        mRider.setProximity(proximity);
+                    } else if (rider.getKey().equals("destinationTime")) {
+                        String destinationTime = (String) rider.getValue();
+                        mRider.setDestinationTime(destinationTime);
+                    } else if (rider.getKey().equals("active")) {
+                        boolean active = (boolean) rider.getValue();
+                        mRider.setActive(active);
+                    } else if (rider.getKey().equals("longitude")) {
+                        double lng = (double) rider.getValue();
+                        mRider.setLongitude(lng);
+                    } else if (rider.getKey().equals("latitude")) {
+                        double lat = (double) rider.getValue();
+                        mRider.setLatitude(lat);
+                    } else if (rider.getKey().equals("travelMode")) {
+                        String travelMode = (String) rider.getValue();
+                        mRider.setTravelMode(travelMode);
+                    } else if (rider.getKey().equals("destinationLocation")) {
+                        DestinationLocation destination = new DestinationLocation();
+                        for (DataSnapshot dest : rider.getChildren()) {
+                            if (dest.getKey().equals("destinationName")) {
+                                String destName = (String) dest.getValue();
+                                destination.setDestinationName(destName);
+                            } else if (dest.getKey().equals("destinationAddress")) {
+                                String destAddr = (String) dest.getValue();
+                                destination.setDestinationAddress(destAddr);
+                            } else if (dest.getKey().equals("latitude")) {
+                                double lat = (double) dest.getValue();
+                                destination.setLatitude(lat);
+                            } else if (dest.getKey().equals("longitude")) {
+                                double lng = (double) dest.getValue();
+                                destination.setLongitude(lng);
+                            }
+                        }
+                        mRider.setDestinationLocation(destination);
+                    }
+                }
+                Log.i(kLOG_TAG, mRider.toString());
+                Log.i(kLOG_TAG, "Rider in MainActivity: " + mRider.toString());
+
+                RiderProvider.setRider(mRider);
+
+                setFirebaseEndpoints();
+
+                mapViewFragment = MapViewFragment.newInstance(mRider);
+                travelModeFragment = TravelModeFragment.newInstance();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+
+
     private void setFirebaseEndpoints() {
-        FIREBASE_RIDER_TRAVEL_MODE = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/travelMode";
-        FIREBASE_RIDER_DESTINATION_LOCATION = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/destinationLocation";
+        FIREBASE_RIDER_TRAVEL_MODE = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/travelMode";
+        FIREBASE_RIDER_DESTINATION_LOCATION = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/destinationLocation";
     }
 
     /**************************************

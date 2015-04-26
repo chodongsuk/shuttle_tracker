@@ -454,6 +454,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         String email = "";
         String firstName = "";
         String lastName = "";
+        String uID = "";
 
         for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
             Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
@@ -470,13 +471,15 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
             } else if (userInfo.getKey().equals("lastName")) {
 
                 lastName = (String) userInfo.getValue();
+            } else if (userInfo.getKey().equals("uID")) {
+                uID = (String) userInfo.getValue();
             }
         }
 
         if (companyCode.equals("")) {
             return null;
         } else {
-            return new User(companyCode, email, firstName, lastName);
+            return new User(companyCode, email, firstName, lastName, uID);
         }
     }
 

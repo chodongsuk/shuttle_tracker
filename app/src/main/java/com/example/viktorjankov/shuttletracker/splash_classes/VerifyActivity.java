@@ -17,18 +17,13 @@ import android.widget.EditText;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
-import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
 import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
-import com.facebook.Session;
-import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.plus.Plus;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
@@ -70,17 +65,15 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         lastNameEditText.setText(lastName);
     }
 
-    private void registerUser(final String firstName, final String lastName, final String email, String companyCode) {
-        User user = new User(companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
-        Rider mRider =  RiderProvider.getRider();
-        mRider.setCompanyID(companyCode.toLowerCase());
-        mRider.setFirstName(firstName);
-        mRider.setuID(uID);
-        RiderProvider.setRider(mRider);
+    private void registerUser(final String firstName, final String lastName, final String email, String companyID) {
+        User user = new User(companyID.toLowerCase(), email.toLowerCase(), firstName, lastName, uID);
+        Rider rider = new Rider(firstName, lastName, uID, companyID.toLowerCase());
 
-        String FIREBASE_RIDER_ENDPOINT = "companyData/" + mRider.getCompanyID() + "/riders/" + mRider.getuID() + "/";
-        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(mRider);
-        mFirebase.child(FIREBASE_USERS).child(uID).setValue(user);
+        String FIREBASE_RIDER_ENDPOINT = "companyRiders/" + rider.getCompanyID() + "/" + rider.getuID();
+        String FIREBASE_USER_ENDPOINT = "users/" + uID;
+
+        mFirebase.child(FIREBASE_RIDER_ENDPOINT).setValue(rider);
+        mFirebase.child(FIREBASE_USER_ENDPOINT).setValue(user);
 
         Intent intent = new Intent(this, MainActivity.class);
 
@@ -89,6 +82,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
         UserProvider.setUser(user);
+        RiderProvider.setRider(rider);
 
         startActivity(intent);
     }
@@ -229,6 +223,5 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     public static final String UID_KEY = "userID";
 
     public static final String ACTIVITY_TITLE = " " + VerifyActivity.class.getSimpleName();
-    private static final String FIREBASE_USERS = "users";
 }
 

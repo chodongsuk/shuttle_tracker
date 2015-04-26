@@ -23,7 +23,6 @@ import com.example.viktorjankov.shuttletracker.directions.DirectionsJSONParser;
 import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
-import com.example.viktorjankov.shuttletracker.model.TravelMode;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.firebase.client.Firebase;
@@ -61,7 +60,7 @@ public class MapViewFragment extends Fragment
 
     // Models
     DestinationLocation mDestinationLocation;
-    TravelMode mTravelMode;
+    String mTravelMode;
 
     // GMS classes
     GoogleApiClient mGoogleApiClient;
@@ -134,16 +133,16 @@ public class MapViewFragment extends Fragment
     }
 
     private void setFirebaseEndpoints() {
-        FIREBASE_LAT_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/latitude";
-        FIREBASE_LNG_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/longitude";
-        FIREBASE_ACTIVE_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/active";
-        FIREBASE_DESTINATION_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/destinationName";
+        FIREBASE_LAT_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/latitude";
+        FIREBASE_LNG_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/longitude";
+        FIREBASE_ACTIVE_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/active";
+        FIREBASE_DESTINATION_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/destinationName";
 
-        FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-                + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
+        FIREBASE_TIME_ENDPOINT = "companyRiders/" + mRider.getCompanyID()
+                + "/" + mRider.getuID() + "/destinationTime";
 
-        FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-                + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
+        FIREBASE_PROXIMITY_ENDPOINT = "companyRiders/" + mRider.getCompanyID()
+                + "/" + mRider.getuID() + "/proximity";
 
     }
 
@@ -206,7 +205,11 @@ public class MapViewFragment extends Fragment
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mRider.setActive(false);
+        handleActiveRider();
+
         mapView.onDestroy();
+
     }
 
     @Override
@@ -238,7 +241,7 @@ public class MapViewFragment extends Fragment
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
 
         // Travel mode
-        String travel_mode = "mode=" + mTravelMode.getTravelMode();
+        String travel_mode = "mode=" + mTravelMode;
 
         // Building the parameters to the web service
         String parameters = str_origin + "&" + str_dest + "&" + travel_mode;
@@ -296,7 +299,7 @@ public class MapViewFragment extends Fragment
         url = getDirectionsUrl();
         downloadTask.execute(url);
 
-        handleActiveUser();
+        handleActiveRider();
     }
 
     @Override
@@ -338,10 +341,10 @@ public class MapViewFragment extends Fragment
         } else {
             mRider.setActive(true);
         }
-        handleActiveUser();
+        handleActiveRider();
     }
 
-    private void handleActiveUser() {
+    private void handleActiveRider() {
         if (mRider.isActive()) {
             startLocationUpdates();
 
@@ -405,11 +408,12 @@ public class MapViewFragment extends Fragment
         PolylineOptions lineOptions;
 
         public ParserTask() {
-            FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-                    + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
+            FIREBASE_TIME_ENDPOINT = "companyRiders/" + RiderProvider.getRider().getCompanyID()
 
-            FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
-                    + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
+                    + "/" + RiderProvider.getRider().getuID() + "/destinationTime";
+
+            FIREBASE_PROXIMITY_ENDPOINT = "companyRiders/" + RiderProvider.getRider().getCompanyID()
+                    + "/" + RiderProvider.getRider().getuID() + "/proximity";
 
         }
 

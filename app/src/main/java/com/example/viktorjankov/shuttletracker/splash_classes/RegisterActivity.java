@@ -23,8 +23,10 @@ import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.firebase.FirebaseAuthProvider;
 import com.example.viktorjankov.shuttletracker.firebase.RegisteredCompaniesProvider;
+import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.User;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.example.viktorjankov.shuttletracker.singletons.UserProvider;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -230,13 +232,21 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         }
     }
 
-    private void registerUser(final String email, final String password, final String firstName, final String lastName, final String companyCode) {
+    private void registerUser(final String email, final String password, final String firstName, final String lastName, final String companyID) {
         mAuthProgressDialog.show();
         mFirebase.createUser(email, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
             public void onSuccess(Map<String, Object> result) {
-                final User user = new User(companyCode.toLowerCase(), email.toLowerCase(), firstName, lastName);
-                mFirebase.child(FIREBASE_USERS).child((String) result.get("uid")).setValue(user);
+                String uID = (String) result.get("uid");
+
+                final User user = new User(companyID.toLowerCase(), email.toLowerCase(), firstName, lastName, uID);
+                final Rider rider = new Rider(firstName, lastName, uID, companyID.toLowerCase());
+
+                String FIREBASE_RIDER = "companyRiders/" + rider.getCompanyID() + "/" + rider.getuID();
+                String FIREBASE_USER = "users/" + uID;
+
+                mFirebase.child(FIREBASE_RIDER).setValue(rider);
+                mFirebase.child(FIREBASE_USER).setValue(user);
 
                 mFirebase.authWithPassword(email, password, new Firebase.AuthResultHandler() {
                     @Override
@@ -251,6 +261,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
                         UserProvider.setUser(user);
+                        RiderProvider.setRider(rider);
 
                         startActivity(intent);
                     }
@@ -518,6 +529,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         String email = "";
         String firstName = "";
         String lastName = "";
+        String uID = "";
 
         for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
             Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
@@ -534,13 +546,15 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
             } else if (userInfo.getKey().equals("lastName")) {
 
                 lastName = (String) userInfo.getValue();
+            } else if (userInfo.getKey().equals("uID")) {
+                uID = (String) userInfo.getValue();
             }
         }
 
         if (companyCode.equals("")) {
             return null;
         } else {
-            return new User(companyCode, email, firstName, lastName);
+            return new User(companyCode, email, firstName, lastName, uID);
         }
     }
 
@@ -646,5 +660,4 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     private final String ACTIVITY_TITLE = " " + RegisterActivity.this.getClass().getSimpleName();
     private final String kLOG_TAG = RegisterActivity.this.getClass().getSimpleName();
 
-    private static final String FIREBASE_USERS = "users";
 }

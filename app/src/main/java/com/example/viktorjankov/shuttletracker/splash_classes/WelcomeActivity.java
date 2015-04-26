@@ -58,9 +58,8 @@ public class WelcomeActivity extends FragmentActivity {
         Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
         AuthData authData = mFirebase.getAuth();
         if (authData != null) {
+
             mAuthProgressDialog.show();
-            Log.i(kLOG_TAG, "Provider: " + authData.getProvider());
-            Log.i(kLOG_TAG, "Uid: " + authData.getUid());
 
             final Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
 
@@ -69,6 +68,7 @@ public class WelcomeActivity extends FragmentActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
             String uID = authData.getUid();
+
             mFirebase.child("users").child(uID).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -76,15 +76,12 @@ public class WelcomeActivity extends FragmentActivity {
                     if (user == null) {
                         logout();
                         mAuthProgressDialog.hide();
+
                     } else {
                         UserProvider.setUser(user);
-
-                        Log.i(kLOG_TAG, "User: " + user.toString());
-                        Log.i(kLOG_TAG, "Will start main activity");
-
                         intent.putExtra(MainActivity.USER_INFO, user);
-
                         mAuthProgressDialog.hide();
+
                         startActivity(intent);
                     }
                 }
@@ -170,6 +167,7 @@ public class WelcomeActivity extends FragmentActivity {
         String email = "";
         String firstName = "";
         String lastName = "";
+        String uID = "";
 
         for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
             Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
@@ -186,13 +184,15 @@ public class WelcomeActivity extends FragmentActivity {
             } else if (userInfo.getKey().equals("lastName")) {
 
                 lastName = (String) userInfo.getValue();
+            } else if (userInfo.getKey().equals("uID")) {
+                uID = (String) userInfo.getValue();
             }
         }
 
         if (companyCode.equals("")) {
             return null;
         } else {
-            return new User(companyCode, email, firstName, lastName);
+            return new User(companyCode, email, firstName, lastName, uID);
         }
     }
 
