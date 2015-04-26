@@ -96,6 +96,8 @@ public class MainActivity extends ActionBarActivity {
     @Subscribe
     public void handleTravelModeEvent(TravelModeEvent e) {
         mTravelMode = e.getTravelSource();
+        Log.i(kLOG_TAG, "Rider is null? " + (mRider == null));
+        Log.i(kLOG_TAG, "TravelMode is null? " + (mTravelMode == null));
         mRider.setTravelMode(mTravelMode);
 
         mFirebase.child(FIREBASE_RIDER_TRAVEL_MODE).setValue(mTravelMode);
@@ -174,8 +176,8 @@ public class MainActivity extends ActionBarActivity {
                             double lng = 0;
                             for (DataSnapshot individualDestination : destinations.getChildren()) {
 
-                                Log.i(kLOG_TAG, "Destinations key: " + individualDestination.getKey());
-                                Log.i(kLOG_TAG, "Destinations value: " + individualDestination.getValue());
+//                                Log.i(kLOG_TAG, "Destinations key: " + individualDestination.getKey());
+//                                Log.i(kLOG_TAG, "Destinations value: " + individualDestination.getValue());
 
                                 if (individualDestination.getKey().equals(FIREBASE_DESTINATION_NAME)) {
                                     destinationName = individualDestination.getValue().toString();
@@ -190,18 +192,12 @@ public class MainActivity extends ActionBarActivity {
                             }
                             DestinationLocation destinationLocation = new DestinationLocation(destinationName, destinationAddress, lat, lng);
                             mCompany.addDestinationLocation(destinationLocation);
-                            Log.i(kLOG_TAG, "Destination: " + destinationLocation.toString());
+//                            Log.i(kLOG_TAG, "Destination: " + destinationLocation.toString());
                         }
                     }
                 }
                 Log.i(kLOG_TAG, "Companies: " + mCompany.toString());
                 CompanyProvider.setCompany(mCompany);
-                manager = getSupportFragmentManager();
-                Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
-                if (fragment == null) {
-                    fragment = new PickupLocationFragment();
-                    manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
-                }
             }
 
             @Override
@@ -265,8 +261,8 @@ public class MainActivity extends ActionBarActivity {
                         mRider.setDestinationLocation(destination);
                     }
                 }
-                Log.i(kLOG_TAG, mRider.toString());
                 Log.i(kLOG_TAG, "Rider in MainActivity: " + mRider.toString());
+                Log.i(kLOG_TAG, mRider.toString());
 
                 RiderProvider.setRider(mRider);
 
@@ -274,6 +270,17 @@ public class MainActivity extends ActionBarActivity {
 
                 mapViewFragment = MapViewFragment.newInstance(mRider);
                 travelModeFragment = TravelModeFragment.newInstance();
+
+                manager = getSupportFragmentManager();
+                Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
+                if (fragment == null) {
+                    fragment = PickupLocationFragment.newInstance(mCompany);
+                    manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
+                } else if (fragment instanceof TravelModeFragment) {
+                    ((TravelModeFragment)fragment).setLayoutsClickable(true);
+                } else if (fragment instanceof PickupLocationFragment) {
+                    ((PickupLocationFragment)fragment).setLayoutsClickable(true);
+                }
             }
 
             @Override

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
@@ -15,6 +16,7 @@ import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.squareup.otto.Bus;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import butterknife.OnClick;
 
 
@@ -36,6 +38,10 @@ public class TravelModeFragment extends Fragment {
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 
+        travelWayOneRL.setClickable(false);
+        travelWayTwoRL.setClickable(false);
+        travelWayThreeRL.setClickable(false);
+
         return v;
     }
 
@@ -51,9 +57,22 @@ public class TravelModeFragment extends Fragment {
         }
     }
 
+
+    public void setLayoutsClickable(boolean state) {
+        travelWayOneRL.setClickable(state);
+        travelWayTwoRL.setClickable(state);
+        travelWayThreeRL.setClickable(state);
+    }
+
     String mCar = "driving";
     String mBussing = "transit";
     String mBike = "bicycling";
+    @InjectView(R.id.travel_way_one)
+    RelativeLayout travelWayOneRL;
+    @InjectView(R.id.travel_way_two)
+    RelativeLayout travelWayTwoRL;
+    @InjectView(R.id.travel_way_three)
+    RelativeLayout travelWayThreeRL;
 
     @OnClick({R.id.travel_way_one, R.id.travel_way_two, R.id.travel_way_three})
     public void onClickListener(View v) {
@@ -69,6 +88,6 @@ public class TravelModeFragment extends Fragment {
                 travelMode = mBike;
                 break;
         }
-        bus.post(new TravelModeEvent(travelMode));
+        BusProvider.getInstance().post(new TravelModeEvent(travelMode));
     }
 }

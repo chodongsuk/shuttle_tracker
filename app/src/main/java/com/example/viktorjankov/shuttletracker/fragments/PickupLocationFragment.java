@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.model.Company;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
+import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.CompanyProvider;
 import com.squareup.otto.Bus;
@@ -28,16 +30,27 @@ import butterknife.ButterKnife;
 
 public class PickupLocationFragment extends Fragment {
     public static final String kLOG_TAG = "PickupLocationFragment";
+    public static final String COMPANY_KEY = "companyKey`";
 
     Bus bus = BusProvider.getInstance();
     Company mCompany;
     int tileHeight;
     RecyclerView mRecyclerView;
 
+    public static PickupLocationFragment newInstance(Company company) {
+        PickupLocationFragment pickupLocationFragment = new PickupLocationFragment();
+
+        Bundle arguments = new Bundle();
+        arguments.putSerializable(COMPANY_KEY, company);
+
+        pickupLocationFragment.setArguments(arguments);
+
+        return pickupLocationFragment;
+    }
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.pickup_location, container, false);
         ButterKnife.inject(this, v);
-
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.my_recycler_view);
 
@@ -46,6 +59,7 @@ public class PickupLocationFragment extends Fragment {
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+        mCompany = (Company) getArguments().getSerializable(COMPANY_KEY);
         mCompany = CompanyProvider.getCompany();
         RecyclerView.Adapter mAdapter = new DestinationsAdapter(mCompany.getDestinationList());
         mRecyclerView.setAdapter(mAdapter);
@@ -181,4 +195,9 @@ public class PickupLocationFragment extends Fragment {
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
         super.onResume();
     }
+
+    public void setLayoutsClickable(boolean state) {
+        mRecyclerView.setOnClickListener(null);
+    }
+
 }
