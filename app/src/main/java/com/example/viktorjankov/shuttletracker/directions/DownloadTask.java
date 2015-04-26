@@ -3,6 +3,7 @@ package com.example.viktorjankov.shuttletracker.directions;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
 import com.google.android.gms.maps.GoogleMap;
 
 import java.io.BufferedReader;
@@ -16,9 +17,9 @@ import java.net.URL;
 public class DownloadTask extends AsyncTask<String, Void, String> {
 
     GoogleMap map;
-    ParserTask parserTask;
+    MapViewFragment.ParserTask parserTask;
 
-    public DownloadTask(GoogleMap map, ParserTask parserTask) {
+    public DownloadTask(GoogleMap map, MapViewFragment.ParserTask parserTask) {
         this.map = map;
         this.parserTask = parserTask;
     }

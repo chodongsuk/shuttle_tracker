@@ -1,6 +1,8 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
+import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -17,8 +19,8 @@ import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
+import com.example.viktorjankov.shuttletracker.directions.DirectionsJSONParser;
 import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
-import com.example.viktorjankov.shuttletracker.directions.ParserTask;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.model.TravelMode;
@@ -38,6 +40,13 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -123,17 +132,23 @@ public class MapViewFragment extends Fragment
         mStartTripButton.bringToFront();
         return v;
     }
+
     private void setFirebaseEndpoints() {
         FIREBASE_LAT_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/latitude";
         FIREBASE_LNG_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/longitude";
         FIREBASE_ACTIVE_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/active";
         FIREBASE_DESTINATION_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID() + "/riders/" + RiderProvider.getRider().getuID() + "/destinationName";
 
+        FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+                + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
+
+        FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+                + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
+
     }
+
     private ParserTask createParserTask() {
-        parserTask = new ParserTask(map, mRider,
-                destinationDurationTV,
-                destinationProximityTV);
+        parserTask = new ParserTask();
         return parserTask;
     }
 
@@ -175,6 +190,13 @@ public class MapViewFragment extends Fragment
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
     }
 
+    private void updateCamera() {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+                new LatLng(mCurrentLocation.getLatitude(),
+                        mCurrentLocation.getLongitude()), 10);
+        map.moveCamera(cameraUpdate);
+    }
+
     @Override
     public void onResume() {
         mapView.onResume();
@@ -203,13 +225,6 @@ public class MapViewFragment extends Fragment
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    private void updateCamera() {
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                new LatLng(mCurrentLocation.getLatitude(),
-                        mCurrentLocation.getLongitude()), 10);
-        map.moveCamera(cameraUpdate);
     }
 
     private String getDirectionsUrl() {
@@ -259,12 +274,12 @@ public class MapViewFragment extends Fragment
     }
 
     private void startLocationUpdates() {
-        Log.i(kLOG_TAG,"Gramatik: Starting location updates!");
+        Log.i(kLOG_TAG, "Gramatik: Starting location updates!");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     private void stopLocationUpdates() {
-        Log.i(kLOG_TAG,"Gramatik: Stopping location updates!");
+        Log.i(kLOG_TAG, "Gramatik: Stopping location updates!");
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
@@ -286,9 +301,8 @@ public class MapViewFragment extends Fragment
 
     @Override
     public void onLocationChanged(Location location) {
-        updateCamera();
         mCurrentLocation = location;
-        Log.i(kLOG_TAG,"Gramatik: Got Location!");
+        Log.i(kLOG_TAG, "Gramatik: Got Location!");
         mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
         mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
     }
@@ -344,8 +358,8 @@ public class MapViewFragment extends Fragment
 
             mStartTripButton.clearAnimation();
 
-            mStartTripButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
-            mStartTripButton.setBackground(getResources().getDrawable(R.drawable.blue_start));
+            mStartTripButton.setImageResource(R.drawable.ic_play_arrow_black_36dp);
+            mStartTripButton.setBackground(getResources().getDrawable(R.drawable.green_start));
 
             mHandler.removeCallbacks(runnable);
         }
@@ -364,9 +378,11 @@ public class MapViewFragment extends Fragment
     MapView mapView;
     GoogleMap map;
 
-    /**************************************
-     *           Strings                  *
-     **************************************/
+    /**
+     * ***********************************
+     * Strings                  *
+     * ************************************
+     */
 
     public static final String kLOG_TAG = MapViewFragment.class.getSimpleName();
     public static final String RIDER_KEY = "riderKey";
@@ -376,4 +392,111 @@ public class MapViewFragment extends Fragment
     private String FIREBASE_LNG_ENDPOINT;
     private String FIREBASE_ACTIVE_ENDPOINT;
     private String FIREBASE_DESTINATION_ENDPOINT;
+    private String FIREBASE_TIME_ENDPOINT;
+    private String FIREBASE_PROXIMITY_ENDPOINT;
+
+    /**
+     * A class to parse the Google Places in JSON format
+     */
+    public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+        public final String kLOG_TAG = ParserTask.class.getSimpleName();
+
+
+        PolylineOptions lineOptions;
+
+        public ParserTask() {
+            FIREBASE_TIME_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+                    + "/riders/" + RiderProvider.getRider().getuID() + "/destinationTime";
+
+            FIREBASE_PROXIMITY_ENDPOINT = "companyData/" + RiderProvider.getRider().getCompanyID()
+                    + "/riders/" + RiderProvider.getRider().getuID() + "/proximity";
+
+        }
+
+        // Parsing the data in non-ui thread
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+                DirectionsJSONParser parser = new DirectionsJSONParser();
+
+                // Starts parsing data
+                routes = parser.parse(jObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        // Executes in UI thread, after the parsing process
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            ArrayList<LatLng> points = null;
+            lineOptions = null;
+            String proximity = "";
+            String duration = "";
+
+            if (result.size() < 1) {
+                return;
+            }
+
+            // Traversing through all the routes
+            for (int i = 0; i < result.size(); i++) {
+                points = new ArrayList<LatLng>();
+                lineOptions = new PolylineOptions();
+
+                // Fetching i-th route
+                List<HashMap<String, String>> path = result.get(i);
+
+                // Fetching all the points in i-th route
+                for (int j = 0; j < path.size(); j++) {
+                    HashMap<String, String> point = path.get(j);
+
+                    if (j == 0) {    // Get distance from the list
+                        proximity = (String) point.get("distance");
+                        continue;
+                    } else if (j == 1) { // Get duration from the list
+                        duration = (String) point.get("duration");
+                        continue;
+                    }
+
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+                    LatLng position = new LatLng(lat, lng);
+
+                    points.add(position);
+                }
+
+                // Adding all the points in the route to LineOptions
+                lineOptions.addAll(points);
+                lineOptions.width(12);
+                lineOptions.color(Color.BLUE);
+            }
+
+            // Draw markers and polyines on map
+            map.clear();
+            addMarkers();
+            updateCamera();
+            map.addPolyline(lineOptions);
+
+            String rDestination = mRider.getDestinationLocation().getDestinationName();
+
+            String[] distanceParsed = proximity.split("\\s+");
+            double rProximity = Double.parseDouble(distanceParsed[0]);
+            mRider.setProximity(rProximity);
+
+            mRider.setDestinationTime(duration);
+
+            FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(duration);
+            FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
+
+            destinationDurationTV.setText(duration);
+            destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
+            Log.i(kLOG_TAG, "Gramatik: ParserTask updating map values");
+        }
+    }
 }
