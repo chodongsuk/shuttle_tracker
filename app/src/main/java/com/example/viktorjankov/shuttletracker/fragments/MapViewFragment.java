@@ -177,13 +177,15 @@ public class MapViewFragment extends Fragment
         map.setMyLocationEnabled(true);
     }
 
-    private void addMarkers() {
+    private void addDestinationLocMarker() {
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(mDestinationLocation.getLatitude(),
                         mDestinationLocation.getLongitude()))
                 .title(mDestinationLocation.getDestinationName())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+    }
 
+    private void addCurrentLocationMarker() {
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
                 .title(mRider.getFirstName() + " to: " + mDestinationLocation.getDestinationName())
@@ -291,7 +293,8 @@ public class MapViewFragment extends Fragment
         mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
 
         updateCamera();
-        addMarkers();
+        addDestinationLocMarker();
+        addCurrentLocationMarker();
 
         // Start downloading json data from Google Directions API
         url = getDirectionsUrl();
@@ -481,8 +484,7 @@ public class MapViewFragment extends Fragment
 
             // Draw markers and polyines on map
             map.clear();
-            addMarkers();
-            updateCamera();
+            addDestinationLocMarker();
             map.addPolyline(lineOptions);
 
             String rDestination = mRider.getDestinationLocation().getDestinationName();
