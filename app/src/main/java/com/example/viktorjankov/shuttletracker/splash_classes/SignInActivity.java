@@ -569,7 +569,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
         }
     }
 
-    private final String ACTIVITY_TITLE = " " + SignInActivity.this.getClass().getSimpleName();
+    private final String ACTIVITY_TITLE = " SIGN IN";
     private final String kLOG_TAG = SignInActivity.this.getClass().getSimpleName();
 
 }

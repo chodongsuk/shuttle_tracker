@@ -56,9 +56,12 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         email = getIntent().getExtras().getString(emailKey);
         uID = getIntent().getExtras().getString(UID_KEY);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
-        companyNameAutoCompleteTextView.setAdapter(adapter);
+       /* *************************************
+        *       ROOT SPECIFIC STUFF
+        ***************************************/
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+//                android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
+//        companyNameAutoCompleteTextView.setAdapter(adapter);
 
 
         firstNameEditText.setText(firstName);
@@ -91,13 +94,16 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         Map<String,String> companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
         String registeredCompanyCode = companyCodesMap.get(companyName);
 
+        /* *************************************
+        *       ROOT SPECIFIC STUFF
+        ***************************************/
         if (registeredCompanyCode == null) {
-            companyNameAutoCompleteTextView.setError("Company name is not valid");
+//            companyNameAutoCompleteTextView.setError("Company name is not valid");
             return false;
         }
 
         if (!registeredCompanyCode.equalsIgnoreCase(companyCode)) {
-            companyCodeEditText.setError("Company code is wrong");
+//            companyCodeEditText.setError("Company code is wrong");
             return false;
         }
         return true;
@@ -108,8 +114,13 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
 
-        String companyName = companyNameAutoCompleteTextView.getText().toString();
-        String companyCode = companyCodeEditText.getText().toString();
+       /* *************************************
+        *       ROOT SPECIFIC STUFF
+        ***************************************/
+//        String companyName = companyNameAutoCompleteTextView.getText().toString();
+//        String companyCode = companyCodeEditText.getText().toString();
+            String companyName = "Root Metrics";
+            String companyCode = "rm1";
 
         if (isValidCompanyCode(companyName, companyCode)) {
             registerUser(firstName, lastName, email, companyCode);
@@ -200,13 +211,16 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     @NotEmpty
     EditText lastNameEditText;
 
-    @InjectView(R.id.company_name)
-    @NotEmpty
-    AutoCompleteTextView companyNameAutoCompleteTextView;
-
-    @InjectView(R.id.company_code)
-    @NotEmpty
-    EditText companyCodeEditText;
+    /* *************************************
+     *       ROOT SPECIFIC STUFF
+     ***************************************/
+//    @InjectView(R.id.company_name)
+//    @NotEmpty
+//    AutoCompleteTextView companyNameAutoCompleteTextView;
+//
+//    @InjectView(R.id.company_code)
+//    @NotEmpty
+//    EditText companyCodeEditText;
 
     @InjectView(R.id.registerButton)
     Button registerButton;
@@ -222,6 +236,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     public static final String emailKey = "email";
     public static final String UID_KEY = "userID";
 
-    public static final String ACTIVITY_TITLE = " " + VerifyActivity.class.getSimpleName();
+    public static final String ACTIVITY_TITLE = " CONFIRM NAME";
 }
 
