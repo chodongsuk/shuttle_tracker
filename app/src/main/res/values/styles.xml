@@ -86,7 +86,7 @@
         <item name="android:textSize">22sp</item>
     </style>
 
-    <style name="travel_mode_iv">
+    <style name="travel_mode_chevron">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_alignParentEnd">true</item>
@@ -94,7 +94,7 @@
         <item name="android:src">@drawable/ic_chevron_right_black_24dp</item>
     </style>
 
-    <style name="chevron_right">
+    <style name="divider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_alignParentBottom">true</item>

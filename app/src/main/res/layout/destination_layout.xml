@@ -55,8 +55,8 @@
 
     <ImageView
         android:id="@+id/destination_carrot_id"
-        style="@style/travel_mode_iv"/>
+        style="@style/travel_mode_chevron"/>
 
     <View
-        style="@style/chevron_right"/>
+        style="@style/divider"/>
 </RelativeLayout>

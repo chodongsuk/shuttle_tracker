@@ -60,10 +60,10 @@ public class PickupLocationFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mCompany = (Company) getArguments().getSerializable(COMPANY_KEY);
+        setTileHeight(mCompany.getDestinationList().size());
+
         RecyclerView.Adapter mAdapter = new DestinationsAdapter(mCompany.getDestinationList());
         mRecyclerView.setAdapter(mAdapter);
-
-        setTileHeight(mCompany.getDestinationList().size());
 
         return v;
     }
