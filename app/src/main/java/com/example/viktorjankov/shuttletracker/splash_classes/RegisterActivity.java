@@ -657,7 +657,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         }
     }
 
-    private final String ACTIVITY_TITLE = " " + RegisterActivity.this.getClass().getSimpleName();
+    private final String ACTIVITY_TITLE = " REGISTER";
     private final String kLOG_TAG = RegisterActivity.this.getClass().getSimpleName();
 
 }

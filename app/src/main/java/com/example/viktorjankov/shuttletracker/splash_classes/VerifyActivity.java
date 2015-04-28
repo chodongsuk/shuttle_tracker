@@ -222,6 +222,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
     public static final String emailKey = "email";
     public static final String UID_KEY = "userID";
 
-    public static final String ACTIVITY_TITLE = " " + VerifyActivity.class.getSimpleName();
+    public static final String ACTIVITY_TITLE = " VERIFY";
 }
 

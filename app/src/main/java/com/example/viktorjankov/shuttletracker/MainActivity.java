@@ -233,6 +233,10 @@ public class MainActivity extends ActionBarActivity {
                         String firstName = (String) rider.getValue();
                         mRider.setFirstName(firstName);
                     }
+                    else if (rider.getKey().equals("lastName")) {
+                        String lastName = (String) rider.getValue();
+                        mRider.setLastName(lastName);
+                    }
                     else if (rider.getKey().equals("proximity")) {
                         double proximity = (double) rider.getValue();
                         mRider.setProximity(proximity);
