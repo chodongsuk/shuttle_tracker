@@ -58,5 +58,5 @@
         style="@style/travel_mode_iv"/>
 
     <View
-        style="@style/chevron_right"/>
+        style="@style/divider"/>
 </RelativeLayout>

@@ -94,7 +94,7 @@
         <item name="android:src">@drawable/ic_chevron_right_black_24dp</item>
     </style>
 
-    <style name="chevron_right">
+    <style name="divider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_alignParentBottom">true</item>

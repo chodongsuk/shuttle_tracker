@@ -27,7 +27,7 @@
 
     </RelativeLayout>
 
-    <View style="@style/chevron_right" />
+    <View style="@style/divider" />
 
     <RelativeLayout
         android:id="@+id/travel_way_two"
@@ -51,7 +51,7 @@
 
     </RelativeLayout>
 
-    <View style="@style/chevron_right" />
+    <View style="@style/divider" />
 
     <RelativeLayout
         android:id="@+id/travel_way_three"
@@ -75,6 +75,6 @@
 
     </RelativeLayout>
 
-    <View style="@style/chevron_right" />
+    <View style="@style/divider" />
 
 </LinearLayout>
