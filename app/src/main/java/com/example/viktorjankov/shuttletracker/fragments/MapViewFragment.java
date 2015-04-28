@@ -206,9 +206,6 @@ public class MapViewFragment extends Fragment
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mRider.setActive(false);
-        handleActiveRider();
-
         mapView.onDestroy();
 
     }
