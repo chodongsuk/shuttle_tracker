@@ -23,7 +23,7 @@
                 android:text="@string/car" />
         </LinearLayout>
 
-        <ImageView style="@style/travel_mode_iv" />
+        <ImageView style="@style/travel_mode_chevron" />
 
     </RelativeLayout>
 
@@ -47,7 +47,7 @@
                 android:text="@string/bus" />
         </LinearLayout>
 
-        <ImageView style="@style/travel_mode_iv" />
+        <ImageView style="@style/travel_mode_chevron" />
 
     </RelativeLayout>
 
@@ -71,7 +71,7 @@
                 android:text="@string/bike" />
         </LinearLayout>
 
-        <ImageView style="@style/travel_mode_iv" />
+        <ImageView style="@style/travel_mode_chevron" />
 
     </RelativeLayout>
 
