@@ -12,6 +12,7 @@ public class Rider implements Serializable {
 
     // Set in MapViewFragment
     private boolean active;
+    private boolean serviced;
 
     // Set in ParserTask
     private long mDestinationTime;
@@ -121,6 +122,14 @@ public class Rider implements Serializable {
 
     public void setTravelMode(String mTravelMode) {
         this.mTravelMode = mTravelMode;
+    }
+
+    public boolean isServiced() {
+        return serviced;
+    }
+
+    public void setServiced(boolean serviced) {
+        this.serviced = serviced;
     }
 
     @Override

@@ -254,6 +254,10 @@ public class MainActivity extends ActionBarActivity {
                         double proximity = (double) rider.getValue();
                         mRider.setProximity(proximity);
                     }
+                    else if (rider.getKey().equals("serviced")) {
+                        boolean serviced = (boolean) rider.getValue();
+                        mRider.setServiced(serviced);
+                    }
                     else if (rider.getKey().equals("destinationTime")) {
                         long destinationTime = (long) rider.getValue();
                         mRider.setDestinationTime(destinationTime);
