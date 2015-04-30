@@ -64,7 +64,6 @@ public class MainActivity extends ActionBarActivity {
         // Get user and company data
         mUser = UserProvider.getUser();
         getCompanyData();
-        getRiderData();
     }
 
     private void setToolbarStuff() {
@@ -205,6 +204,8 @@ public class MainActivity extends ActionBarActivity {
                 }
                 Log.i(kLOG_TAG, "Companies: " + mCompany.toString());
                 CompanyProvider.setCompany(mCompany);
+
+                getRiderData();
             }
 
             @Override

@@ -443,10 +443,7 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
 
         ButterKnife.inject(this);
 
-        mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Signing in...");
-        mAuthProgressDialog.setCancelable(false);
+        initProgressDialog();
     }
 
     private User getUserFromFirebase(DataSnapshot dataSnapshot) {
@@ -512,6 +509,27 @@ public class SignInActivity extends ActionBarActivity implements Validator.Valid
                 }
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAuthProgressDialog.dismiss();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mAuthProgressDialog == null) {
+           initProgressDialog();
+        }
+    }
+
+    private void initProgressDialog() {
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Signing in...");
+        mAuthProgressDialog.setCancelable(false);
     }
 
     @NotEmpty

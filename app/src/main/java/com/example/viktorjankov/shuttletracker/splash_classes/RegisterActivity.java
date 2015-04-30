@@ -105,6 +105,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 .addApi(Plus.API)
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
+
         FirebaseAuthProvider.setGoogleApiClient(mGoogleApiClient);
 
         /* *************************************
@@ -384,6 +385,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     @Override
     public void onConnected(final Bundle bundle) {
         /* Connected with Google API, use this to authenticate with Firebase */
+        Log.i(kLOG_TAG, "Connected to google");
         getGoogleOAuthTokenAndLogin();
     }
 
@@ -518,10 +520,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
         ButterKnife.inject(this);
 
-        mAuthProgressDialog = new ProgressDialog(this);
-        mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Registering with Flow");
-        mAuthProgressDialog.setCancelable(false);
+        initProgressDialog();
     }
 
     private User getUserFromFirebase(DataSnapshot dataSnapshot) {
@@ -634,12 +633,36 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
         mFacebookLoginButton.performClick();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAuthProgressDialog.dismiss();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mAuthProgressDialog == null) {
+            initProgressDialog();
+        }
+
+    }
+
+    private void initProgressDialog() {
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Registering with Flow");
+        mAuthProgressDialog.setCancelable(false);
+    }
+
     @InjectView(R.id.google_plus_button)
     LinearLayout googlePlusLayout;
 
     @OnClick({R.id.google_plus_button, R.id.google_icon})
     public void googlePlusClick() {
         Log.i(kLOG_TAG, "google login button clicked");
+        Log.i(kLOG_TAG, "Api client connected? : " + mGoogleApiClient.isConnected());
+        Log.i(kLOG_TAG, "Api client connecting? : " + mGoogleApiClient.isConnecting());
 
         mGoogleLoginClicked = true;
 
