@@ -241,7 +241,11 @@ public class MapViewFragment extends Fragment
         String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
 
         // Travel mode
-        String travel_mode = "mode=" + mTravelMode;
+        String localTravelMode = mTravelMode.equals("transit") ? "driving" : mTravelMode;
+
+        Log.i(kLOG_TAG, "Travel Mode Local: " + localTravelMode);
+
+        String travel_mode = "mode=" + localTravelMode;
 
         // Building the parameters to the web service
         String parameters = str_origin + "&" + str_dest + "&" + travel_mode;
@@ -271,8 +275,8 @@ public class MapViewFragment extends Fragment
 
     public void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setInterval(50000);
+        mLocationRequest.setFastestInterval(30000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -339,7 +343,8 @@ public class MapViewFragment extends Fragment
     public void onClick() {
         if (mRider.isActive()) {
             mRider.setActive(false);
-        } else {
+        }
+        else {
             mRider.setActive(true);
         }
         handleActiveRider();
@@ -357,7 +362,8 @@ public class MapViewFragment extends Fragment
             mStartTripButton.setBackground(getResources().getDrawable(R.drawable.red_stop));
 
             mHandler.post(runnable);
-        } else {
+        }
+        else {
             stopLocationUpdates();
 
             mStartTripButton.clearAnimation();
@@ -431,7 +437,8 @@ public class MapViewFragment extends Fragment
 
                 // Starts parsing data
                 routes = parser.parse(jObject);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
             return routes;
@@ -464,7 +471,8 @@ public class MapViewFragment extends Fragment
                     if (j == 0) {    // Get distance from the list
                         proximity = (String) point.get("distance");
                         continue;
-                    } else if (j == 1) { // Get duration from the list
+                    }
+                    else if (j == 1) { // Get duration from the list
                         duration = (String) point.get("duration");
                         continue;
                     }
@@ -493,14 +501,32 @@ public class MapViewFragment extends Fragment
             double rProximity = Double.parseDouble(distanceParsed[0]);
             mRider.setProximity(rProximity);
 
-            mRider.setDestinationTime(duration);
+            int timeAsMins = parseTime(duration);
+            if (mTravelMode.equals("transit")) {
+                timeAsMins += Math.round(rProximity * 1.5);
+            }
+            mRider.setDestinationTime(timeAsMins);
 
-            FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(duration);
+            FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(timeAsMins);
             FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
 
-            destinationDurationTV.setText(duration);
+            destinationDurationTV.setText(timeAsMins + " mins");
             destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
             Log.i(kLOG_TAG, "Gramatik: ParserTask updating map values");
         }
+    }
+
+    private int parseTime(String time) {
+        String[] parsedTime = time.split(" ");
+
+        int timeAsMins = 0;
+        if (parsedTime.length == 2) {
+            timeAsMins = Integer.parseInt(parsedTime[0]);
+        }
+        else if (parsedTime.length == 4) {
+
+            timeAsMins = Integer.parseInt(parsedTime[0]) * 60 + Integer.parseInt(parsedTime[2]);
+        }
+        return timeAsMins;
     }
 }

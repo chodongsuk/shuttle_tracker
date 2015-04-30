@@ -255,7 +255,7 @@ public class MainActivity extends ActionBarActivity {
                         mRider.setProximity(proximity);
                     }
                     else if (rider.getKey().equals("destinationTime")) {
-                        String destinationTime = (String) rider.getValue();
+                        long destinationTime = (long) rider.getValue();
                         mRider.setDestinationTime(destinationTime);
                     }
                     else if (rider.getKey().equals("active")) {

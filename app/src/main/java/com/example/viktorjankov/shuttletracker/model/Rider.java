@@ -14,7 +14,7 @@ public class Rider implements Serializable {
     private boolean active;
 
     // Set in ParserTask
-    private String mDestinationTime;
+    private long mDestinationTime;
     private double mProximity;
 
     // Set in MainActivity when parsing Firebase
@@ -74,11 +74,11 @@ public class Rider implements Serializable {
         this.mDestinationLocation = destinationLocation;
     }
 
-    public String getDestinationTime() {
+    public long getDestinationTime() {
         return mDestinationTime;
     }
 
-    public void setDestinationTime(String destinationTime) {
+    public void setDestinationTime(long destinationTime) {
         this.mDestinationTime = destinationTime;
     }
 
