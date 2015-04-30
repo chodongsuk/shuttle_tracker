@@ -19,6 +19,7 @@ import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
 import com.example.viktorjankov.shuttletracker.model.Company;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.squareup.otto.Bus;
 
 import java.util.List;
@@ -65,7 +66,6 @@ public class PickupLocationFragment extends Fragment {
         RecyclerView.Adapter mAdapter = new DestinationsAdapter(mCompany.getDestinationList());
         mRecyclerView.setAdapter(mAdapter);
 
-
         return v;
     }
 
@@ -84,6 +84,10 @@ public class PickupLocationFragment extends Fragment {
                     .inflate(R.layout.destination_layout, parent, false);
             if (clickable) {
                 relativeLayout.setOnClickListener(mOnClickListener);
+            }
+            else if (RiderProvider.getRider() != null) {
+                relativeLayout.setOnClickListener(mOnClickListener);
+
             }
             else {
                 relativeLayout.setOnClickListener(null);

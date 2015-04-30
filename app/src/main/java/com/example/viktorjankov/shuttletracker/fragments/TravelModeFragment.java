@@ -13,7 +13,10 @@ import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
+import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.squareup.otto.Bus;
+
+import java.lang.reflect.Field;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -40,6 +43,13 @@ public class TravelModeFragment extends Fragment {
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 
+        if (RiderProvider.getRider() == null)
+        {
+            clickable = false;
+        }
+        else {
+            clickable = true;
+        }
         travelWayOneRL.setClickable(clickable);
         travelWayTwoRL.setClickable(clickable);
         travelWayThreeRL.setClickable(clickable);

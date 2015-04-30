@@ -80,16 +80,23 @@ public class MainActivity extends ActionBarActivity {
     @Subscribe
     public void handlePickupLocationEvent(PickupLocationEvent e) {
         mDestinationLocation = e.getPickupLocation();
+        if (mRider == null) {
+            mRider = RiderProvider.getRider();
+        }
         mRider.setDestinationLocation(mDestinationLocation);
 
         Log.i(kLOG_TAG, "HandlePickup Rider:" + mRider.toString());
 
-        travelModeFragment.setClickable(true);
+
+        String FIREBASE_RIDER_DESTINATION_LOCATION = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/destinationLocation";
         mFirebase.child(FIREBASE_RIDER_DESTINATION_LOCATION).setValue(mDestinationLocation);
-        manager.beginTransaction()
+
+        travelModeFragment = TravelModeFragment.newInstance();
+        travelModeFragment.setClickable(true);
+        getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, travelModeFragment)
                 .addToBackStack(null)
-                .commit();
+                .commitAllowingStateLoss();
     }
 
     @Subscribe
@@ -97,15 +104,20 @@ public class MainActivity extends ActionBarActivity {
         mTravelMode = e.getTravelSource();
         Log.i(kLOG_TAG, "Rider is null? " + (mRider == null));
         Log.i(kLOG_TAG, "TravelMode is null? " + (mTravelMode == null));
+        if (mRider == null) {
+            mRider = RiderProvider.getRider();
+        }
         mRider.setTravelMode(mTravelMode);
 
+        String FIREBASE_RIDER_TRAVEL_MODE = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/travelMode";
         mFirebase.child(FIREBASE_RIDER_TRAVEL_MODE).setValue(mTravelMode);
 
         Log.i(kLOG_TAG, "HandleTravel Rider:" + mRider.toString());
-        manager.beginTransaction()
+        mapViewFragment = MapViewFragment.newInstance(mRider);
+        getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, mapViewFragment)
                 .addToBackStack(null)
-                .commit();
+                .commitAllowingStateLoss();
     }
 
     private AlertDialog.Builder buildAlertDialog() {
@@ -290,8 +302,6 @@ public class MainActivity extends ActionBarActivity {
 
                 RiderProvider.setRider(mRider);
 
-                setFirebaseEndpoints();
-
                 mapViewFragment = MapViewFragment.newInstance(mRider);
                 travelModeFragment = TravelModeFragment.newInstance();
 
@@ -300,7 +310,8 @@ public class MainActivity extends ActionBarActivity {
                 if (fragment == null) {
                     fragment = PickupLocationFragment.newInstance(mCompany);
                     ((PickupLocationFragment) fragment).setClickable(true);
-                    manager.beginTransaction().add(R.id.fragmentContainer, fragment).commit();
+                    manager.beginTransaction().add(R.id.fragmentContainer, fragment)
+                            .commitAllowingStateLoss();
 
                 }
                 else if (fragment instanceof TravelModeFragment) {
@@ -317,12 +328,6 @@ public class MainActivity extends ActionBarActivity {
 
             }
         });
-    }
-
-
-    private void setFirebaseEndpoints() {
-        FIREBASE_RIDER_TRAVEL_MODE = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/travelMode";
-        FIREBASE_RIDER_DESTINATION_LOCATION = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/destinationLocation";
     }
 
     /**
@@ -361,13 +366,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(RIDER_KEY, mRider);
-
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_out:
@@ -396,7 +394,5 @@ public class MainActivity extends ActionBarActivity {
 
     // firebase endpoints to store rider info
     private String FIREBASE_RIDER_ENDPOINT;
-    private String FIREBASE_RIDER_TRAVEL_MODE;
-    private String FIREBASE_RIDER_DESTINATION_LOCATION;
 }
 
