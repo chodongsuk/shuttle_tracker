@@ -39,6 +39,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 public class MainActivity extends ActionBarActivity {
+
     FragmentManager manager;
 
     DestinationLocation mDestinationLocation;
@@ -63,7 +64,12 @@ public class MainActivity extends ActionBarActivity {
 
         // Get user and company data
         mUser = UserProvider.getUser();
-        getCompanyData();
+        if (mUser == null) {
+            getUserInfo();
+        }
+        else {
+            getCompanyData();
+        }
     }
 
     private void setToolbarStuff() {
@@ -168,6 +174,61 @@ public class MainActivity extends ActionBarActivity {
      * Firebase stuff               *
      * ************************************
      */
+
+    private void getUserInfo() {
+        mFirebase.child("users/" + mFirebase.getAuth().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mUser = getUserFromFirebase(dataSnapshot);
+                getCompanyData();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    private User getUserFromFirebase(DataSnapshot dataSnapshot) {
+        String companyCode = "";
+        String email = "";
+        String firstName = "";
+        String lastName = "";
+        String uID = "";
+
+        for (DataSnapshot userInfo : dataSnapshot.getChildren()) {
+            Log.i(kLOG_TAG, "Key: " + userInfo.getKey());
+            Log.i(kLOG_TAG, "Value: " + userInfo.getValue());
+            if (userInfo.getKey().equals("companyCode")) {
+                companyCode = (String) userInfo.getValue();
+
+            }
+            else if (userInfo.getKey().equals("email")) {
+                email = (String) userInfo.getValue();
+
+            }
+            else if (userInfo.getKey().equals("firstName")) {
+                firstName = (String) userInfo.getValue();
+
+            }
+            else if (userInfo.getKey().equals("lastName")) {
+
+                lastName = (String) userInfo.getValue();
+            }
+            else if (userInfo.getKey().equals("uID")) {
+                uID = (String) userInfo.getValue();
+            }
+        }
+
+        if (companyCode.equals("")) {
+            return null;
+        }
+        else {
+            return new User(companyCode, email, firstName, lastName, uID);
+        }
+    }
+
 
     public void getCompanyData() {
         mFirebase.child("companyData").child(mUser.getCompanyCode()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -306,24 +367,40 @@ public class MainActivity extends ActionBarActivity {
 
                 RiderProvider.setRider(mRider);
 
+
                 mapViewFragment = MapViewFragment.newInstance(mRider);
                 travelModeFragment = TravelModeFragment.newInstance();
 
                 manager = getSupportFragmentManager();
-                Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
-                if (fragment == null) {
-                    fragment = PickupLocationFragment.newInstance(mCompany);
-                    ((PickupLocationFragment) fragment).setClickable(true);
-                    manager.beginTransaction().add(R.id.fragmentContainer, fragment)
-                            .commitAllowingStateLoss();
 
-                }
-                else if (fragment instanceof TravelModeFragment) {
+                String intentFragment = getIntent().getStringExtra("mapViewFragment");
+                Log.i(kLOG_TAG, "Intent is null? " + (intentFragment == null));
 
-                    ((TravelModeFragment) fragment).setLayoutsClickable(true);
+                if (intentFragment != null) {
+                    Log.i(kLOG_TAG, "Intent is = " + intentFragment);
+                    if (intentFragment.equals("mapViewFragmentScreen")) {
+                        Log.i(kLOG_TAG, "I should be starting MapViewFragment");
+                        getSupportFragmentManager().beginTransaction()
+                                .add(R.id.fragmentContainer, mapViewFragment)
+                                .commitAllowingStateLoss();
+                    }
                 }
-                else if (fragment instanceof PickupLocationFragment) {
-                    ((PickupLocationFragment) fragment).setClickable(true);
+                else {
+                    Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
+                    if (fragment == null) {
+                        fragment = PickupLocationFragment.newInstance(mCompany);
+                        ((PickupLocationFragment) fragment).setClickable(true);
+                        manager.beginTransaction().add(R.id.fragmentContainer, fragment)
+                                .commitAllowingStateLoss();
+
+                    }
+                    else if (fragment instanceof TravelModeFragment) {
+
+                        ((TravelModeFragment) fragment).setLayoutsClickable(true);
+                    }
+                    else if (fragment instanceof PickupLocationFragment) {
+                        ((PickupLocationFragment) fragment).setClickable(true);
+                    }
                 }
             }
 
@@ -336,7 +413,7 @@ public class MainActivity extends ActionBarActivity {
 
     /**
      * ***********************************
-     * Android methods              *
+     * Android methods
      * ************************************
      */
     @Override
@@ -369,13 +446,21 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (MapViewFragment.mNotificationManager != null) {
+            MapViewFragment.mNotificationManager.cancelAll();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_out:
                 buildAlertDialog().show();
                 return true;
-            case R.id.change_password:
             case android.R.id.home:
                 getSupportFragmentManager().popBackStack();
             default:

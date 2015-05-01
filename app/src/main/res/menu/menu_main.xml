@@ -4,12 +4,6 @@
     tools:context="com.example.viktorjankov.shuttletracker.MainActivity">
 
     <item
-        android:id="@+id/change_password"
-        android:orderInCategory="50"
-        android:title="@string/change_password"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/sign_out"
         android:orderInCategory="100"
         android:title="@string/action_sign_out"
