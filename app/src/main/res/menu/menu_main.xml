@@ -8,4 +8,12 @@
         android:orderInCategory="100"
         android:title="@string/action_sign_out"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/my_location"
+        android:icon="@drawable/ic_my_location_white_24dp"
+        android:title="@string/my_location"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="1"
+        android:menuCategory="secondary"/>
 </menu>

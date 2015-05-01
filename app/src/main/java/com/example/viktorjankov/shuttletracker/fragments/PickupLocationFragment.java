@@ -1,5 +1,7 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -65,6 +67,9 @@ public class PickupLocationFragment extends Fragment {
 
         RecyclerView.Adapter mAdapter = new DestinationsAdapter(mCompany.getDestinationList());
         mRecyclerView.setAdapter(mAdapter);
+
+        NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(MapViewFragment.mID);
 
         return v;
     }

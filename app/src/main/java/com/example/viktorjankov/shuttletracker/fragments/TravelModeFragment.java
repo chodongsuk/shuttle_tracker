@@ -1,5 +1,7 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +19,7 @@ import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.squareup.otto.Bus;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -54,6 +57,8 @@ public class TravelModeFragment extends Fragment {
         travelWayTwoRL.setClickable(clickable);
         travelWayThreeRL.setClickable(clickable);
 
+        NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(MapViewFragment.mID);
         return v;
     }
 

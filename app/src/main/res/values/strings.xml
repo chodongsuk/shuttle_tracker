@@ -43,4 +43,6 @@
     <string name="reset_password">reset password</string>
     <string name="change_password">Change Password</string>
     <string name="chevron">carrot</string>
+    <string name="my_location">My Location</string>
+    <string name="driver_coming">Driver is on his way!</string>
 </resources>

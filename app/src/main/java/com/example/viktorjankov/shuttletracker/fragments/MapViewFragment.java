@@ -15,6 +15,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +33,10 @@ import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -44,6 +49,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -60,7 +66,7 @@ import butterknife.OnClick;
 public class MapViewFragment extends Fragment
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private int mID = 5;
+    public static int mID = 5;
     public static NotificationManager mNotificationManager;
 
     // Singletons
@@ -82,6 +88,8 @@ public class MapViewFragment extends Fragment
     ParserTask parserTask;
 
     String url;
+
+    Marker driverMarker;
 
     public static MapViewFragment newInstance(Rider rider) {
         MapViewFragment mapViewFragment = new MapViewFragment();
@@ -124,6 +132,76 @@ public class MapViewFragment extends Fragment
         }
         createNotification(mRider.getFirstName() + " " + mRider.getLastName(), mRider.getDestinationLocation().getDestinationName());
 
+        setDriverServicingListener();
+    }
+
+    private void setDriverServicingListener() {
+        String FIREBASE_SERVICING = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/serviced";
+        mFirebase.child(FIREBASE_SERVICING).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean servicing = (boolean) dataSnapshot.getValue();
+
+                if (servicing) {
+                    mDriverComingTV.setVisibility(View.VISIBLE);
+                    plotDriverLocation(true);
+                }
+                else {
+                    mDriverComingTV.setVisibility(View.GONE);
+                    if(driverMarker != null) {
+                        driverMarker.remove();
+                    }
+                    plotDriverLocation(false);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    private void plotDriverLocation(boolean listen) {
+        String FIREBASE_DRIVER_LOCATION = "companyDrivers/" + mRider.getCompanyID();
+
+        if (listen) {
+
+            mFirebase.child(FIREBASE_DRIVER_LOCATION).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    double lat = 0;
+                    double lng = 0;
+                    for (DataSnapshot loc : dataSnapshot.getChildren()) {
+                        if (loc.getKey().equals("lat")) {
+                            lat = (double) loc.getValue();
+                        }
+                        else if (loc.getKey().equals("lng")) {
+                            lng = (double) loc.getValue();
+                        }
+                    }
+
+                    if (driverMarker != null) {
+                        driverMarker.remove();
+                    }
+
+                    driverMarker = map.addMarker(new MarkerOptions()
+                            .position(new LatLng(lat, lng))
+                            .title(mRider.getFirstName() + " to: " + mDestinationLocation.getDestinationName())
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
+        }
+        else {
+            // remove listener
+        }
     }
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -145,6 +223,7 @@ public class MapViewFragment extends Fragment
         mHandler = new Handler();
 
         mStartTripButton.bringToFront();
+
         return v;
     }
 
@@ -207,11 +286,17 @@ public class MapViewFragment extends Fragment
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
     }
 
-    private void updateCamera() {
+    private void updateCamera(boolean zoom, float zoomLevel) {
+
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
                 new LatLng(mCurrentLocation.getLatitude(),
-                        mCurrentLocation.getLongitude()), 10);
-        map.moveCamera(cameraUpdate);
+                        mCurrentLocation.getLongitude()), zoomLevel);
+        if (zoom) {
+            map.animateCamera(cameraUpdate);
+        }
+        else {
+            map.moveCamera(cameraUpdate);
+        }
     }
 
     @Override
@@ -290,8 +375,8 @@ public class MapViewFragment extends Fragment
 
     public void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(50000);
-        mLocationRequest.setFastestInterval(30000);
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -311,7 +396,8 @@ public class MapViewFragment extends Fragment
         mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
         mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
 
-        updateCamera();
+        updateCamera(false, 10);
+        mCurrentLocationIB.setClickable(true);
         addDestinationLocMarker();
         addCurrentLocationMarker();
 
@@ -402,6 +488,17 @@ public class MapViewFragment extends Fragment
     @InjectView(R.id.mapview)
     MapView mapView;
     GoogleMap map;
+
+    @InjectView(R.id.my_location)
+    ImageButton mCurrentLocationIB;
+
+    @OnClick(R.id.my_location)
+    public void onClickButton() {
+        updateCamera(true, map.getCameraPosition().zoom);
+    }
+
+    @InjectView(R.id.driver_coming)
+    TextView mDriverComingTV;
 
     /**
      * ***********************************
@@ -518,7 +615,7 @@ public class MapViewFragment extends Fragment
 
             int timeAsMins = parseTime(duration);
             if (mTravelMode.equals("transit")) {
-                timeAsMins += Math.round(rProximity * 1.5);
+                timeAsMins += Math.round(rProximity);
             }
             mRider.setDestinationTime(timeAsMins);
 
@@ -574,5 +671,28 @@ public class MapViewFragment extends Fragment
                 (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         // mId allows you to update the notification later on.
         mNotificationManager.notify(mID, mBuilder.build());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Intent notificationIntent = new Intent(getActivity(), MainActivity.class);
+        PendingIntent test = PendingIntent.getActivity(getActivity(), mID, notificationIntent, PendingIntent.FLAG_NO_CREATE);
+        if (test == null) {
+            createNotification(mRider.getFirstName() + " " + mRider.getLastName(), mRider.getDestinationLocation().getDestinationName());
+        }
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem register = menu.findItem(R.id.my_location);
+        register.setVisible(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main, menu);
+        MenuItem register = menu.findItem(R.id.my_location);
+        register.setVisible(true);
     }
 }
