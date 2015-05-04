@@ -29,7 +29,6 @@ import java.util.List;
 import butterknife.ButterKnife;
 
 public class PickupLocationFragment extends Fragment {
-    public static final String kLOG_TAG = "PickupLocationFragment";
     public static final String COMPANY_KEY = "companyKey`";
 
     Bus bus = BusProvider.getInstance();

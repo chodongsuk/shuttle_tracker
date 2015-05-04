@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -17,9 +16,6 @@ import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.squareup.otto.Bus;
-
-import java.lang.reflect.Field;
-import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -46,13 +42,8 @@ public class TravelModeFragment extends Fragment {
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 
-        if (RiderProvider.getRider() == null)
-        {
-            clickable = false;
-        }
-        else {
-            clickable = true;
-        }
+        clickable = RiderProvider.getRider() != null;
+
         travelWayOneRL.setClickable(clickable);
         travelWayTwoRL.setClickable(clickable);
         travelWayThreeRL.setClickable(clickable);
@@ -60,22 +51,6 @@ public class TravelModeFragment extends Fragment {
         NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(MapViewFragment.mID);
         return v;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        super.onOptionsItemSelected(item);
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                getActivity().getSupportFragmentManager().popBackStack();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    public boolean isClickable() {
-        return clickable;
     }
 
     public void setClickable(boolean clickable) {

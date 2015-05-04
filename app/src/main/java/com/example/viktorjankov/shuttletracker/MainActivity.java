@@ -1,6 +1,7 @@
 package com.example.viktorjankov.shuttletracker;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -42,6 +43,8 @@ public class MainActivity extends ActionBarActivity {
 
     FragmentManager manager;
 
+    ProgressDialog mAuthProgressDialog;
+
     DestinationLocation mDestinationLocation;
     String mTravelMode;
 
@@ -60,6 +63,9 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        initProgressDialog();
+        mAuthProgressDialog.show();
+
         setToolbarStuff();
 
         // Get user and company data
@@ -92,7 +98,6 @@ public class MainActivity extends ActionBarActivity {
         mRider.setDestinationLocation(mDestinationLocation);
 
         Log.i(kLOG_TAG, "HandlePickup Rider:" + mRider.toString());
-
 
         String FIREBASE_RIDER_DESTINATION_LOCATION = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/destinationLocation";
         mFirebase.child(FIREBASE_RIDER_DESTINATION_LOCATION).setValue(mDestinationLocation);
@@ -367,7 +372,6 @@ public class MainActivity extends ActionBarActivity {
 
                 RiderProvider.setRider(mRider);
 
-
                 mapViewFragment = MapViewFragment.newInstance(mRider);
                 travelModeFragment = TravelModeFragment.newInstance();
 
@@ -376,9 +380,12 @@ public class MainActivity extends ActionBarActivity {
                 String intentFragment = getIntent().getStringExtra("mapViewFragment");
                 Log.i(kLOG_TAG, "Intent is null? " + (intentFragment == null));
 
+                mAuthProgressDialog.hide();
+
                 if (intentFragment != null) {
                     Log.i(kLOG_TAG, "Intent is = " + intentFragment);
                     if (intentFragment.equals("mapViewFragmentScreen")) {
+                        Fragment travelFragment = TravelModeFragment.newInstance();
                         Log.i(kLOG_TAG, "I should be starting MapViewFragment");
                         getSupportFragmentManager().beginTransaction()
                                 .add(R.id.fragmentContainer, mapViewFragment)
@@ -419,6 +426,9 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         bus.register(this);
+        if (mAuthProgressDialog == null) {
+            initProgressDialog();
+        }
         super.onResume();
     }
 
@@ -429,16 +439,15 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
+    protected void onStop() {
+        super.onStop();
+        mAuthProgressDialog.dismiss();
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem register = menu.findItem(R.id.my_location);
-        register.setVisible(false);
-        return true;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -470,9 +479,17 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case android.R.id.home:
                 getSupportFragmentManager().popBackStack();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void initProgressDialog() {
+        mAuthProgressDialog = new ProgressDialog(this);
+        mAuthProgressDialog.setTitle("Loading");
+        mAuthProgressDialog.setMessage("Signing in...");
+        mAuthProgressDialog.setCancelable(false);
     }
 
     private String kLOG_TAG = MainActivity.class.getSimpleName();

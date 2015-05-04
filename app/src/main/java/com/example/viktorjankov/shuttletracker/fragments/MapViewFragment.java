@@ -135,23 +135,49 @@ public class MapViewFragment extends Fragment
         setDriverServicingListener();
     }
 
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.map_view, container, false);
+        ButterKnife.inject(this, v);
+
+
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
+
+        initMap(savedInstanceState);
+
+        destinationNameTV.setText(mRider.getDestinationLocation().getDestinationName());
+
+        // Getting URL to the Google Directions API
+        parserTask = createParserTask();
+        downloadTask = createDownloadTask(parserTask);
+
+        mHandler = new Handler();
+
+        mStartTripButton.bringToFront();
+
+        return v;
+    }
+
     private void setDriverServicingListener() {
         String FIREBASE_SERVICING = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/serviced";
         mFirebase.child(FIREBASE_SERVICING).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean servicing = (boolean) dataSnapshot.getValue();
+                if (dataSnapshot != null) {
+                    boolean servicing = (boolean) dataSnapshot.getValue();
 
-                if (servicing) {
-                    mDriverComingTV.setVisibility(View.VISIBLE);
-                    plotDriverLocation(true);
-                }
-                else {
-                    mDriverComingTV.setVisibility(View.GONE);
-                    if(driverMarker != null) {
-                        driverMarker.remove();
+                    if (servicing) {
+                        mDriverComingTV.setVisibility(View.VISIBLE);
+                        plotDriverLocation(true);
                     }
-                    plotDriverLocation(false);
+                    else {
+                        mDriverComingTV.setVisibility(View.GONE);
+                        if (driverMarker != null) {
+                            driverMarker.remove();
+                        }
+                        plotDriverLocation(false);
+                    }
                 }
 
             }
@@ -202,29 +228,6 @@ public class MapViewFragment extends Fragment
         else {
             // remove listener
         }
-    }
-
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.map_view, container, false);
-        ButterKnife.inject(this, v);
-
-        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
-        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
-
-        initMap(savedInstanceState);
-
-        destinationNameTV.setText(mRider.getDestinationLocation().getDestinationName());
-
-        // Getting URL to the Google Directions API
-        parserTask = createParserTask();
-        downloadTask = createDownloadTask(parserTask);
-
-        mHandler = new Handler();
-
-        mStartTripButton.bringToFront();
-
-        return v;
     }
 
     private void setFirebaseEndpoints() {
@@ -309,25 +312,12 @@ public class MapViewFragment extends Fragment
     public void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
-//        mNotificationManager.cancelAll();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        super.onOptionsItemSelected(item);
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                getActivity().getSupportFragmentManager().popBackStack();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private String getDirectionsUrl() {
@@ -681,18 +671,5 @@ public class MapViewFragment extends Fragment
         if (test == null) {
             createNotification(mRider.getFirstName() + " " + mRider.getLastName(), mRider.getDestinationLocation().getDestinationName());
         }
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem register = menu.findItem(R.id.my_location);
-        register.setVisible(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
-        MenuItem register = menu.findItem(R.id.my_location);
-        register.setVisible(true);
     }
 }
