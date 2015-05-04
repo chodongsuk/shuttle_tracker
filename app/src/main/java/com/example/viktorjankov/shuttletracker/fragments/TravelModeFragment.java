@@ -5,13 +5,17 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
+import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
+import com.example.viktorjankov.shuttletracker.events.StartPickupDestinationEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
@@ -37,6 +41,8 @@ public class TravelModeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.travel_mode, container, false);
         ButterKnife.inject(this, v);
+
+        setHasOptionsMenu(true);
 
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -89,5 +95,11 @@ public class TravelModeFragment extends Fragment {
                 break;
         }
         BusProvider.getInstance().post(new TravelModeEvent(travelMode));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 }

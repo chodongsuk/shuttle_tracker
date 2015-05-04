@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
+import com.example.viktorjankov.shuttletracker.events.StartPickupDestinationEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
 import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
@@ -462,7 +463,6 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -478,8 +478,25 @@ public class MainActivity extends ActionBarActivity {
                 buildAlertDialog().show();
                 return true;
             case android.R.id.home:
-                getSupportFragmentManager().popBackStack();
-                return true;
+                Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
+                if (fragment instanceof TravelModeFragment) {
+                    PickupLocationFragment pickupLocationFragment = PickupLocationFragment.newInstance(mCompany);
+                    pickupLocationFragment.setClickable(true);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, pickupLocationFragment)
+                            .addToBackStack(null)
+                            .commitAllowingStateLoss();
+
+                    ((TravelModeFragment) fragment).setLayoutsClickable(true);
+                }
+                else if (fragment instanceof MapViewFragment) {
+                    travelModeFragment = TravelModeFragment.newInstance();
+                    travelModeFragment.setClickable(true);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, travelModeFragment)
+                            .addToBackStack(null)
+                            .commitAllowingStateLoss();
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }

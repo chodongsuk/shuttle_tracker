@@ -29,8 +29,11 @@ import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.directions.DirectionsJSONParser;
 import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
+import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
+import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
+import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.firebase.client.DataSnapshot;
@@ -139,6 +142,7 @@ public class MapViewFragment extends Fragment
         View v = inflater.inflate(R.layout.map_view, container, false);
         ButterKnife.inject(this, v);
 
+        setHasOptionsMenu(true);
 
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
