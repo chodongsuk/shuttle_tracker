@@ -112,9 +112,12 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
          *       GET FIREBASE COMPANIES        *
          ***************************************/
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(RegisterActivity.this,
-                android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
-        companyNameAutoCompleteTextView.setAdapter(adapter);
+        /* *************************************
+         *       Root Specific Stuff
+         ***************************************/
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(RegisterActivity.this,
+//                android.R.layout.simple_dropdown_item_1line, RegisteredCompaniesProvider.getCompanyList());
+//        companyNameAutoCompleteTextView.setAdapter(adapter);
 
     }
 
@@ -211,8 +214,15 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     public void onValidationSucceeded() {
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
-        String companyName = companyNameAutoCompleteTextView.getText().toString();
-        String companyCode = companyCodeEditText.getText().toString();
+
+        /* *************************************
+        *       Root Specific
+        ***************************************/
+//        String companyName = companyNameAutoCompleteTextView.getText().toString();
+//        String companyCode = companyCodeEditText.getText().toString();
+        String companyName = "Root Metrics";
+        String companyCode = "rm1";
+
         String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
@@ -301,13 +311,17 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
 
         Map<String, String> companyCodesMap = RegisteredCompaniesProvider.getCompanyCodesMap();
         String registeredCompanyCode = companyCodesMap.get(companyName);
+
+        /* *************************************
+        *       Root Specific
+        ***************************************/
         if (registeredCompanyCode == null) {
-            companyNameAutoCompleteTextView.setError("Company name is not valid");
+//            companyNameAutoCompleteTextView.setError("Company name is not valid");
             return false;
         }
 
         if (!registeredCompanyCode.equalsIgnoreCase(companyCode)) {
-            companyCodeEditText.setError("Company code is wrong");
+//            companyCodeEditText.setError("Company code is wrong");
             return false;
         }
         return true;
@@ -596,13 +610,16 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
     @NotEmpty
     EditText lastNameEditText;
 
-    @InjectView(R.id.company_name)
-    @NotEmpty
-    AutoCompleteTextView companyNameAutoCompleteTextView;
-
-    @InjectView(R.id.company_code)
-    @NotEmpty
-    EditText companyCodeEditText;
+    /* *************************************
+    *       Root Specific
+    ***************************************/
+//    @InjectView(R.id.company_name)
+//    @NotEmpty
+//    AutoCompleteTextView companyNameAutoCompleteTextView;
+//
+//    @InjectView(R.id.company_code)
+//    @NotEmpty
+//    EditText companyCodeEditText;
 
     @InjectView(R.id.email)
     @NotEmpty

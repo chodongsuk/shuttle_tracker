@@ -219,7 +219,7 @@ public class MapViewFragment extends Fragment
                     driverMarker = map.addMarker(new MarkerOptions()
                             .position(new LatLng(lat, lng))
                             .title(mRider.getFirstName() + " to: " + mDestinationLocation.getDestinationName())
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.van64)));
 
                 }
 
