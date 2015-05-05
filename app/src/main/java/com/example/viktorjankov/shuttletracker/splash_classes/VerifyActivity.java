@@ -69,7 +69,7 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
 
     private void registerUser(final String firstName, final String lastName, final String email, String companyID) {
         User user = new User(companyID.toLowerCase(), email.toLowerCase(), firstName, lastName, uID);
-        Rider rider = new Rider(firstName, lastName, uID, companyID.toLowerCase());
+        Rider rider = new Rider(firstName, lastName, uID, companyID.toLowerCase(), false);
 
         String FIREBASE_RIDER_ENDPOINT = "companyRiders/" + rider.getCompanyID() + "/" + rider.getuID();
         String FIREBASE_USER_ENDPOINT = "users/" + uID;
@@ -137,7 +137,6 @@ public class VerifyActivity extends ActionBarActivity implements Validator.Valid
             }
         }
     }
-
 
     /* *************************************
      *       HANDLE BACK PRESS             *

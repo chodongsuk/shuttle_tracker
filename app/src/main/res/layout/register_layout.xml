@@ -43,15 +43,19 @@
                 android:hint="@string/last_name" />
         </LinearLayout>
 
-        <AutoCompleteTextView
-            android:id="@+id/company_name"
-            style="@style/form_style"
-            android:hint="@string/company_name" />
 
-        <EditText
-            android:id="@+id/company_code"
-            style="@style/form_style"
-            android:hint="@string/company_code" />
+        <!--/* *************************************-->
+        <!--*       Root Specific Stuff-->
+        <!--***************************************/-->
+        <!--<AutoCompleteTextView-->
+            <!--android:id="@+id/company_name"-->
+            <!--style="@style/form_style"-->
+            <!--android:hint="@string/company_name" />-->
+
+        <!--<EditText-->
+            <!--android:id="@+id/company_code"-->
+            <!--style="@style/form_style"-->
+            <!--android:hint="@string/company_code" />-->
 
         <EditText
             android:id="@+id/email"

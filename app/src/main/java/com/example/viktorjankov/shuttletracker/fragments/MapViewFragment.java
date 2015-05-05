@@ -15,9 +15,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -29,11 +26,8 @@ import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
 import com.example.viktorjankov.shuttletracker.directions.DirectionsJSONParser;
 import com.example.viktorjankov.shuttletracker.directions.DownloadTask;
-import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
-import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.model.DestinationLocation;
 import com.example.viktorjankov.shuttletracker.model.Rider;
-import com.example.viktorjankov.shuttletracker.singletons.BusProvider;
 import com.example.viktorjankov.shuttletracker.singletons.FirebaseProvider;
 import com.example.viktorjankov.shuttletracker.singletons.RiderProvider;
 import com.firebase.client.DataSnapshot;
@@ -136,6 +130,7 @@ public class MapViewFragment extends Fragment
         createNotification(mRider.getFirstName() + " " + mRider.getLastName(), mRider.getDestinationLocation().getDestinationName());
 
         setDriverServicingListener();
+        setActiveStateListener();
     }
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -203,12 +198,14 @@ public class MapViewFragment extends Fragment
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     double lat = 0;
                     double lng = 0;
-                    for (DataSnapshot loc : dataSnapshot.getChildren()) {
-                        if (loc.getKey().equals("lat")) {
-                            lat = (double) loc.getValue();
-                        }
-                        else if (loc.getKey().equals("lng")) {
-                            lng = (double) loc.getValue();
+                    if (dataSnapshot != null) {
+                        for (DataSnapshot loc : dataSnapshot.getChildren()) {
+                            if (loc.getKey().equals("lat")) {
+                                lat = (double) loc.getValue();
+                            }
+                            else if (loc.getKey().equals("lng")) {
+                                lng = (double) loc.getValue();
+                            }
                         }
                     }
 
@@ -232,6 +229,25 @@ public class MapViewFragment extends Fragment
         else {
             // remove listener
         }
+    }
+
+    private void setActiveStateListener() {
+        String FIREBASE_SERVICING = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/active";
+        mFirebase.child(FIREBASE_SERVICING).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot != null) {
+                    boolean active = (boolean) dataSnapshot.getValue();
+                    mRider.setActive(active);
+                    handleActiveRider();
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     private void setFirebaseEndpoints() {
@@ -376,12 +392,16 @@ public class MapViewFragment extends Fragment
 
     private void startLocationUpdates() {
         Log.i(kLOG_TAG, "Gramatik: Starting location updates!");
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
     }
 
     private void stopLocationUpdates() {
         Log.i(kLOG_TAG, "Gramatik: Stopping location updates!");
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
     }
 
     @Override

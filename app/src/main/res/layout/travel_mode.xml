@@ -12,6 +12,7 @@
         <LinearLayout style="@style/travel_mode_ll">
 
             <ImageButton
+                android:clickable="false"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:background="@drawable/travel_mode_circle_red"
@@ -36,6 +37,7 @@
         <LinearLayout style="@style/travel_mode_ll">
 
             <ImageButton
+                android:clickable="false"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:background="@drawable/travel_mode_circle_green"
@@ -60,6 +62,7 @@
         <LinearLayout style="@style/travel_mode_ll">
 
             <ImageButton
+                android:clickable="false"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:background="@drawable/travel_mode_circle_cyan"

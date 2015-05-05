@@ -300,7 +300,6 @@ public class MainActivity extends ActionBarActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mRider = new Rider();
                 for (DataSnapshot rider : dataSnapshot.getChildren()) {
-
                     if (rider.getKey().equals("uID")) {
                         String uID = (String) rider.getValue();
                         mRider.setuID(uID);

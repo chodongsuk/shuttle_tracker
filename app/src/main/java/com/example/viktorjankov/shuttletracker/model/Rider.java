@@ -28,11 +28,12 @@ public class Rider implements Serializable {
 
     }
 
-    public Rider(String firstName, String lastName, String uID, String companyID) {
+    public Rider(String firstName, String lastName, String uID, String companyID, boolean serviced) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.uID = uID;
         this.companyID = companyID;
+        this.serviced = false;
     }
 
     public String getLastName() {
