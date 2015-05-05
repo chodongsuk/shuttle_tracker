@@ -28,12 +28,13 @@ public class Rider implements Serializable {
 
     }
 
-    public Rider(String firstName, String lastName, String uID, String companyID, boolean serviced) {
+    public Rider(String firstName, String lastName, String uID, String companyID, boolean serviced, boolean active) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.uID = uID;
         this.companyID = companyID;
-        this.serviced = false;
+        this.serviced = serviced;
+        this.active = active;
     }
 
     public String getLastName() {
@@ -84,7 +85,7 @@ public class Rider implements Serializable {
         this.mDestinationTime = destinationTime;
     }
 
-    public boolean isActive() {
+    public boolean getActive() {
         return active;
     }
 
@@ -125,7 +126,7 @@ public class Rider implements Serializable {
         this.mTravelMode = mTravelMode;
     }
 
-    public boolean isServiced() {
+    public boolean getServiced() {
         return serviced;
     }
 

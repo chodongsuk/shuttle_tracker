@@ -456,7 +456,7 @@ public class MapViewFragment extends Fragment
 
     @OnClick(R.id.start_trip_button)
     public void onClick() {
-        if (mRider.isActive()) {
+        if (mRider.getActive()) {
             mRider.setActive(false);
         }
         else {
@@ -466,7 +466,7 @@ public class MapViewFragment extends Fragment
     }
 
     private void handleActiveRider() {
-        if (mRider.isActive()) {
+        if (mRider.getActive()) {
             startLocationUpdates();
 
             Animation pulse = AnimationUtils.loadAnimation(getActivity(), R.anim.pulse);
@@ -489,7 +489,7 @@ public class MapViewFragment extends Fragment
             mHandler.removeCallbacks(runnable);
         }
 
-        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mRider.isActive());
+        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mRider.getActive());
     }
 
     @Override

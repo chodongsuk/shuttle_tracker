@@ -251,7 +251,7 @@ public class RegisterActivity extends ActionBarActivity implements Validator.Val
                 String uID = (String) result.get("uid");
 
                 final User user = new User(companyID.toLowerCase(), email.toLowerCase(), firstName, lastName, uID);
-                final Rider rider = new Rider(firstName, lastName, uID, companyID.toLowerCase(), false);
+                final Rider rider = new Rider(firstName, lastName, uID, companyID.toLowerCase(), false, false);
 
                 String FIREBASE_RIDER = "companyRiders/" + rider.getCompanyID() + "/" + rider.getuID();
                 String FIREBASE_USER = "users/" + uID;
