@@ -67,9 +67,6 @@ public class PickupLocationFragment extends Fragment {
         RecyclerView.Adapter mAdapter = new DestinationsAdapter(mCompany.getDestinationList());
         mRecyclerView.setAdapter(mAdapter);
 
-        NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(MapViewFragment.mID);
-
         return v;
     }
 

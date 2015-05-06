@@ -125,7 +125,7 @@ public class MapViewFragment extends Fragment
         buildGoogleApiClient();
         createLocationRequest();
 
-        if (mNotificationManager != null) {
+        if (mNotificationManager != null && !mRider.getActive()) {
             mNotificationManager.cancelAll();
         }
     }
@@ -744,6 +744,7 @@ public class MapViewFragment extends Fragment
         if (test == null && mRider.getActive()) {
             createNotification(mRider.getFirstName() + " " + mRider.getLastName(), mRider.getDestinationLocation().getDestinationName());
         }
+
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }

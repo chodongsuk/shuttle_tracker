@@ -54,8 +54,6 @@ public class TravelModeFragment extends Fragment {
         travelWayTwoRL.setClickable(clickable);
         travelWayThreeRL.setClickable(clickable);
 
-        NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(MapViewFragment.mID);
         return v;
     }
 
