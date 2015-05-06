@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.viktorjankov.shuttletracker.events.PickupLocationEvent;
-import com.example.viktorjankov.shuttletracker.events.StartPickupDestinationEvent;
 import com.example.viktorjankov.shuttletracker.events.TravelModeEvent;
 import com.example.viktorjankov.shuttletracker.fragments.MapViewFragment;
 import com.example.viktorjankov.shuttletracker.fragments.PickupLocationFragment;
@@ -395,10 +394,13 @@ public class MainActivity extends ActionBarActivity {
                 else {
                     Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
                     if (fragment == null) {
-                        fragment = PickupLocationFragment.newInstance(mCompany);
-                        ((PickupLocationFragment) fragment).setClickable(true);
-                        manager.beginTransaction().add(R.id.fragmentContainer, fragment)
-                                .commitAllowingStateLoss();
+                        if (!isFinishing()) {
+
+                            fragment = PickupLocationFragment.newInstance(mCompany);
+                            ((PickupLocationFragment) fragment).setClickable(true);
+                            manager.beginTransaction().add(R.id.fragmentContainer, fragment)
+                                    .commitAllowingStateLoss();
+                        }
 
                     }
                     else if (fragment instanceof TravelModeFragment) {
@@ -504,7 +506,7 @@ public class MainActivity extends ActionBarActivity {
     private void initProgressDialog() {
         mAuthProgressDialog = new ProgressDialog(this);
         mAuthProgressDialog.setTitle("Loading");
-        mAuthProgressDialog.setMessage("Signing in...");
+        mAuthProgressDialog.setMessage("Fetching data...");
         mAuthProgressDialog.setCancelable(false);
     }
 
