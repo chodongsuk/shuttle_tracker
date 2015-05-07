@@ -77,7 +77,8 @@ public class WelcomeActivity extends FragmentActivity {
                         logout();
                         mAuthProgressDialog.hide();
 
-                    } else {
+                    }
+                    else {
                         UserProvider.setUser(user);
                         intent.putExtra(MainActivity.USER_INFO, user);
                         mAuthProgressDialog.hide();
@@ -106,7 +107,8 @@ public class WelcomeActivity extends FragmentActivity {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
             resource_sign = R.drawable.ripple_signin;
             resource_reg = R.drawable.ripple_register;
-        } else {
+        }
+        else {
             resource_sign = R.drawable.flat_pressed_signin;
             resource_reg = R.drawable.flat_pressed_register;
         }
@@ -175,23 +177,28 @@ public class WelcomeActivity extends FragmentActivity {
             if (userInfo.getKey().equals("companyCode")) {
                 companyCode = (String) userInfo.getValue();
 
-            } else if (userInfo.getKey().equals("email")) {
+            }
+            else if (userInfo.getKey().equals("email")) {
                 email = (String) userInfo.getValue();
 
-            } else if (userInfo.getKey().equals("firstName")) {
+            }
+            else if (userInfo.getKey().equals("firstName")) {
                 firstName = (String) userInfo.getValue();
 
-            } else if (userInfo.getKey().equals("lastName")) {
+            }
+            else if (userInfo.getKey().equals("lastName")) {
 
                 lastName = (String) userInfo.getValue();
-            } else if (userInfo.getKey().equals("uID")) {
+            }
+            else if (userInfo.getKey().equals("uID")) {
                 uID = (String) userInfo.getValue();
             }
         }
 
         if (companyCode.equals("")) {
             return null;
-        } else {
+        }
+        else {
             return new User(companyCode, email, firstName, lastName, uID);
         }
     }
@@ -213,7 +220,9 @@ public class WelcomeActivity extends FragmentActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        mAuthProgressDialog.dismiss();
+        if (mAuthProgressDialog != null) {
+            mAuthProgressDialog.dismiss();
+        }
     }
 
     private void initProgressDialog() {
@@ -241,12 +250,14 @@ public class WelcomeActivity extends FragmentActivity {
                     if (!session.isClosed()) {
                         session.closeAndClearTokenInformation();
                     }
-                } else {
+                }
+                else {
                     session = new Session(getApplicationContext());
                     Session.setActiveSession(session);
                     session.closeAndClearTokenInformation();
                 }
-            } else if (mAuthData.getProvider().equals("google")) {
+            }
+            else if (mAuthData.getProvider().equals("google")) {
                 /* Logout from Google+ */
                 GoogleApiClient mGoogleApiClient = FirebaseAuthProvider.getGoogleApiClient();
                 if (mGoogleApiClient.isConnected()) {

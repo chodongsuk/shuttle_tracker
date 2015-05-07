@@ -317,15 +317,6 @@ public class MapViewFragment extends Fragment
         }
     }
 
-    private void addCurrentLocationMarker() {
-        if (map != null) {
-            map.addMarker(new MarkerOptions()
-                    .position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                    .title(mRider.getFirstName() + " to: " + mDestinationLocation.getDestinationName())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-        }
-    }
-
     private void updateCamera(boolean zoom, float zoomLevel) {
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
@@ -440,7 +431,6 @@ public class MapViewFragment extends Fragment
             mCurrentLocationIB.setClickable(true);
         }
         addDestinationLocMarker();
-        addCurrentLocationMarker();
 
         // Start downloading json data from Google Directions API
         url = getDirectionsUrl();
