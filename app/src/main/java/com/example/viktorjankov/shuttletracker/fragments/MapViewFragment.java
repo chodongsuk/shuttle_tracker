@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,7 +48,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
 
@@ -88,6 +86,7 @@ public class MapViewFragment extends Fragment
     String url;
 
     Marker driverMarker;
+    Marker destinationMarker;
 
     public static MapViewFragment newInstance(Rider rider) {
         MapViewFragment mapViewFragment = new MapViewFragment();
@@ -276,13 +275,12 @@ public class MapViewFragment extends Fragment
     }
 
     private ParserTask createParserTask() {
-        parserTask = new ParserTask();
-        return parserTask;
+        Log.i(kLOG_TAG, "Parser Task created");
+        return new ParserTask();
     }
 
     private DownloadTask createDownloadTask(ParserTask parserTask) {
-        downloadTask = new DownloadTask(map, parserTask);
-        return downloadTask;
+        return new DownloadTask(map, parserTask);
     }
 
     private Runnable runnable = new Runnable() {
@@ -290,6 +288,7 @@ public class MapViewFragment extends Fragment
         public void run() {
             parserTask = createParserTask();
             downloadTask = createDownloadTask(parserTask);
+
             url = getDirectionsUrl();
 
             downloadTask.execute(url);
@@ -307,7 +306,10 @@ public class MapViewFragment extends Fragment
 
     private void addDestinationLocMarker() {
         if (map != null) {
-            map.addMarker(new MarkerOptions()
+            if (destinationMarker != null) {
+                destinationMarker.remove();
+            }
+            destinationMarker = map.addMarker(new MarkerOptions()
                     .position(new LatLng(mDestinationLocation.getLatitude(),
                             mDestinationLocation.getLongitude()))
                     .title(mDestinationLocation.getDestinationName())
@@ -422,11 +424,8 @@ public class MapViewFragment extends Fragment
 
     private void stopLocationUpdates() {
         Log.i(kLOG_TAG, "Gramatik: Stopping location updates!");
-        if (mGoogleApiClient != null) {
-
-            if (mGoogleApiClient.isConnected()) {
-                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-            }
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
     }
 
@@ -436,7 +435,7 @@ public class MapViewFragment extends Fragment
         mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
         mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
 
-        updateCamera(false, 10);
+        updateCamera(false, 14);
         if (mCurrentLocationIB != null) {
             mCurrentLocationIB.setClickable(true);
         }
@@ -495,7 +494,7 @@ public class MapViewFragment extends Fragment
         else {
             mRider.setActive(true);
         }
-        handleActiveRider();
+        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mRider.getActive());
     }
 
     private void handleActiveRider() {
@@ -586,9 +585,6 @@ public class MapViewFragment extends Fragment
     public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
         public final String kLOG_TAG = ParserTask.class.getSimpleName();
 
-
-        PolylineOptions lineOptions;
-
         public ParserTask() {
             FIREBASE_TIME_ENDPOINT = "companyRiders/" + RiderProvider.getRider().getCompanyID()
 
@@ -623,7 +619,6 @@ public class MapViewFragment extends Fragment
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
             ArrayList<LatLng> points = null;
-            lineOptions = null;
             String proximity = "";
             String duration = "";
 
@@ -634,7 +629,6 @@ public class MapViewFragment extends Fragment
             // Traversing through all the routes
             for (int i = 0; i < result.size(); i++) {
                 points = new ArrayList<LatLng>();
-                lineOptions = new PolylineOptions();
 
                 // Fetching i-th route
                 List<HashMap<String, String>> path = result.get(i);
@@ -658,17 +652,11 @@ public class MapViewFragment extends Fragment
 
                     points.add(position);
                 }
-
-                // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(12);
-                lineOptions.color(Color.BLUE);
             }
 
             // Draw markers and polyines on map
-            map.clear();
+
             addDestinationLocMarker();
-            map.addPolyline(lineOptions);
 
             String rDestination = mRider.getDestinationLocation().getDestinationName();
 
@@ -689,6 +677,7 @@ public class MapViewFragment extends Fragment
             destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
             Log.i(kLOG_TAG, "Gramatik: ParserTask updating map values");
         }
+
     }
 
     private int parseTime(String time) {
