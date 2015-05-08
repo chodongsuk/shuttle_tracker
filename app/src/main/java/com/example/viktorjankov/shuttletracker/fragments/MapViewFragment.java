@@ -20,6 +20,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.viktorjankov.shuttletracker.MainActivity;
 import com.example.viktorjankov.shuttletracker.R;
@@ -163,19 +164,14 @@ public class MapViewFragment extends Fragment
                     boolean servicing = (boolean) dataSnapshot.getValue();
 
                     if (servicing && mRider.getActive()) {
-                        if (mDriverComingTV != null) {
-                            mDriverComingTV.setVisibility(View.VISIBLE);
-                            plotDriverLocation(true);
-                        }
+                        Toast.makeText(getActivity(), "Driver is on the way!", Toast.LENGTH_LONG).show();
+                        plotDriverLocation(true);
                     }
                     else {
-                        if (mDriverComingTV != null) {
-                            mDriverComingTV.setVisibility(View.GONE);
-                            if (driverMarker != null) {
-                                driverMarker.remove();
-                            }
-                            plotDriverLocation(false);
+                        if (driverMarker != null) {
+                            driverMarker.remove();
                         }
+                        plotDriverLocation(false);
                     }
                 }
 
@@ -530,9 +526,6 @@ public class MapViewFragment extends Fragment
     public void onClickButton() {
         updateCamera(true, map.getCameraPosition().zoom);
     }
-
-    @InjectView(R.id.driver_coming)
-    TextView mDriverComingTV;
 
     /**
      * ***********************************
