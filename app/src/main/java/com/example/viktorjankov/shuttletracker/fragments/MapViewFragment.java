@@ -102,6 +102,10 @@ public class MapViewFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        buildGoogleApiClient();
+        createLocationRequest();
+
         mRider = (Rider) getArguments().get(RIDER_KEY);
         Log.i(kLOG_TAG, "MapView onCreate Rider:" + mRider.toString());
 
@@ -119,8 +123,6 @@ public class MapViewFragment extends Fragment
         mCurrentLocation.setLatitude(lat);
         mCurrentLocation.setLongitude(lng);
 
-        buildGoogleApiClient();
-        createLocationRequest();
 
         if (mNotificationManager != null && !mRider.getActive()) {
             mNotificationManager.cancelAll();
@@ -174,7 +176,6 @@ public class MapViewFragment extends Fragment
                         plotDriverLocation(false);
                     }
                 }
-
             }
 
             @Override
@@ -231,6 +232,7 @@ public class MapViewFragment extends Fragment
                 if (dataSnapshot != null) {
                     boolean active = (boolean) dataSnapshot.getValue();
                     mRider.setActive(active);
+                    Log.i(kLOG_TAG, "Gramatik: Driver is active");
                     handleActiveRider();
                 }
             }
@@ -384,15 +386,20 @@ public class MapViewFragment extends Fragment
 
     public void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(25000);
-        mLocationRequest.setFastestInterval(15000);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     private void startLocationUpdates() {
+        Log.i(kLOG_TAG, "Gramatik: Start outside location updates");
+        Log.i(kLOG_TAG, "Gramatik: Google is connected? " + (mGoogleApiClient.isConnected()));
         if (mGoogleApiClient.isConnected()) {
             Log.i(kLOG_TAG, "Gramatik: Starting location updates!");
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+        else {
+            mGoogleApiClient.connect();
         }
     }
 
@@ -469,8 +476,11 @@ public class MapViewFragment extends Fragment
     }
 
     private void handleActiveRider() {
+        Log.i(kLOG_TAG, "Inside Handle Active Rider");
         if (isAdded()) {
+            Log.i(kLOG_TAG, "Inside Added Active Rider");
             if (mRider.getActive()) {
+                Log.i(kLOG_TAG, "Inside Active Rider");
                 startLocationUpdates();
 
                 if (mStartTripButton != null && mHandler != null && isAdded()) {
@@ -503,7 +513,6 @@ public class MapViewFragment extends Fragment
                     MapViewFragment.mNotificationManager.cancelAll();
                 }
             }
-
         }
     }
 
