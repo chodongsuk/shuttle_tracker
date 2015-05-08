@@ -39,6 +39,8 @@ public class WelcomeActivity extends FragmentActivity {
     public final String kLOG_TAG = WelcomeActivity.this.getClass().getSimpleName();
 
     ProgressDialog mAuthProgressDialog;
+    boolean locationEnabled = false;
+
     Firebase mFirebase = FirebaseProvider.getInstance();
 
     @Override
@@ -54,6 +56,9 @@ public class WelcomeActivity extends FragmentActivity {
 
         // Download the registered companies from Firebase
         RegisteredCompaniesProvider.init();
+    }
+
+    private void controlFlow() {
 
         Log.i(kLOG_TAG, "Firebase: " + mFirebase.toString());
         AuthData authData = mFirebase.getAuth();
@@ -123,6 +128,7 @@ public class WelcomeActivity extends FragmentActivity {
         boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         if (!gpsEnabled) {
+            locationEnabled = false;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             builder.setCancelable(false);
@@ -135,6 +141,10 @@ public class WelcomeActivity extends FragmentActivity {
                 }
             });
             builder.show();
+        }
+        else {
+            locationEnabled = true;
+            controlFlow();
         }
     }
 
@@ -214,7 +224,9 @@ public class WelcomeActivity extends FragmentActivity {
         if (mAuthProgressDialog == null) {
             initProgressDialog();
         }
-        checkLocationServiceEnabled();
+        if (!locationEnabled) {
+            checkLocationServiceEnabled();
+        }
     }
 
     @Override

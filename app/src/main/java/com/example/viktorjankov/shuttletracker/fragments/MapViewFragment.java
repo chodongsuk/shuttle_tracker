@@ -1,6 +1,5 @@
 package com.example.viktorjankov.shuttletracker.fragments;
 
-import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -95,8 +94,6 @@ public class MapViewFragment extends Fragment
         arguments.putSerializable(RIDER_KEY, rider);
 
         mapViewFragment.setArguments(arguments);
-//        Log.i(kLOG_TAG, "\nPutting as Argument Rider: " + rider.toString());
-        Log.i(kLOG_TAG, "Rider From MainActivity" + rider.toString());
 
         return mapViewFragment;
     }
@@ -151,16 +148,10 @@ public class MapViewFragment extends Fragment
 
         mStartTripButton.bringToFront();
 
-        return v;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
         setDriverServicingListener();
         setActiveStateListener();
 
+        return v;
     }
 
     private void setDriverServicingListener() {
@@ -171,11 +162,10 @@ public class MapViewFragment extends Fragment
                 if (dataSnapshot != null) {
                     boolean servicing = (boolean) dataSnapshot.getValue();
 
-                    if (servicing) {
+                    if (servicing && mRider.getActive()) {
                         if (mDriverComingTV != null) {
                             mDriverComingTV.setVisibility(View.VISIBLE);
                             plotDriverLocation(true);
-
                         }
                     }
                     else {
@@ -202,7 +192,6 @@ public class MapViewFragment extends Fragment
         String FIREBASE_DRIVER_LOCATION = "companyDrivers/" + mRider.getCompanyID();
 
         if (listen) {
-
             mFirebase.child(FIREBASE_DRIVER_LOCATION).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -236,9 +225,6 @@ public class MapViewFragment extends Fragment
                 }
             });
         }
-        else {
-            // remove listener
-        }
     }
 
     private void setActiveStateListener() {
@@ -263,6 +249,7 @@ public class MapViewFragment extends Fragment
     private void setFirebaseEndpoints() {
         FIREBASE_LAT_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/latitude";
         FIREBASE_LNG_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/longitude";
+        FIREBASE_SERVICED_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/serviced";
         FIREBASE_ACTIVE_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/active";
         FIREBASE_DESTINATION_ENDPOINT = "companyRiders/" + mRider.getCompanyID() + "/" + mRider.getuID() + "/destinationName";
 
@@ -401,21 +388,21 @@ public class MapViewFragment extends Fragment
 
     public void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
+        mLocationRequest.setInterval(25000);
         mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     private void startLocationUpdates() {
-        Log.i(kLOG_TAG, "Gramatik: Starting location updates!");
         if (mGoogleApiClient.isConnected()) {
+            Log.i(kLOG_TAG, "Gramatik: Starting location updates!");
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
     }
 
     private void stopLocationUpdates() {
-        Log.i(kLOG_TAG, "Gramatik: Stopping location updates!");
         if (mGoogleApiClient.isConnected()) {
+            Log.i(kLOG_TAG, "Gramatik: Stopping location updates!");
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
     }
@@ -440,8 +427,6 @@ public class MapViewFragment extends Fragment
                 downloadTask.execute(url);
             }
         }
-
-        handleActiveRider();
     }
 
     @Override
@@ -521,10 +506,8 @@ public class MapViewFragment extends Fragment
                 if (MapViewFragment.mNotificationManager != null) {
                     MapViewFragment.mNotificationManager.cancelAll();
                 }
-
             }
 
-            mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mRider.getActive());
         }
     }
 
@@ -533,7 +516,6 @@ public class MapViewFragment extends Fragment
         if (mHandler != null) {
             mHandler.removeCallbacks(runnable);
         }
-        stopLocationUpdates();
         super.onDetach();
     }
 
@@ -564,6 +546,7 @@ public class MapViewFragment extends Fragment
     private String DIRECTIONS_API_ENDPOINT = "https://maps.googleapis.com/maps/api/directions/";
     private String FIREBASE_LAT_ENDPOINT;
     private String FIREBASE_LNG_ENDPOINT;
+    private String FIREBASE_SERVICED_ENDPOINT;
     private String FIREBASE_ACTIVE_ENDPOINT;
     private String FIREBASE_DESTINATION_ENDPOINT;
     private String FIREBASE_TIME_ENDPOINT;
@@ -648,8 +631,6 @@ public class MapViewFragment extends Fragment
 
             addDestinationLocMarker();
 
-            String rDestination = mRider.getDestinationLocation().getDestinationName();
-
             String[] distanceParsed = proximity.split("\\s+");
             double rProximity = Double.parseDouble(distanceParsed[0]);
             mRider.setProximity(rProximity);
@@ -722,10 +703,6 @@ public class MapViewFragment extends Fragment
         PendingIntent test = PendingIntent.getActivity(getActivity(), mID, notificationIntent, PendingIntent.FLAG_NO_CREATE);
         if (test == null && mRider.getActive()) {
             createNotification(mRider.getFirstName() + " " + mRider.getLastName(), mRider.getDestinationLocation().getDestinationName());
-        }
-
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
         }
     }
 }

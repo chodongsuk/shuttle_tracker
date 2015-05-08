@@ -80,21 +80,6 @@
 
     </LinearLayout>
 
-    <TextView
-        android:text="@string/driver_coming"
-        android:id="@+id/driver_coming"
-        android:visibility="gone"
-        android:textColor="@color/white"
-        android:gravity="center"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="30dp"
-        android:background="@color/blue"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"/>
-
     <ImageButton
         android:id="@+id/my_location"
         android:clickable="false"
