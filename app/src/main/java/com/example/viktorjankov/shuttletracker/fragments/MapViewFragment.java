@@ -635,22 +635,24 @@ public class MapViewFragment extends Fragment
 
             String[] distanceParsed = proximity.split("\\s+");
             double rProximity = Double.parseDouble(distanceParsed[0]);
-            mRider.setProximity(rProximity);
 
-            int timeAsMins = parseTime(duration);
-            if (mTravelMode.equals("transit")) {
-                timeAsMins += Math.round(rProximity);
+            if (rProximity <= mRider.getProximity()) {
+                mRider.setProximity(rProximity);
+
+                int timeAsMins = parseTime(duration);
+                if (mTravelMode.equals("transit")) {
+                    timeAsMins += Math.round(rProximity);
+                }
+                mRider.setDestinationTime(timeAsMins);
+
+                FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(timeAsMins);
+                FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
+
+                destinationDurationTV.setText(timeAsMins + " mins");
+                destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
+                Log.i(kLOG_TAG, "Gramatik: ParserTask updating map values");
             }
-            mRider.setDestinationTime(timeAsMins);
-
-            FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(timeAsMins);
-            FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
-
-            destinationDurationTV.setText(timeAsMins + " mins");
-            destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
-            Log.i(kLOG_TAG, "Gramatik: ParserTask updating map values");
         }
-
     }
 
     private int parseTime(String time) {
