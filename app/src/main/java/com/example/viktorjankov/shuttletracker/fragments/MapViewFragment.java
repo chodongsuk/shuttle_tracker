@@ -61,7 +61,7 @@ import butterknife.OnClick;
 
 public class MapViewFragment extends Fragment
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
-
+    public static final String LOCATION_UPDATES_RUNNING = "locationUpdatesRunning";
     public static int mID = 5;
     public static NotificationManager mNotificationManager;
 
@@ -88,6 +88,9 @@ public class MapViewFragment extends Fragment
     Marker driverMarker;
     Marker destinationMarker;
 
+    private boolean startLocationUpdates = false;
+    private boolean locationUpdatesAlreadyRequested;
+
     public static MapViewFragment newInstance(Rider rider) {
         MapViewFragment mapViewFragment = new MapViewFragment();
 
@@ -107,7 +110,6 @@ public class MapViewFragment extends Fragment
         createLocationRequest();
 
         mRider = (Rider) getArguments().get(RIDER_KEY);
-        Log.i(kLOG_TAG, "MapView onCreate Rider:" + mRider.toString());
 
         // Set and upload the rider to firebase
         setFirebaseEndpoints();
@@ -123,6 +125,11 @@ public class MapViewFragment extends Fragment
         mCurrentLocation.setLatitude(lat);
         mCurrentLocation.setLongitude(lng);
 
+        if (getActivity().getIntent() != null) {
+            Log.i(kLOG_TAG, "Gramatik: Location Updates Already Requested: " + locationUpdatesAlreadyRequested);
+            locationUpdatesAlreadyRequested = getActivity().getIntent().getBooleanExtra(LOCATION_UPDATES_RUNNING, false);
+        }
+        Log.i(kLOG_TAG, "Gramatik: Location Updates Already Requested After Intent: " + locationUpdatesAlreadyRequested);
 
         if (mNotificationManager != null && !mRider.getActive()) {
             mNotificationManager.cancelAll();
@@ -277,7 +284,7 @@ public class MapViewFragment extends Fragment
             url = getDirectionsUrl();
 
             downloadTask.execute(url);
-            mHandler.postDelayed(this, 30000);
+            mHandler.postDelayed(this, 20000);
         }
     };
 
@@ -326,7 +333,7 @@ public class MapViewFragment extends Fragment
     }
 
     @Override
-    public void onDestroy() {
+         public void onDestroy() {
         super.onDestroy();
         if (mapView != null) {
             mapView.onDestroy();
@@ -334,7 +341,7 @@ public class MapViewFragment extends Fragment
     }
 
     @Override
-    public void onLowMemory() {
+         public void onLowMemory() {
         super.onLowMemory();
         if (mapView != null) {
             mapView.onLowMemory();
@@ -342,6 +349,9 @@ public class MapViewFragment extends Fragment
     }
 
     private String getDirectionsUrl() {
+        mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        Log.i(kLOG_TAG, "Gramatik Last Location Lat: " + mCurrentLocation.getLatitude());
+        Log.i(kLOG_TAG, "Gramatik Last Location Lng: " + mCurrentLocation.getLongitude());
         LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
         LatLng dest = new LatLng(mDestinationLocation.getLatitude(), mDestinationLocation.getLongitude());
 
@@ -386,29 +396,37 @@ public class MapViewFragment extends Fragment
 
     public void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(15000);
+        mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
-    private void startLocationUpdates() {
-        Log.i(kLOG_TAG, "Gramatik: Start outside location updates");
-        Log.i(kLOG_TAG, "Gramatik: Google is connected? " + (mGoogleApiClient.isConnected()));
-        if (mGoogleApiClient.isConnected()) {
-            Log.i(kLOG_TAG, "Gramatik: Starting location updates!");
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        }
-        else {
-            mGoogleApiClient.connect();
-        }
-    }
+//    private void startLocationUpdates() {
+//        startLocationUpdates = true;
+//        Log.i(kLOG_TAG, "Gramatik: Start outside location updates");
+//        Log.i(kLOG_TAG, "Gramatik: Google is connected? " + (mGoogleApiClient.isConnected()));
+//        if (mGoogleApiClient.isConnected()) {
+//            Log.i(kLOG_TAG, "Gramatik: Location Updates Already Requested: " + locationUpdatesAlreadyRequested);
+//            if (!locationUpdatesAlreadyRequested) {
+//                Log.i(kLOG_TAG, "Gramatik: Starting location updates!");
+//                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//            }
+//        }
+//        else {
+//            mGoogleApiClient.connect();
+//        }
+//    }
 
-    private void stopLocationUpdates() {
-        if (mGoogleApiClient.isConnected()) {
-            Log.i(kLOG_TAG, "Gramatik: Stopping location updates!");
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }
-    }
+//    private void stopLocationUpdates() {
+//        startLocationUpdates = false;
+//        if (mGoogleApiClient.isConnected()) {
+//            Log.i(kLOG_TAG, "Gramatik: Stopping location updates!");
+//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+//        }
+//        else {
+//            mGoogleApiClient.connect();
+//        }
+//    }
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -428,6 +446,12 @@ public class MapViewFragment extends Fragment
         if (downloadTask != null) {
             if (downloadTask.getStatus() != AsyncTask.Status.RUNNING) {
                 downloadTask.execute(url);
+            }
+        }
+
+        if (mGoogleApiClient != null) {
+            if (startLocationUpdates) {
+//                startLocationUpdates();
             }
         }
     }
@@ -451,7 +475,7 @@ public class MapViewFragment extends Fragment
 
     /**
      * ***********************************
-     * View Injections              *
+     * View Injections
      * ************************************
      */
     @InjectView(R.id.destinationName)
@@ -481,7 +505,7 @@ public class MapViewFragment extends Fragment
             Log.i(kLOG_TAG, "Inside Added Active Rider");
             if (mRider.getActive()) {
                 Log.i(kLOG_TAG, "Inside Active Rider");
-                startLocationUpdates();
+//                startLocationUpdates();
 
                 if (mStartTripButton != null && mHandler != null && isAdded()) {
 
@@ -499,7 +523,7 @@ public class MapViewFragment extends Fragment
                 createNotification(mRider.getFirstName() + " " + mRider.getLastName(), mRider.getDestinationLocation().getDestinationName());
             }
             else {
-                stopLocationUpdates();
+//                stopLocationUpdates();
 
                 if (mStartTripButton != null && mHandler != null) {
                     mStartTripButton.clearAnimation();
@@ -635,11 +659,11 @@ public class MapViewFragment extends Fragment
 
             String[] distanceParsed = proximity.split("\\s+");
             double rProximity = Double.parseDouble(distanceParsed[0]);
+            int timeAsMins = parseTime(duration);
 
             if (rProximity <= mRider.getProximity()) {
                 mRider.setProximity(rProximity);
 
-                int timeAsMins = parseTime(duration);
                 if (mTravelMode.equals("transit")) {
                     timeAsMins += Math.round(rProximity);
                 }
@@ -651,6 +675,10 @@ public class MapViewFragment extends Fragment
                 destinationDurationTV.setText(timeAsMins + " mins");
                 destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
                 Log.i(kLOG_TAG, "Gramatik: ParserTask updating map values");
+            }
+            else {
+                destinationDurationTV.setText(timeAsMins + " mins");
+                destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
             }
         }
     }
@@ -678,6 +706,7 @@ public class MapViewFragment extends Fragment
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(getActivity(), MainActivity.class);
         resultIntent.putExtra("mapViewFragment", "mapViewFragmentScreen");
+        resultIntent.putExtra(LOCATION_UPDATES_RUNNING, true);
 
         // The stack builder object will contain an artificial back stack for the
         // started Activity.
@@ -687,6 +716,7 @@ public class MapViewFragment extends Fragment
         // Adds the back stack for the Intent (but not the Intent itself)
         stackBuilder.addParentStack(MainActivity.class);
         // Adds the Intent that starts the Activity to the top of the stack
+
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
@@ -694,6 +724,7 @@ public class MapViewFragment extends Fragment
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
         mBuilder.setContentIntent(resultPendingIntent);
+
         mNotificationManager =
                 (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         // mId allows you to update the notification later on.
