@@ -352,6 +352,10 @@ public class MapViewFragment extends Fragment
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         Log.i(kLOG_TAG, "Gramatik Last Location Lat: " + mCurrentLocation.getLatitude());
         Log.i(kLOG_TAG, "Gramatik Last Location Lng: " + mCurrentLocation.getLongitude());
+
+        mFirebase.child(FIREBASE_LAT_ENDPOINT).setValue(mCurrentLocation.getLatitude());
+        mFirebase.child(FIREBASE_LNG_ENDPOINT).setValue(mCurrentLocation.getLongitude());
+
         LatLng origin = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
         LatLng dest = new LatLng(mDestinationLocation.getLatitude(), mDestinationLocation.getLongitude());
 
