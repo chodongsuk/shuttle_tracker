@@ -499,8 +499,8 @@ public class MapViewFragment extends Fragment
             mRider.setActive(false);
             mRider.setServiced(false);
             mFirebase.child(FIREBASE_SERVICED_ENDPOINT).setValue(mRider.getServiced());
-            mRider.setProximity(999);
-            mFirebase.child(FIREBASE_PROXIMITY_ENDPOINT).setValue(999);
+            mRider.setProximity(999.2);
+            mFirebase.child(FIREBASE_PROXIMITY_ENDPOINT).setValue(mRider.getProximity());
         }
         else {
             mRider.setActive(true);
