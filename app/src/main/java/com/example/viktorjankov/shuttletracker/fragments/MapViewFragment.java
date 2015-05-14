@@ -333,7 +333,7 @@ public class MapViewFragment extends Fragment
     }
 
     @Override
-         public void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         if (mapView != null) {
             mapView.onDestroy();
@@ -341,7 +341,7 @@ public class MapViewFragment extends Fragment
     }
 
     @Override
-         public void onLowMemory() {
+    public void onLowMemory() {
         super.onLowMemory();
         if (mapView != null) {
             mapView.onLowMemory();
@@ -350,6 +350,7 @@ public class MapViewFragment extends Fragment
 
     private String getDirectionsUrl() {
         mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
         Log.i(kLOG_TAG, "Gramatik Last Location Lat: " + mCurrentLocation.getLatitude());
         Log.i(kLOG_TAG, "Gramatik Last Location Lng: " + mCurrentLocation.getLongitude());
 
@@ -496,6 +497,10 @@ public class MapViewFragment extends Fragment
     public void onClick() {
         if (mRider.getActive()) {
             mRider.setActive(false);
+            mRider.setServiced(false);
+            mFirebase.child(FIREBASE_SERVICED_ENDPOINT).setValue(mRider.getServiced());
+            mRider.setProximity(999);
+            mFirebase.child(FIREBASE_PROXIMITY_ENDPOINT).setValue(999);
         }
         else {
             mRider.setActive(true);
@@ -676,13 +681,17 @@ public class MapViewFragment extends Fragment
                 FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(timeAsMins);
                 FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
 
-                destinationDurationTV.setText(timeAsMins + " mins");
-                destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
+                destinationDurationTV.setText(mRider.getDestinationTime() + " mins");
+                destinationProximityTV.setText(mRider.getProximity() + " mi");
                 Log.i(kLOG_TAG, "Gramatik: ParserTask updating map values");
+                Log.i(kLOG_TAG, "Gramatik Changed Time as Int: " + mRider.getDestinationTime());
+                Log.i(kLOG_TAG, "Gramatik Changed Proximity: " + mRider.getProximity());
             }
             else {
-                destinationDurationTV.setText(timeAsMins + " mins");
-                destinationProximityTV.setText(String.valueOf(rProximity) + " mi");
+                destinationDurationTV.setText(mRider.getDestinationTime() + " mins");
+                destinationProximityTV.setText(mRider.getProximity() + " mi");
+                Log.i(kLOG_TAG, "Gramatik Time as Int: " + mRider.getDestinationTime());
+                Log.i(kLOG_TAG, "Gramatik Proximity: " + mRider.getProximity());
             }
         }
     }
