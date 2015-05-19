@@ -328,6 +328,18 @@ public class MapViewFragment extends Fragment
         }
     }
 
+    public void backPressed() {
+        mRider.setActive(false);
+        mRider.setServiced(false);
+        mRider.setProximity(999.2);
+
+        mFirebase.child(FIREBASE_SERVICED_ENDPOINT).setValue(mRider.getServiced());
+        mFirebase.child(FIREBASE_PROXIMITY_ENDPOINT).setValue(mRider.getProximity());
+        mFirebase.child(FIREBASE_ACTIVE_ENDPOINT).setValue(mRider.getActive());
+
+        handleActiveRider();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -746,5 +758,9 @@ public class MapViewFragment extends Fragment
         if (test == null && mRider.getActive()) {
             createNotification(mRider.getFirstName() + " " + mRider.getLastName(), mRider.getDestinationLocation().getDestinationName());
         }
+    }
+
+    public void stopActiveUser() {
+
     }
 }

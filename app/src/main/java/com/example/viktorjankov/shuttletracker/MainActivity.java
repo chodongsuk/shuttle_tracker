@@ -36,6 +36,7 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.maps.MapView;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -459,6 +460,11 @@ public class MainActivity extends ActionBarActivity {
         if (fragment instanceof PickupLocationFragment) {
             finish();
         }
+        else if (fragment instanceof MapViewFragment) {
+            Log.i(kLOG_TAG, "Gramatik Back Pressed!");
+            ((MapViewFragment)fragment).backPressed();
+            super.onBackPressed();
+        }
         else {
             super.onBackPressed();
         }
@@ -491,6 +497,8 @@ public class MainActivity extends ActionBarActivity {
                     ((TravelModeFragment) fragment).setLayoutsClickable(true);
                 }
                 else if (fragment instanceof MapViewFragment) {
+                    ((MapViewFragment) fragment).backPressed();
+
                     travelModeFragment = TravelModeFragment.newInstance();
                     travelModeFragment.setClickable(true);
                     getSupportFragmentManager().beginTransaction()
@@ -523,7 +531,5 @@ public class MainActivity extends ActionBarActivity {
     public static final String FIREBASE_DESTINATION_LAT = "latitude";
     public static final String FIREBASE_DESTINATION_LNG = "longitude";
 
-    // firebase endpoints to store rider info
-    private String FIREBASE_RIDER_ENDPOINT;
 }
 
