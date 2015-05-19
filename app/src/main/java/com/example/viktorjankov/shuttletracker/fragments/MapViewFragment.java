@@ -173,8 +173,10 @@ public class MapViewFragment extends Fragment
                     boolean servicing = (boolean) dataSnapshot.getValue();
 
                     if (servicing && mRider.getActive()) {
-                        Toast.makeText(getActivity(), "Driver is on the way!", Toast.LENGTH_LONG).show();
-                        plotDriverLocation(true);
+                        if (getActivity() != null) {
+                            Toast.makeText(getActivity(), "Driver is on the way!", Toast.LENGTH_LONG).show();
+                            plotDriverLocation(true);
+                        }
                     }
                     else {
                         if (driverMarker != null) {
