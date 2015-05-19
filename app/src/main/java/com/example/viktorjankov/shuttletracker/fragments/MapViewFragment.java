@@ -65,6 +65,8 @@ public class MapViewFragment extends Fragment
     public static int mID = 5;
     public static NotificationManager mNotificationManager;
 
+    boolean firstRun = true;
+
     // Singletons
     Firebase mFirebase = FirebaseProvider.getInstance();
     Rider mRider = RiderProvider.getRider();
@@ -385,7 +387,6 @@ public class MapViewFragment extends Fragment
         return DIRECTIONS_API_ENDPOINT + output + "?" + parameters;
     }
 
-
     /**
      * ***********************************
      * GMS Methods
@@ -407,33 +408,6 @@ public class MapViewFragment extends Fragment
         mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
-
-//    private void startLocationUpdates() {
-//        startLocationUpdates = true;
-//        Log.i(kLOG_TAG, "Gramatik: Start outside location updates");
-//        Log.i(kLOG_TAG, "Gramatik: Google is connected? " + (mGoogleApiClient.isConnected()));
-//        if (mGoogleApiClient.isConnected()) {
-//            Log.i(kLOG_TAG, "Gramatik: Location Updates Already Requested: " + locationUpdatesAlreadyRequested);
-//            if (!locationUpdatesAlreadyRequested) {
-//                Log.i(kLOG_TAG, "Gramatik: Starting location updates!");
-//                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-//            }
-//        }
-//        else {
-//            mGoogleApiClient.connect();
-//        }
-//    }
-
-//    private void stopLocationUpdates() {
-//        startLocationUpdates = false;
-//        if (mGoogleApiClient.isConnected()) {
-//            Log.i(kLOG_TAG, "Gramatik: Stopping location updates!");
-//            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-//        }
-//        else {
-//            mGoogleApiClient.connect();
-//        }
-//    }
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -672,7 +646,25 @@ public class MapViewFragment extends Fragment
             double rProximity = Double.parseDouble(distanceParsed[0]);
             int timeAsMins = parseTime(duration);
 
-            if (rProximity <= mRider.getProximity()) {
+            if (firstRun) {
+                mRider.setProximity(rProximity);
+
+                if (mTravelMode.equals("transit")) {
+                    timeAsMins += Math.round(rProximity);
+                }
+                mRider.setDestinationTime(timeAsMins);
+
+                FirebaseProvider.getInstance().child(FIREBASE_TIME_ENDPOINT).setValue(timeAsMins);
+                FirebaseProvider.getInstance().child(FIREBASE_PROXIMITY_ENDPOINT).setValue(rProximity);
+
+                destinationDurationTV.setText(mRider.getDestinationTime() + " mins");
+                destinationProximityTV.setText(mRider.getProximity() + " mi");
+                Log.i(kLOG_TAG, "Gramatik First Run: ParserTask updating map values");
+                Log.i(kLOG_TAG, "Gramatik First Run Changed Time as Int: " + mRider.getDestinationTime());
+                Log.i(kLOG_TAG, "Gramatik First Run Changed Proximity: " + mRider.getProximity());
+                firstRun = false;
+            }
+            else if (rProximity <= mRider.getProximity()) {
                 mRider.setProximity(rProximity);
 
                 if (mTravelMode.equals("transit")) {

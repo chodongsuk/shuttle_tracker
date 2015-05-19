@@ -45,4 +45,5 @@
     <string name="chevron">carrot</string>
     <string name="my_location">My Location</string>
     <string name="driver_coming">Driver is on his way!</string>
+    <string name="app_title"><u>Shuttle Flow</u></string>
 </resources>

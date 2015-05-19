@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.location.LocationManager;
 import android.os.Build;
@@ -40,7 +41,6 @@ public class WelcomeActivity extends FragmentActivity {
 
     ProgressDialog mAuthProgressDialog;
     boolean locationEnabled = false;
-
     Firebase mFirebase = FirebaseProvider.getInstance();
 
     @Override
@@ -104,6 +104,8 @@ public class WelcomeActivity extends FragmentActivity {
         Typeface type = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Medium.ttf");
         signInButton.setTypeface(type);
         registerButton.setTypeface(type);
+        appTitle.setTypeface(type);
+        appTitle.setTypeface(null, Typeface.ITALIC);
     }
 
     private void setButtonsDrawables() {
@@ -121,7 +123,6 @@ public class WelcomeActivity extends FragmentActivity {
         signInButton.setBackgroundResource(resource_sign);
         registerButton.setBackgroundResource(resource_reg);
     }
-
 
     private void checkLocationServiceEnabled() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -159,6 +160,8 @@ public class WelcomeActivity extends FragmentActivity {
     TextView signInButton;
     @InjectView(R.id.register)
     TextView registerButton;
+    @InjectView(R.id.app_title)
+    TextView appTitle;
 
     @OnClick({R.id.sign_in, R.id.register})
     public void onClick(View v) {
