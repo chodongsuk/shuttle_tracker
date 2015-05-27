@@ -141,6 +141,7 @@
     <color name="light_lime">#DCE775</color>
 
     <color name="black">#212121</color>
+    <color name="deep_blue">#00113e</color>
     <color name="light_black">#BDBDBD</color>
 
     <color name="dark_gray">#808080</color>
@@ -154,5 +155,7 @@
     <color name="travel_red">#e06055</color>
     <color name="travel_green">#aed581</color>
     <color name="travel_cyan">#4dd0e1</color>
+
+    <color name="hot_green">#39c61e</color>
 
 </resources>

@@ -82,11 +82,6 @@ public class MainActivity extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("FLOW");
-        title.setTextColor(Color.WHITE);
-        title.setVisibility(View.VISIBLE);
     }
 
     @Subscribe
