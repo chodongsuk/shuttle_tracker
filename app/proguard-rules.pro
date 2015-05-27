@@ -57,7 +57,7 @@
 
 -keepattributes Signature,*Annotation*,EnclosingMethod
 
--keep public class com.example.viktorjankov.** {
+-keep public class com.viktorjankov.** {
   public void set*(***);
   public *** get*();
 }

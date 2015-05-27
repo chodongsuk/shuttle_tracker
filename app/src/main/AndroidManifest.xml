@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.viktorjankov.shuttletracker">
+    package="com.viktorjankov.shuttletracker">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,7 +16,7 @@
         android:required="true" />
 
     <application
-        android:name=".ShuttleTrackerApplication"
+        android:name="com.viktorjankov.shuttletracker.ShuttleTrackerApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -32,7 +32,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".splash_classes.WelcomeActivity"
+            android:name="com.viktorjankov.shuttletracker.splash_classes.WelcomeActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar">
             <intent-filter>
@@ -43,14 +43,14 @@
         </activity>
 
         <activity
-            android:name=".splash_classes.RegisterActivity"
+            android:name="com.viktorjankov.shuttletracker.splash_classes.RegisterActivity"
             android:label="@string/app_name" />
         <activity
-            android:name=".splash_classes.SignInActivity"
+            android:name="com.viktorjankov.shuttletracker.splash_classes.SignInActivity"
             android:label="@string/app_name"/>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.viktorjankov.shuttletracker.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/MyTheme">
 
@@ -61,7 +61,7 @@
             android:theme="@style/MyTheme" />
 
         <activity
-            android:name=".splash_classes.VerifyActivity"
+            android:name="com.viktorjankov.shuttletracker.splash_classes.VerifyActivity"
             android:label="@string/app_name" />
 
         <meta-data

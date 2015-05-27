@@ -15,7 +15,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "com.example.viktorjankov.shuttletracker"
+        applicationId "com.viktorjankov.shuttletracker"
         minSdkVersion 19
         targetSdkVersion 21
         versionCode 1
